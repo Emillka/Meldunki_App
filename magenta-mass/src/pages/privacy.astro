@@ -1,0 +1,129 @@
+---
+// Strona polityki prywatności
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout 
+  title="Polityka prywatności - FireLog" 
+  description="Polityka prywatności systemu FireLog - ochrona danych użytkowników"
+  keywords="polityka prywatności, ochrona danych, RODO, FireLog"
+>
+  <div class="min-h-screen bg-background flex flex-col">
+    <!-- Header -->
+    <Header currentPath="/privacy" />
+    
+    <!-- Main Content -->
+    <div class="flex-1 container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Polityka prywatności</h1>
+        <p class="text-muted-foreground">Ostatnia aktualizacja: {new Date().toLocaleDateString('pl-PL')}</p>
+      </div>
+
+      <!-- Content -->
+      <div class="prose prose-lg max-w-4xl mx-auto">
+        <h2>1. Informacje ogólne</h2>
+        <p>
+          FireLog to system do rejestrowania meldunków dla jednostek Ochotniczej Straży Pożarnej. 
+          Dbamy o ochronę Twoich danych osobowych zgodnie z Rozporządzeniem RODO.
+        </p>
+
+        <h2>2. Administrator danych</h2>
+        <p>
+          Administratorem Twoich danych osobowych jest FireLog System. 
+          W przypadku pytań dotyczących przetwarzania danych możesz się z nami skontaktować.
+        </p>
+
+        <h2>3. Jakie dane zbieramy</h2>
+        <ul>
+          <li>Dane rejestracyjne: imię, nazwisko, adres e-mail</li>
+          <li>Dane o jednostce OSP: nazwa jednostki, lokalizacja</li>
+          <li>Dane o meldunkach: opisy akcji, lokalizacje, daty</li>
+          <li>Dane techniczne: adres IP, informacje o przeglądarce</li>
+        </ul>
+
+        <h2>4. Cel przetwarzania danych</h2>
+        <p>Twoje dane przetwarzamy w celu:</p>
+        <ul>
+          <li>Umożliwienia korzystania z systemu FireLog</li>
+          <li>Rejestrowania i zarządzania meldunkami</li>
+          <li>Komunikacji z użytkownikami</li>
+          <li>Zapewnienia bezpieczeństwa systemu</li>
+        </ul>
+
+        <h2>5. Podstawa prawna</h2>
+        <p>
+          Przetwarzanie danych odbywa się na podstawie:
+        </p>
+        <ul>
+          <li>Zgody użytkownika (art. 6 ust. 1 lit. a RODO)</li>
+          <li>Wykonania umowy (art. 6 ust. 1 lit. b RODO)</li>
+          <li>Prawnie uzasadnionego interesu (art. 6 ust. 1 lit. f RODO)</li>
+        </ul>
+
+        <h2>6. Okres przechowywania</h2>
+        <p>
+          Twoje dane przechowujemy przez okres niezbędny do realizacji celów, 
+          dla których zostały zebrane, nie dłużej niż 5 lat od ostatniej aktywności.
+        </p>
+
+        <h2>7. Twoje prawa</h2>
+        <p>Masz prawo do:</p>
+        <ul>
+          <li>Dostępu do swoich danych</li>
+          <li>Sprostowania nieprawidłowych danych</li>
+          <li>Usunięcia danych</li>
+          <li>Ograniczenia przetwarzania</li>
+          <li>Przenoszenia danych</li>
+          <li>Sprzeciwu wobec przetwarzania</li>
+        </ul>
+
+        <h2>8. Bezpieczeństwo danych</h2>
+        <p>
+          Stosujemy odpowiednie środki techniczne i organizacyjne w celu ochrony 
+          Twoich danych przed nieuprawnionym dostępem, utratą lub zniszczeniem.
+        </p>
+
+        <h2>9. Pliki cookies</h2>
+        <p>
+          Używamy plików cookies w celu zapewnienia prawidłowego działania systemu 
+          i poprawy doświadczenia użytkownika.
+        </p>
+
+        <h2>10. Kontakt</h2>
+        <p>
+          W przypadku pytań dotyczących polityki prywatności skontaktuj się z nami 
+          przez formularz kontaktowy na stronie głównej.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .prose h2 {
+    color: var(--md-sys-color-on-surface);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose p {
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .prose ul {
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: 1rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+</style>

@@ -1,0 +1,189 @@
+---
+// Wspólny footer dla wszystkich stron z Material Design 3
+export interface Props {
+  showBackToTop?: boolean;
+}
+
+const { showBackToTop = true } = Astro.props;
+---
+
+<footer class="m3-surface" style="background-color: var(--md-sys-color-surface-variant); color: var(--md-sys-color-on-surface-variant); margin-top: auto;">
+  <div class="m3-container" style="padding: 48px 16px;">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 32px;">
+      <!-- Brand Section -->
+      <div style="grid-column: 1 / -1;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 40px; height: 40px; background-color: var(--md-sys-color-primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);">
+            <span class="material-icons" style="color: var(--md-sys-color-on-primary); font-size: 24px;">local_fire_department</span>
+          </div>
+          <div>
+            <span class="m3-title-large" style="color: var(--md-sys-color-on-surface-variant);">FireLog</span>
+            <p style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin: 0; line-height: 1; opacity: 0.7;">System meldunków OSP</p>
+          </div>
+        </div>
+        <p class="m3-body-large" style="color: var(--md-sys-color-on-surface-variant); opacity: 0.8; max-width: 400px; line-height: 1.5;">
+          Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek 
+          Ochotniczej Straży Pożarnej. Zastąp tradycyjne metody cyfrowymi rozwiązaniami.
+        </p>
+      </div>
+
+      <!-- Links Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px;">
+        <!-- Quick Links -->
+        <div>
+          <h3 class="m3-title-large" style="color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px;">Szybkie linki</h3>
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+            <li>
+              <a 
+                href="/" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Strona główna
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/login" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Logowanie
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/register" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Rejestracja
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/meldunki" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Meldunki
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/dashboard" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Dashboard
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Support -->
+        <div>
+          <h3 class="m3-title-large" style="color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px;">Wsparcie</h3>
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+            <li>
+              <a 
+                href="/#about" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                O aplikacji
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/privacy" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Polityka prywatności
+              </a>
+            </li>
+            <li>
+              <a 
+                href="/terms" 
+                class="m3-body-large" 
+                style="color: var(--md-sys-color-on-surface-variant); text-decoration: none; opacity: 0.8; transition: opacity 0.2s ease;"
+              >
+                Regulamin
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div style="border-top: 1px solid var(--md-sys-color-outline-variant); margin-top: 32px; padding-top: 32px;">
+      <div style="display: flex; flex-direction: column; gap: 16px; align-items: center; text-align: center;">
+        <div class="m3-body-large" style="color: var(--md-sys-color-on-surface-variant); opacity: 0.6;">
+          © {new Date().getFullYear()} FireLog. Wszystkie prawa zastrzeżone.
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 24px;">
+          <!-- Back to Top Button -->
+          {showBackToTop && (
+            <button 
+              id="back-to-top"
+              class="m3-button m3-button--text"
+              style="padding: 8px; min-height: auto;"
+              aria-label="Powrót na górę"
+            >
+              <span class="material-icons" style="font-size: 20px;">keyboard_arrow_up</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Hover effects for footer links */
+  footer a:hover {
+    opacity: 1 !important;
+  }
+  
+  /* Responsive design */
+  @media (min-width: 768px) {
+    footer .m3-container > div:first-child {
+      grid-template-columns: 2fr 1fr 1fr;
+    }
+  }
+</style>
+
+<script>
+  // Back to top functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const backToTopButton = document.getElementById('back-to-top');
+    
+    if (backToTopButton) {
+      // Show/hide button based on scroll position
+      const toggleBackToTop = function() {
+        if (window.pageYOffset > 300) {
+          backToTopButton.style.display = 'flex';
+        } else {
+          backToTopButton.style.display = 'none';
+        }
+      };
+      
+      // Initial check
+      toggleBackToTop();
+      
+      // Listen for scroll events
+      window.addEventListener('scroll', toggleBackToTop);
+      
+      // Smooth scroll to top on click
+      backToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    }
+  });
+</script>

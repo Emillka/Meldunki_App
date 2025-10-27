@@ -1,0 +1,556 @@
+---
+// Uniwersalny szablon dla całej aplikacji FireLog
+export interface Props {
+  title: string;
+  description?: string;
+  keywords?: string;
+  ogImage?: string;
+  noIndex?: boolean;
+  canonical?: string;
+}
+
+const { 
+  title, 
+  description = "FireLog - System meldunków dla Ochotniczej Straży Pożarnej", 
+  keywords = "OSP, straż pożarna, meldunki, system, ochotnicza straż pożarna",
+  ogImage = "/og-image.jpg",
+  noIndex = false,
+  canonical
+} = Astro.props;
+
+const fullTitle = title === "FireLog" ? title : `${title} | FireLog`;
+const canonicalUrl = canonical || Astro.url.href;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <!-- Meta Tags -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- SEO Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    {noIndex && <meta name="robots" content="noindex, nofollow" />}
+    {canonical && <link rel="canonical" href={canonicalUrl} />}
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="FireLog" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={Astro.url.href} />
+    <meta property="twitter:title" content={fullTitle} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={ogImage} />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Material Design 3 (M3) CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+      /* Material Design 3 Theme Variables */
+      :root {
+        /* Primary Colors - Fire/Red Theme */
+        --md-sys-color-primary: #d32f2f;
+        --md-sys-color-on-primary: #ffffff;
+        --md-sys-color-primary-container: #ffdad6;
+        --md-sys-color-on-primary-container: #410002;
+        
+        /* Secondary Colors */
+        --md-sys-color-secondary: #775652;
+        --md-sys-color-on-secondary: #ffffff;
+        --md-sys-color-secondary-container: #ffdad6;
+        --md-sys-color-on-secondary-container: #2c1512;
+        
+        /* Surface Colors */
+        --md-sys-color-surface: #fff8f7;
+        --md-sys-color-on-surface: #201a19;
+        --md-sys-color-surface-variant: #f5ddda;
+        --md-sys-color-on-surface-variant: #534341;
+        
+        /* Background */
+        --md-sys-color-background: #fff8f7;
+        --md-sys-color-on-background: #201a19;
+        
+        /* Error Colors */
+        --md-sys-color-error: #ba1a1a;
+        --md-sys-color-on-error: #ffffff;
+        --md-sys-color-error-container: #ffdad6;
+        --md-sys-color-on-error-container: #410002;
+        
+        /* Outline */
+        --md-sys-color-outline: #857370;
+        --md-sys-color-outline-variant: #d8c2be;
+        
+        /* Shadow */
+        --md-sys-color-shadow: #000000;
+        --md-sys-color-scrim: #000000;
+      }
+      
+      /* Dark mode theme variables */
+      @media (prefers-color-scheme: dark) {
+        :root {
+          /* Primary Colors - Fire/Red Theme (Dark) */
+          --md-sys-color-primary: #ff6b6b;
+          --md-sys-color-on-primary: #ffffff;
+          --md-sys-color-primary-container: #7f1d1d;
+          --md-sys-color-on-primary-container: #ffdad6;
+          
+          /* Secondary Colors (Dark) */
+          --md-sys-color-secondary: #a78b85;
+          --md-sys-color-on-secondary: #ffffff;
+          --md-sys-color-secondary-container: #5d4037;
+          --md-sys-color-on-secondary-container: #ffdad6;
+          
+          /* Surface Colors (Dark) */
+          --md-sys-color-surface: #1e293b;
+          --md-sys-color-on-surface: #f1f5f9;
+          --md-sys-color-surface-variant: #334155;
+          --md-sys-color-on-surface-variant: #cbd5e1;
+          
+          /* Background (Dark) */
+          --md-sys-color-background: #0f172a;
+          --md-sys-color-on-background: #f1f5f9;
+          
+          /* Error Colors (Dark) */
+          --md-sys-color-error: #ff6b6b;
+          --md-sys-color-on-error: #ffffff;
+          --md-sys-color-error-container: #7f1d1d;
+          --md-sys-color-on-error-container: #ffdad6;
+          
+          /* Outline (Dark) */
+          --md-sys-color-outline: #64748b;
+          --md-sys-color-outline-variant: #475569;
+          
+          /* Shadow (Dark) */
+          --md-sys-color-shadow: #000000;
+          --md-sys-color-scrim: #000000;
+        }
+      }
+      
+      /* Typography */
+      --md-sys-typescale-display-large-font-family: 'Roboto', sans-serif;
+      --md-sys-typescale-display-large-font-size: 57px;
+      --md-sys-typescale-display-large-font-weight: 400;
+      --md-sys-typescale-display-large-line-height: 64px;
+      --md-sys-typescale-display-large-letter-spacing: -0.25px;
+      
+      --md-sys-typescale-headline-large-font-family: 'Roboto', sans-serif;
+      --md-sys-typescale-headline-large-font-size: 32px;
+      --md-sys-typescale-headline-large-font-weight: 400;
+      --md-sys-typescale-headline-large-line-height: 40px;
+      --md-sys-typescale-headline-large-letter-spacing: 0px;
+      
+      --md-sys-typescale-title-large-font-family: 'Roboto', sans-serif;
+      --md-sys-typescale-title-large-font-size: 22px;
+      --md-sys-typescale-title-large-font-weight: 400;
+      --md-sys-typescale-title-large-line-height: 28px;
+      --md-sys-typescale-title-large-letter-spacing: 0px;
+      
+      --md-sys-typescale-body-large-font-family: 'Roboto', sans-serif;
+      --md-sys-typescale-body-large-font-size: 16px;
+      --md-sys-typescale-body-large-font-weight: 400;
+      --md-sys-typescale-body-large-line-height: 24px;
+      --md-sys-typescale-body-large-letter-spacing: 0.5px;
+      
+      --md-sys-typescale-label-large-font-family: 'Roboto', sans-serif;
+      --md-sys-typescale-label-large-font-size: 14px;
+      --md-sys-typescale-label-large-font-weight: 500;
+      --md-sys-typescale-label-large-line-height: 20px;
+      --md-sys-typescale-label-large-letter-spacing: 0.1px;
+      
+      /* Material Design 3 Base Styles */
+      * {
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--md-sys-color-background);
+        color: var(--md-sys-color-on-background);
+        margin: 0;
+        padding: 0;
+        line-height: 1.5;
+      }
+      
+      /* M3 Button Styles */
+      .m3-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 24px;
+        border-radius: 20px;
+        border: none;
+        font-family: var(--md-sys-typescale-label-large-font-family);
+        font-size: var(--md-sys-typescale-label-large-font-size);
+        font-weight: var(--md-sys-typescale-label-large-font-weight);
+        line-height: var(--md-sys-typescale-label-large-line-height);
+        letter-spacing: var(--md-sys-typescale-label-large-letter-spacing);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        min-height: 40px;
+      }
+      
+      .m3-button--filled {
+        background-color: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      }
+      
+      .m3-button--filled:hover {
+        box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.3), 0px 2px 6px 2px rgba(0, 0, 0, 0.15);
+      }
+      
+      .m3-button--outlined {
+        background-color: transparent;
+        color: var(--md-sys-color-primary);
+        border: 1px solid var(--md-sys-color-outline);
+      }
+      
+      .m3-button--outlined:hover {
+        background-color: rgba(211, 47, 47, 0.08);
+      }
+      
+      .m3-button--text {
+        background-color: transparent;
+        color: var(--md-sys-color-primary);
+        box-shadow: none;
+      }
+      
+      .m3-button--text:hover {
+        background-color: rgba(211, 47, 47, 0.08);
+      }
+      
+      /* M3 Card Styles */
+      .m3-card {
+        background-color: var(--md-sys-color-surface);
+        border-radius: 12px;
+        box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);
+        padding: 16px;
+        margin: 8px;
+      }
+      
+      /* M3 Text Field Styles */
+      .m3-text-field {
+        position: relative;
+        margin: 8px 0;
+      }
+      
+      .m3-text-field input {
+        width: 100%;
+        padding: 16px 16px 16px 16px;
+        border: 1px solid var(--md-sys-color-outline);
+        border-radius: 4px;
+        background-color: transparent;
+        color: var(--md-sys-color-on-surface);
+        font-family: var(--md-sys-typescale-body-large-font-family);
+        font-size: var(--md-sys-typescale-body-large-font-size);
+        line-height: var(--md-sys-typescale-body-large-line-height);
+        transition: all 0.2s ease;
+      }
+      
+      .m3-text-field input:focus {
+        outline: none;
+        border-color: var(--md-sys-color-primary);
+        border-width: 2px;
+      }
+      
+      .m3-text-field label {
+        position: absolute;
+        left: 16px;
+        top: 16px;
+        color: var(--md-sys-color-on-surface-variant);
+        font-family: var(--md-sys-typescale-body-large-font-family);
+        font-size: var(--md-sys-typescale-body-large-font-size);
+        line-height: var(--md-sys-typescale-body-large-line-height);
+        transition: all 0.2s ease;
+        pointer-events: none;
+      }
+      
+      .m3-text-field input:focus + label,
+      .m3-text-field input:not(:placeholder-shown) + label {
+        top: 8px;
+        font-size: 12px;
+        color: var(--md-sys-color-primary);
+      }
+      
+      /* M3 Typography */
+      .m3-headline-large {
+        font-family: var(--md-sys-typescale-headline-large-font-family);
+        font-size: var(--md-sys-typescale-headline-large-font-size);
+        font-weight: var(--md-sys-typescale-headline-large-font-weight);
+        line-height: var(--md-sys-typescale-headline-large-line-height);
+        letter-spacing: var(--md-sys-typescale-headline-large-letter-spacing);
+        color: var(--md-sys-color-on-background);
+        margin: 0;
+      }
+      
+      .m3-title-large {
+        font-family: var(--md-sys-typescale-title-large-font-family);
+        font-size: var(--md-sys-typescale-title-large-font-size);
+        font-weight: var(--md-sys-typescale-title-large-font-weight);
+        line-height: var(--md-sys-typescale-title-large-line-height);
+        letter-spacing: var(--md-sys-typescale-title-large-letter-spacing);
+        color: var(--md-sys-color-on-background);
+        margin: 0;
+      }
+      
+      .m3-body-large {
+        font-family: var(--md-sys-typescale-body-large-font-family);
+        font-size: var(--md-sys-typescale-body-large-font-size);
+        font-weight: var(--md-sys-typescale-body-large-font-weight);
+        line-height: var(--md-sys-typescale-body-large-line-height);
+        letter-spacing: var(--md-sys-typescale-body-large-letter-spacing);
+        color: var(--md-sys-color-on-surface);
+        margin: 0;
+      }
+      
+      /* M3 Layout */
+      .m3-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 16px;
+      }
+      
+      .m3-surface {
+        background-color: var(--md-sys-color-surface);
+        color: var(--md-sys-color-on-surface);
+      }
+      
+      /* Material Icons Styling */
+      .material-icons {
+        font-family: 'Material Icons', 'MaterialIcons-Regular', sans-serif;
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+        vertical-align: middle;
+        text-rendering: optimizeLegibility;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Fallback for when Material Icons font is not loaded */
+      .material-icons-fallback .material-icons {
+        font-family: sans-serif;
+        background: var(--md-sys-color-primary);
+        color: var(--md-sys-color-on-primary);
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      
+      /* Specific fallback icons */
+      .material-icons-fallback .material-icons:contains("add")::before {
+        content: "+";
+      }
+      
+      .material-icons-fallback .material-icons:contains("dashboard")::before {
+        content: "📊";
+      }
+      
+      .material-icons-fallback .material-icons:contains("article")::before {
+        content: "📄";
+      }
+      
+      /* Material Icons size variants */
+      .material-icons.md-18 { font-size: 18px; }
+      .material-icons.md-24 { font-size: 24px; }
+      .material-icons.md-36 { font-size: 36px; }
+      .material-icons.md-48 { font-size: 48px; }
+      
+      /* Material Icons in buttons */
+      .m3-button .material-icons {
+        font-size: 18px;
+        margin-right: 8px;
+      }
+      
+      /* Material Icons in large text */
+      .material-icons.text-6xl {
+        font-size: 4rem;
+        line-height: 1;
+      }
+      
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .m3-container {
+          padding: 0 8px;
+        }
+        
+        .m3-button {
+          padding: 8px 16px;
+          min-height: 36px;
+        }
+      }
+    </style>
+    
+    <!-- Design System CSS -->
+    <link rel="stylesheet" href="/src/styles/design-system.css" />
+    
+    <!-- Global CSS for shadcn/ui -->
+    <link rel="stylesheet" href="/src/styles/globals.css" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#dc2626" />
+    <meta name="msapplication-TileColor" content="#dc2626" />
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/src/styles/design-system.css" as="style" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" />
+  </head>
+  <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Przejdź do głównej zawartości</a>
+    
+    <!-- Main Content -->
+    <main id="main-content">
+      <slot />
+    </main>
+    
+    <!-- Global Scripts -->
+    <script>
+      // Global error handler
+      window.addEventListener('error', (event) => {
+        console.error('Global error:', event.error);
+      });
+      
+      // Global unhandled promise rejection handler
+      window.addEventListener('unhandledrejection', (event) => {
+        console.error('Unhandled promise rejection:', event.reason);
+      });
+      
+      // Theme detection and application
+      if (localStorage.getItem('theme') === 'dark' || 
+          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+      
+      // Check if Material Icons font is loaded
+      function checkMaterialIconsFont() {
+        const testElement = document.createElement('span');
+        testElement.className = 'material-icons';
+        testElement.textContent = 'add';
+        testElement.style.position = 'absolute';
+        testElement.style.left = '-9999px';
+        testElement.style.fontSize = '16px';
+        document.body.appendChild(testElement);
+        
+        const width1 = testElement.offsetWidth;
+        testElement.style.fontFamily = 'sans-serif';
+        const width2 = testElement.offsetWidth;
+        
+        document.body.removeChild(testElement);
+        
+        if (width1 === width2) {
+          // Font not loaded, add fallback class
+          document.documentElement.classList.add('material-icons-fallback');
+        } else {
+          // Font loaded, add loaded class
+          document.documentElement.classList.add('material-icons-loaded');
+        }
+      }
+      
+      // Check font when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkMaterialIconsFont);
+      } else {
+        checkMaterialIconsFont();
+      }
+    </script>
+  </body>
+</html>
+
+<style>
+  /* Skip link for accessibility */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--color-primary);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    border-radius: 4px;
+    z-index: 1000;
+    transition: top 0.3s;
+  }
+  
+  .skip-link:focus {
+    top: 6px;
+  }
+  
+  /* Base styles */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Focus styles for accessibility */
+  *:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  
+  /* Remove focus outline for mouse users */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    :root {
+      --color-primary: #000000;
+      --color-primary-dark: #000000;
+      --color-gray-900: #000000;
+      --color-gray-700: #000000;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>

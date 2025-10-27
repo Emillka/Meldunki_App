@@ -1,0 +1,107 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - link "Przejdź do głównej zawartości" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e7]:
+        - link "Przejdź do strony głównej FireLog" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e11]: local_fire_department
+          - generic [ref=e12]:
+            - text: FireLog
+            - paragraph [ref=e13]: System meldunków OSP
+        - generic [ref=e14]:
+          - generic [ref=e16]:
+            - link "Zaloguj się do systemu" [ref=e17] [cursor=pointer]:
+              - /url: /login
+              - generic [ref=e18]: login
+              - text: Zaloguj się
+            - link "Zarejestruj się w systemie" [ref=e19] [cursor=pointer]:
+              - /url: /register
+              - generic [ref=e20]: person_add
+              - text: Zarejestruj się
+          - button "Otwórz menu mobilne" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: menu
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e27]: login
+          - generic [ref=e28]: Logowanie
+          - generic [ref=e29]: Zaloguj się do swojego konta FireLog
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - text: Email
+              - textbox "Email" [active] [ref=e33]:
+                - /placeholder: Wprowadź swój email
+            - generic [ref=e34]:
+              - text: Hasło
+              - textbox "Hasło" [ref=e35]:
+                - /placeholder: Wprowadź swoje hasło
+            - button "login Zaloguj się" [ref=e36]:
+              - generic [ref=e37]: login
+              - text: Zaloguj się
+          - generic [ref=e38]:
+            - paragraph [ref=e39]:
+              - text: Nie masz konta?
+              - link "Zarejestruj się" [ref=e40] [cursor=pointer]:
+                - /url: /register
+            - link "← Powrót do strony głównej" [ref=e41] [cursor=pointer]:
+              - /url: /
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e48]: local_fire_department
+              - generic [ref=e49]:
+                - text: FireLog
+                - paragraph [ref=e50]: System meldunków OSP
+            - paragraph [ref=e51]: Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej. Zastąp tradycyjne metody cyfrowymi rozwiązaniami.
+          - generic [ref=e52]:
+            - generic [ref=e53]:
+              - heading "Szybkie linki" [level=3] [ref=e54]
+              - list [ref=e55]:
+                - listitem [ref=e56]:
+                  - link "Strona główna" [ref=e57] [cursor=pointer]:
+                    - /url: /
+                - listitem [ref=e58]:
+                  - link "Logowanie" [ref=e59] [cursor=pointer]:
+                    - /url: /login
+                - listitem [ref=e60]:
+                  - link "Rejestracja" [ref=e61] [cursor=pointer]:
+                    - /url: /register
+                - listitem [ref=e62]:
+                  - link "Meldunki" [ref=e63] [cursor=pointer]:
+                    - /url: /meldunki
+                - listitem [ref=e64]:
+                  - link "Dashboard" [ref=e65] [cursor=pointer]:
+                    - /url: /dashboard
+            - generic [ref=e66]:
+              - heading "Wsparcie" [level=3] [ref=e67]
+              - list [ref=e68]:
+                - listitem [ref=e69]:
+                  - link "O aplikacji" [ref=e70] [cursor=pointer]:
+                    - /url: /#about
+                - listitem [ref=e71]:
+                  - link "Polityka prywatności" [ref=e72] [cursor=pointer]:
+                    - /url: /privacy
+                - listitem [ref=e73]:
+                  - link "Regulamin" [ref=e74] [cursor=pointer]:
+                    - /url: /terms
+        - generic [ref=e77]: © 2025 FireLog. Wszystkie prawa zastrzeżone.
+  - generic [ref=e80]:
+    - button "Menu" [ref=e81]:
+      - img [ref=e83]
+      - generic: Menu
+    - button "Inspect" [ref=e87]:
+      - img [ref=e89]
+      - generic: Inspect
+    - button "Audit" [ref=e91]:
+      - img [ref=e93]
+      - generic: Audit
+    - button "Settings" [ref=e96]:
+      - img [ref=e98]
+      - generic: Settings
+```

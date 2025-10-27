@@ -1,0 +1,1355 @@
+---
+// Layout dla dashboardu zalogowanych użytkowników z shadcn/ui
+import Layout from './Layout.astro';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Textarea } from '../components/ui/textarea';
+import { Badge } from '../components/ui/badge';
+
+export interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <div class="min-h-screen bg-background flex flex-col">
+    <!-- Navigation Header -->
+    <nav class="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo & Title -->
+          <div class="flex items-center">
+            <a 
+              href="/" 
+              class="flex items-center gap-3 text-decoration-none transition-transform hover:scale-105" 
+              aria-label="Przejdź do strony głównej FireLog"
+            >
+              <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                <span class="material-icons text-primary-foreground text-xl">local_fire_department</span>
+              </div>
+              <div>
+                <span class="text-xl font-semibold text-foreground">FireLog</span>
+                <p class="text-xs text-muted-foreground m-0 leading-none">System meldunków OSP</p>
+              </div>
+            </a>
+          </div>
+
+          <!-- User Menu -->
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <div id="userEmail" class="text-sm font-medium text-foreground">Ładowanie...</div>
+              <div id="userRole" class="text-xs text-muted-foreground">Zalogowany użytkownik</div>
+            </div>
+            <Button 
+              id="adminPanelBtn" 
+              variant="outline"
+              size="sm"
+              className="hidden"
+            >
+              <span class="material-icons mr-2 text-sm">admin_panel_settings</span>
+              Panel Admin
+            </Button>
+            <Button 
+              id="logoutBtn" 
+              variant="outline"
+              size="sm"
+            >
+              <span class="material-icons mr-2 text-sm">logout</span>
+              Wyloguj
+            </Button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="flex-1 container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <div class="flex flex-col sm:flex-row gap-6 items-center justify-between">
+          <div class="text-center sm:text-left">
+            <h1 class="text-3xl font-bold text-foreground mb-2">{title}</h1>
+            {description && <p class="text-muted-foreground">{description}</p>}
+          </div>
+          <Card className="p-6 text-center min-w-[120px]">
+            <div class="text-2xl font-bold text-primary mb-1" id="meldunkiCount">0</div>
+            <div class="text-sm text-muted-foreground">Meldunków</div>
+          </Card>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="mb-6">
+        <div class="flex space-x-1 bg-muted p-1 rounded-lg">
+          <button 
+            id="tab-nowy" 
+            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors bg-background text-foreground shadow-sm"
+            data-tab="nowy"
+            onclick="switchTab('nowy')"
+          >
+            <span class="material-icons text-sm">add</span>
+            Nowy Meldunek
+          </button>
+          <button 
+            id="tab-profil" 
+            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground"
+            data-tab="profil"
+            onclick="switchTab('profil')"
+          >
+            <span class="material-icons text-sm">person</span>
+            Profil
+          </button>
+          <button 
+            id="tab-admin" 
+            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hidden"
+            data-tab="admin"
+            onclick="switchTab('admin')"
+          >
+            <span class="material-icons text-sm">admin_panel_settings</span>
+            Admin
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="mb-6">
+        <Card>
+          <CardContent class="p-4">
+            <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+              <div>
+                <h3 class="text-lg font-semibold text-foreground mb-1">Szybkie akcje</h3>
+                <p class="text-sm text-muted-foreground">Zarządzaj swoimi meldunkami</p>
+              </div>
+              <div class="flex gap-2">
+                <Button asChild variant="outline">
+                  <a href="/meldunki">
+                    <span class="material-icons mr-2">description</span>
+                    Wszystkie Meldunki
+                  </a>
+                </Button>
+                <Button asChild>
+                  <a href="/meldunki">
+                    <span class="material-icons mr-2">search</span>
+                    Szukaj
+                  </a>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Content Area -->
+      <div class="space-y-6">
+        <!-- Nowy Meldunek Tab -->
+        <div id="content-nowy" class="tab-content">
+          <Card>
+            <CardHeader>
+              <CardTitle>Nowy Meldunek</CardTitle>
+              <CardDescription>Wypełnij formularz, aby utworzyć nowy meldunek</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form id="meldunekForm" class="space-y-6">
+                <!-- Incident Name -->
+                <div class="space-y-2">
+                  <Label htmlFor="incidentName">Nazwa zdarzenia *</Label>
+                  <Input
+                    type="text"
+                    id="incidentName"
+                    name="incidentName"
+                    required
+                    placeholder="Wprowadź nazwę zdarzenia"
+                  />
+                </div>
+
+                <!-- Description -->
+                <div class="space-y-2">
+                  <Label htmlFor="description">Opis przebiegu akcji *</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    required
+                    rows={4}
+                    placeholder="Opisz przebieg akcji"
+                  />
+                </div>
+
+                <!-- Incident Date -->
+                <div class="space-y-2">
+                  <Label htmlFor="incidentDate">Data zdarzenia *</Label>
+                  <Input
+                    type="date"
+                    id="incidentDate"
+                    name="incidentDate"
+                    required
+                  />
+                </div>
+
+                <!-- Location Address -->
+                <div class="space-y-2">
+                  <Label htmlFor="locationAddress">Adres zdarzenia</Label>
+                  <Input
+                    type="text"
+                    id="locationAddress"
+                    name="locationAddress"
+                    placeholder="Wprowadź adres zdarzenia"
+                  />
+                </div>
+
+                <!-- Forces and Resources -->
+                <div class="space-y-2">
+                  <Label htmlFor="forcesAndResources">Siły i środki zadysponowane</Label>
+                  <Input
+                    type="text"
+                    id="forcesAndResources"
+                    name="forcesAndResources"
+                    placeholder="Opisz zadysponowane siły i środki"
+                  />
+                </div>
+
+                <!-- Commander and Driver -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label htmlFor="commander">Dowódca akcji</Label>
+                    <Input
+                      type="text"
+                      id="commander"
+                      name="commander"
+                      placeholder="Imię i nazwisko dowódcy"
+                    />
+                  </div>
+                  <div class="space-y-2">
+                    <Label htmlFor="driver">Kierowca pojazdu</Label>
+                    <Input
+                      type="text"
+                      id="driver"
+                      name="driver"
+                      placeholder="Imię i nazwisko kierowcy"
+                    />
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <Button
+                  type="submit"
+                  id="submitMeldunekBtn"
+                  className="w-full"
+                >
+                  <span class="material-icons mr-2">save</span>
+                  Zapisz Meldunek
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+
+        <!-- Profil Tab -->
+        <div id="content-profil" class="tab-content hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Profile Information -->
+          <Card>
+            <CardHeader>
+                <CardTitle>Informacje o profilu</CardTitle>
+                <CardDescription>Twoje dane osobowe i informacje o jednostce</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div id="profileInfo" class="space-y-4">
+                  <!-- Profile data will be loaded here -->
+              </div>
+            </CardContent>
+          </Card>
+
+            <!-- Edit Profile -->
+            <Card>
+              <CardHeader>
+                <CardTitle>Edytuj profil</CardTitle>
+                <CardDescription>Zaktualizuj swoje dane osobowe</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form id="profileForm" class="space-y-4">
+                  <div class="space-y-2">
+                    <Label htmlFor="editFirstName">Imię</Label>
+                    <Input
+                      type="text"
+                      id="editFirstName"
+                      name="firstName"
+                      placeholder="Wprowadź imię"
+                    />
+        </div>
+                  
+                  <div class="space-y-2">
+                    <Label htmlFor="editLastName">Nazwisko</Label>
+                    <Input
+                      type="text"
+                      id="editLastName"
+                      name="lastName"
+                      placeholder="Wprowadź nazwisko"
+                    />
+      </div>
+                  
+                  <div class="space-y-2">
+                    <Label htmlFor="editEmail">Email (tylko do odczytu)</Label>
+                    <Input
+                      type="email"
+                      id="editEmail"
+                      name="email"
+                      disabled
+                      className="bg-muted"
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full">
+                    <span class="material-icons mr-2">save</span>
+                    Zapisz zmiany
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <!-- Change Password -->
+            <Card>
+              <CardHeader>
+                <CardTitle>Zmiana hasła</CardTitle>
+                <CardDescription>Zaktualizuj swoje hasło</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form id="passwordForm" class="space-y-4">
+                  <div class="space-y-2">
+                    <Label htmlFor="currentPassword">Obecne hasło</Label>
+                    <Input
+                      type="password"
+                      id="currentPassword"
+                      name="currentPassword"
+                      placeholder="Wprowadź obecne hasło"
+                    />
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <Label htmlFor="newPassword">Nowe hasło</Label>
+                    <Input
+                      type="password"
+                      id="newPassword"
+                      name="newPassword"
+                      placeholder="Wprowadź nowe hasło"
+                    />
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <Label htmlFor="confirmPassword">Potwierdź nowe hasło</Label>
+                    <Input
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      placeholder="Potwierdź nowe hasło"
+                    />
+                  </div>
+                  
+                  <Button type="submit" className="w-full">
+                    <span class="material-icons mr-2">lock</span>
+                    Zmień hasło
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+
+            <!-- Account Statistics -->
+            <Card>
+              <CardHeader>
+                <CardTitle>Statystyki konta</CardTitle>
+                <CardDescription>Podsumowanie Twojej aktywności</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div id="accountStats" class="space-y-4">
+                  <!-- Statistics will be loaded here -->
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        <!-- Admin Panel Tab -->
+        <div id="content-admin" class="tab-content hidden">
+          <div class="space-y-6">
+            <!-- Admin Header -->
+            <Card>
+              <CardHeader>
+                <CardTitle>Panel Administracyjny</CardTitle>
+                <CardDescription>Zarządzaj użytkownikami i statystykami jednostki</CardDescription>
+              </CardHeader>
+            </Card>
+
+            <!-- Statistics Overview -->
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <div class="text-2xl font-bold text-primary mb-1" id="totalUsers">0</div>
+                  <div class="text-sm text-muted-foreground">Użytkowników</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <div class="text-2xl font-bold text-green-600 mb-1" id="totalMeldunkiAdmin">0</div>
+                  <div class="text-sm text-muted-foreground">Meldunków</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <div class="text-2xl font-bold text-blue-600 mb-1" id="activeUsers">0</div>
+                  <div class="text-sm text-muted-foreground">Aktywnych</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <!-- User Management -->
+            <Card>
+              <CardHeader>
+                <CardTitle>Zarządzanie użytkownikami</CardTitle>
+                <CardDescription>Lista użytkowników w Twojej jednostce OSP</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div id="usersList" class="space-y-4">
+                  <!-- Users will be loaded here -->
+                </div>
+              </CardContent>
+            </Card>
+
+            <!-- Department Statistics -->
+            <Card>
+              <CardHeader>
+                <CardTitle>Statystyki jednostki</CardTitle>
+                <CardDescription>Analiza aktywności w jednostce</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div id="departmentStats" class="space-y-4">
+                  <!-- Statistics will be loaded here -->
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* M3 Text Field Focus Styles */
+  .m3-text-field input:focus,
+  .m3-text-field textarea:focus {
+    outline: none;
+    border-color: var(--md-sys-color-primary);
+    border-width: 2px;
+  }
+  
+  .m3-text-field input:focus + label,
+  .m3-text-field input:not(:placeholder-shown) + label,
+  .m3-text-field textarea:focus + label,
+  .m3-text-field textarea:not(:placeholder-shown) + label {
+    top: -8px;
+    font-size: 12px;
+    color: var(--md-sys-color-primary);
+    background-color: var(--md-sys-color-background);
+    padding: 0 4px;
+  }
+  
+  /* Ensure labels are always visible */
+  .m3-text-field {
+    position: relative;
+    margin: 16px 0;
+  }
+  
+  .m3-text-field label {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    color: var(--md-sys-color-on-surface-variant);
+    font-family: var(--md-sys-typescale-body-large-font-family);
+    font-size: var(--md-sys-typescale-body-large-font-size);
+    line-height: var(--md-sys-typescale-body-large-line-height);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    background-color: var(--md-sys-color-background);
+    padding: 0 4px;
+    z-index: 1;
+  }
+  
+  .m3-text-field input,
+  .m3-text-field textarea {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 4px;
+    background-color: transparent;
+    color: var(--md-sys-color-on-surface);
+    font-family: var(--md-sys-typescale-body-large-font-family);
+    font-size: var(--md-sys-typescale-body-large-font-size);
+    line-height: var(--md-sys-typescale-body-large-line-height);
+    transition: all 0.2s ease;
+  }
+  
+  /* Tab Navigation Styles */
+  .tab-button.active {
+    background-color: var(--md-sys-color-primary) !important;
+    color: var(--md-sys-color-on-primary) !important;
+  }
+  
+  .tab-button.active:hover {
+    background-color: var(--md-sys-color-primary) !important;
+    color: var(--md-sys-color-on-primary) !important;
+  }
+  
+  /* Responsive Design */
+  @media (min-width: 768px) {
+    .m3-container > div:first-child {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    nav > div > div:last-child {
+      flex-direction: row;
+      gap: 16px;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================================
+  // DASHBOARD FUNCTIONALITY
+  // ============================================================================
+  
+  let currentTab = 'nowy';
+  let userProfile = null;
+  
+  // ============================================================================
+  // 1. CHECK AUTHENTICATION
+  // ============================================================================
+  function checkAuth() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/login';
+      return false;
+    }
+    return true;
+  }
+  
+  // ============================================================================
+  // 2. LOAD USER PROFILE
+  // ============================================================================
+  async function loadUserProfile() {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/auth/profile', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          userProfile = data.data;
+          document.getElementById('userEmail').textContent = userProfile.user.email;
+          document.getElementById('userRole').textContent = userProfile.profile.role === 'admin' ? 'Administrator' : 'Członek';
+          
+          // Show admin panel if user is admin
+          if (userProfile.profile.role === 'admin') {
+            document.getElementById('adminPanelBtn').classList.remove('hidden');
+            document.getElementById('tab-admin').classList.remove('hidden');
+          }
+          
+          // Load profile information
+          displayProfileInfo(userProfile);
+          populateProfileForm(userProfile);
+          loadAccountStats();
+        }
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  }
+  
+  // ============================================================================
+  // 2.1. DISPLAY PROFILE INFO
+  // ============================================================================
+  function displayProfileInfo(profile) {
+    const container = document.getElementById('profileInfo');
+    if (!container) return;
+    
+    const fireDept = profile.profile.fire_department || { name: 'Nieznana jednostka' };
+    
+    container.innerHTML = `
+      <div className="space-y-3">
+        <div className="flex items-center gap-3">
+          <span class="material-icons text-muted-foreground">person</span>
+          <div>
+            <div className="text-sm text-muted-foreground">Imię i nazwisko</div>
+            <div className="font-medium">${profile.profile.first_name || 'Nie podano'} ${profile.profile.last_name || 'Nie podano'}</div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span class="material-icons text-muted-foreground">email</span>
+          <div>
+            <div className="text-sm text-muted-foreground">Email</div>
+            <div className="font-medium">${profile.user.email}</div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span class="material-icons text-muted-foreground">local_fire_department</span>
+          <div>
+            <div className="text-sm text-muted-foreground">Jednostka OSP</div>
+            <div className="font-medium">${fireDept.name}</div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span class="material-icons text-muted-foreground">admin_panel_settings</span>
+          <div>
+            <div className="text-sm text-muted-foreground">Rola</div>
+            <div className="font-medium">${profile.profile.role === 'admin' ? 'Administrator' : 'Członek'}</div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span class="material-icons text-muted-foreground">calendar_today</span>
+          <div>
+            <div className="text-sm text-muted-foreground">Data rejestracji</div>
+            <div className="font-medium">${new Date(profile.profile.created_at).toLocaleDateString('pl-PL')}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  // ============================================================================
+  // 2.2. POPULATE PROFILE FORM
+  // ============================================================================
+  function populateProfileForm(profile) {
+    document.getElementById('editFirstName').value = profile.profile.first_name || '';
+    document.getElementById('editLastName').value = profile.profile.last_name || '';
+    document.getElementById('editEmail').value = profile.user.email;
+  }
+  
+  // ============================================================================
+  // 2.3. LOAD ACCOUNT STATS
+  // ============================================================================
+  function loadAccountStats() {
+    const container = document.getElementById('accountStats');
+    if (!container) return;
+    
+    // Load meldunki from localStorage
+    const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
+    const totalMeldunki = meldunki.length;
+    
+    // Calculate this month's meldunki
+    const now = new Date();
+    const thisMonth = meldunki.filter(m => {
+      const date = new Date(m.incident_date);
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }).length;
+    
+    container.innerHTML = `
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Wszystkich meldunków</span>
+          <span className="font-bold text-lg">${totalMeldunki}</span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">W tym miesiącu</span>
+          <span className="font-bold text-lg">${thisMonth}</span>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">Ostatni meldunek</span>
+          <span className="font-medium text-sm">${totalMeldunki > 0 ? new Date(meldunki[meldunki.length - 1].created_at).toLocaleDateString('pl-PL') : 'Brak'}</span>
+        </div>
+      </div>
+    `;
+  }
+  
+  // ============================================================================
+  // 3. TAB NAVIGATION
+  // ============================================================================
+  function switchTab(tabName) {
+    // Hide all content
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.style.display = 'none';
+      content.classList.add('hidden');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('[data-tab]').forEach(btn => {
+      btn.className = btn.className.replace('bg-background text-foreground shadow-sm', 'text-muted-foreground hover:text-foreground');
+    });
+    
+    // Show selected content
+    const content = document.getElementById(`content-${tabName}`);
+    if (content) {
+      content.style.display = 'block';
+      content.classList.remove('hidden');
+      
+    }
+    
+    // Add active class to selected button
+    const button = document.getElementById(`tab-${tabName}`);
+    if (button) {
+      button.className = button.className.replace('text-muted-foreground hover:text-foreground', 'bg-background text-foreground shadow-sm');
+    }
+    
+    currentTab = tabName;
+    
+    // Load admin data if switching to admin tab
+    if (tabName === 'admin' && userProfile && userProfile.profile.role === 'admin') {
+      loadAdminData();
+    }
+    
+    // Update URL hash
+    window.location.hash = tabName;
+  }
+  
+  // ============================================================================
+  // 4. LOAD MELDUNKI
+  // ============================================================================
+  async function loadMeldunki() {
+    try {
+      // Load from localStorage instead of API
+      const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
+      document.getElementById('meldunkiCount').textContent = meldunki.length;
+      displayMeldunki(meldunki);
+    } catch (error) {
+      console.error('Error loading meldunki:', error);
+    }
+  }
+  
+  function displayMeldunki(meldunki) {
+    const container = document.getElementById('meldunkiList');
+    
+    if (meldunki.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-12">
+          <span class="material-icons text-6xl text-muted-foreground mb-4 block">description</span>
+          <h3 class="text-xl font-semibold text-foreground mb-2">Brak meldunków</h3>
+          <p class="text-muted-foreground">Nie masz jeszcze żadnych meldunków. Utwórz pierwszy!</p>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = meldunki.map(meldunek => `
+      <Card class="hover:shadow-md transition-shadow">
+        <CardContent class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div>
+              <h3 class="text-lg font-semibold text-foreground mb-2">${meldunek.incident_name}</h3>
+              <p class="text-sm text-muted-foreground">${new Date(meldunek.incident_date).toLocaleDateString('pl-PL')}</p>
+            </div>
+            <Badge variant="secondary">Meldunek</Badge>
+          </div>
+          
+          <p class="text-muted-foreground mb-4 line-clamp-3">${meldunek.description}</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            ${meldunek.location_address ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">location_on</span>
+                <span class="text-muted-foreground">${meldunek.location_address}</span>
+              </div>
+            ` : ''}
+            
+            ${meldunek.commander ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">person</span>
+                <span class="text-muted-foreground">Dowódca: ${meldunek.commander}</span>
+              </div>
+            ` : ''}
+            
+            ${meldunek.driver ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">drive_eta</span>
+                <span class="text-muted-foreground">Kierowca: ${meldunek.driver}</span>
+              </div>
+            ` : ''}
+            
+            ${meldunek.forces_and_resources ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">group</span>
+                <span class="text-muted-foreground">Siły: ${meldunek.forces_and_resources}</span>
+              </div>
+            ` : ''}
+          </div>
+          
+          <div class="mt-4 pt-4 border-t">
+            <div class="flex justify-between items-center text-xs text-muted-foreground">
+              <span>Utworzono: ${new Date(meldunek.created_at).toLocaleString('pl-PL')}</span>
+              <div class="flex gap-2">
+                <Button variant="outline" size="sm">
+                  <span class="material-icons text-sm mr-1">visibility</span>
+                  Zobacz
+                </Button>
+                <Button variant="outline" size="sm">
+                  <span class="material-icons text-sm mr-1">edit</span>
+                  Edytuj
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    `).join('');
+  }
+  
+  // ============================================================================
+  // 5. CREATE MELDUNEK
+  // ============================================================================
+  async function createMeldunek(formData) {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/meldunki', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Show success message
+          alert('Meldunek został utworzony pomyślnie!');
+          
+          // Clear form
+          document.getElementById('meldunekForm').reset();
+          
+          // Switch to meldunki tab and reload
+          switchTab('meldunki');
+          loadMeldunki();
+        }
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error.message}`);
+      }
+    } catch (error) {
+      console.error('Error creating meldunek:', error);
+      alert('Błąd podczas tworzenia meldunku');
+    }
+  }
+  
+  // ============================================================================
+  // 6. LOGOUT
+  // ============================================================================
+  function logout() {
+    if (confirm('Czy na pewno chcesz się wylogować?')) {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      window.location.href = '/login';
+    }
+  }
+  
+  // ============================================================================
+  // 7. PROFILE MANAGEMENT
+  // ============================================================================
+  async function updateProfile(formData) {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/auth/profile', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          first_name: formData.get('firstName'),
+          last_name: formData.get('lastName')
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          alert('Profil został zaktualizowany pomyślnie!');
+          // Reload profile data
+          loadUserProfile();
+        }
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error.message}`);
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Błąd podczas aktualizacji profilu');
+    }
+  }
+  
+  async function changePassword(formData) {
+    try {
+      const token = localStorage.getItem('access_token');
+      const currentPassword = formData.get('currentPassword');
+      const newPassword = formData.get('newPassword');
+      const confirmPassword = formData.get('confirmPassword');
+      
+      // Validate passwords
+      if (newPassword !== confirmPassword) {
+        alert('Nowe hasła nie są identyczne');
+        return;
+      }
+      
+      if (newPassword.length < 8) {
+        alert('Nowe hasło musi mieć co najmniej 8 znaków');
+        return;
+      }
+      
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          alert('Hasło zostało zmienione pomyślnie!');
+          // Clear form
+          document.getElementById('passwordForm').reset();
+        }
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error.message}`);
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      alert('Błąd podczas zmiany hasła');
+    }
+  }
+  
+  // ============================================================================
+  // 8. ADMIN PANEL FUNCTIONS
+  // ============================================================================
+  async function loadAdminData() {
+    if (!userProfile || userProfile.profile.role !== 'admin') return;
+    
+    try {
+      // Load department users
+      await loadDepartmentUsers();
+      
+      // Load department statistics
+      await loadDepartmentStatistics();
+      
+      // Update admin stats
+      updateAdminStats();
+    } catch (error) {
+      console.error('Error loading admin data:', error);
+    }
+  }
+  
+  async function loadDepartmentUsers() {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          displayUsersList(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading department users:', error);
+      // Fallback to mock data for demo
+      displayUsersList([
+        {
+          id: '1',
+          email: 'admin@osp.pl',
+          first_name: 'Jan',
+          last_name: 'Kowalski',
+          role: 'admin',
+          created_at: '2024-01-15T10:00:00Z'
+        },
+        {
+          id: '2',
+          email: 'user1@osp.pl',
+          first_name: 'Anna',
+          last_name: 'Nowak',
+          role: 'member',
+          created_at: '2024-02-20T14:30:00Z'
+        }
+      ]);
+    }
+  }
+  
+  function displayUsersList(users) {
+    const container = document.getElementById('usersList');
+    if (!container) return;
+    
+    if (users.length === 0) {
+      container.innerHTML = `
+        <div className="text-center py-8">
+          <span class="material-icons text-4xl text-muted-foreground mb-2 block">group</span>
+          <p className="text-muted-foreground">Brak użytkowników w jednostce</p>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = users.map(user => `
+      <div className="flex items-center justify-between p-4 border rounded-lg">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+            <span class="material-icons text-primary">person</span>
+          </div>
+          <div>
+            <div className="font-medium">${user.first_name || 'Nie podano'} ${user.last_name || 'Nie podano'}</div>
+            <div className="text-sm text-muted-foreground">${user.email}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge variant="${user.role === 'admin' ? 'default' : 'secondary'}">
+            ${user.role === 'admin' ? 'Administrator' : 'Członek'}
+          </Badge>
+          <div className="text-xs text-muted-foreground">
+            ${new Date(user.created_at).toLocaleDateString('pl-PL')}
+          </div>
+          ${user.role !== 'admin' ? `
+            <Button variant="outline" size="sm" onclick="changeUserRole('${user.id}', '${user.role}')">
+              <span class="material-icons text-sm mr-1">admin_panel_settings</span>
+              ${user.role === 'member' ? 'Awansuj' : 'Degraduj'}
+            </Button>
+          ` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  async function changeUserRole(userId, currentRole) {
+    const newRole = currentRole === 'member' ? 'admin' : 'member';
+    const action = newRole === 'admin' ? 'awansować' : 'degradować';
+    
+    if (!confirm(`Czy na pewno chcesz ${action} tego użytkownika?`)) return;
+    
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/admin/users/${userId}/role`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          alert(`Rola użytkownika została zmieniona na ${newRole === 'admin' ? 'Administrator' : 'Członek'}`);
+          loadDepartmentUsers();
+        }
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error.message}`);
+      }
+    } catch (error) {
+      console.error('Error changing user role:', error);
+      alert('Błąd podczas zmiany roli użytkownika');
+    }
+  }
+  
+  async function loadDepartmentStatistics() {
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch('/api/admin/statistics', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          displayDepartmentStats(data.data);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading department statistics:', error);
+      // Fallback to mock data
+      displayDepartmentStats({
+        total_users: 5,
+        total_incidents: 23,
+        active_users: 3,
+        incidents_this_month: 8,
+        most_active_user: 'Jan Kowalski'
+      });
+    }
+  }
+  
+  function displayDepartmentStats(stats) {
+    const container = document.getElementById('departmentStats');
+    if (!container) return;
+    
+    container.innerHTML = `
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <div className="text-sm text-muted-foreground">Wszystkich użytkowników</div>
+          <div className="text-2xl font-bold">${stats.total_users}</div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="text-sm text-muted-foreground">Wszystkich meldunków</div>
+          <div className="text-2xl font-bold">${stats.total_incidents}</div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="text-sm text-muted-foreground">Aktywnych użytkowników</div>
+          <div className="text-2xl font-bold">${stats.active_users}</div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="text-sm text-muted-foreground">Meldunków w tym miesiącu</div>
+          <div className="text-2xl font-bold">${stats.incidents_this_month}</div>
+        </div>
+      </div>
+      
+      ${stats.most_active_user ? `
+        <div className="mt-4 p-4 bg-muted rounded-lg">
+          <div className="text-sm text-muted-foreground">Najaktywniejszy użytkownik</div>
+          <div className="font-medium">${stats.most_active_user}</div>
+        </div>
+      ` : ''}
+    `;
+  }
+  
+  function updateAdminStats() {
+    // Update the admin stats cards
+    const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
+    document.getElementById('totalMeldunkiAdmin').textContent = meldunki.length;
+    
+    // Mock data for demo
+    document.getElementById('totalUsers').textContent = '5';
+    document.getElementById('activeUsers').textContent = '3';
+  }
+  
+  // ============================================================================
+  // 9. INITIALIZATION
+  // ============================================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard JavaScript loaded');
+    
+    // Check authentication
+    if (!checkAuth()) return;
+    
+    // Load user profile
+    loadUserProfile();
+    
+    // Load initial data
+    loadMeldunki();
+    
+    // Set up tab navigation
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        console.log('Tab clicked:', this.getAttribute('data-tab'));
+        const tabName = this.getAttribute('data-tab');
+        switchTab(tabName);
+      });
+    });
+    
+    // Set up form submission
+    const form = document.getElementById('meldunekForm');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+            const data = {
+              incident_name: formData.get('incidentName'),
+              description: formData.get('description'),
+              incident_date: formData.get('incidentDate'),
+              location_address: formData.get('locationAddress'),
+              forces_and_resources: formData.get('forcesAndResources'),
+              commander: formData.get('commander'),
+              driver: formData.get('driver')
+            };
+        
+        console.log('Form data:', data);
+        
+        // Save to localStorage
+        const existingMeldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
+        const newMeldunek = {
+          id: Date.now(),
+          ...data,
+          created_at: new Date().toISOString()
+        };
+        existingMeldunki.push(newMeldunek);
+        localStorage.setItem('meldunki', JSON.stringify(existingMeldunki));
+        
+        alert('Meldunek został zapisany!');
+        
+        // Clear form
+        document.getElementById('meldunekForm').reset();
+        
+        // Reload meldunki count
+        loadMeldunki();
+      });
+    }
+    
+    // Set up profile form submission
+    const profileForm = document.getElementById('profileForm');
+    if (profileForm) {
+      profileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        updateProfile(formData);
+      });
+    }
+    
+    // Set up password form submission
+    const passwordForm = document.getElementById('passwordForm');
+    if (passwordForm) {
+      passwordForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        changePassword(formData);
+      });
+    }
+    
+    // Set up logout
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', logout);
+    }
+    
+    // Handle URL hash
+    const hash = window.location.hash.substring(1);
+    if (hash && ['nowy', 'profil'].includes(hash)) {
+      switchTab(hash);
+    }
+  });
+</script>
+
+<!-- Simple test script -->
+<script>
+  console.log('Simple test script loaded');
+  
+  // Simple tab switching without dependencies
+  function simpleSwitchTab(tabName) {
+    console.log('Switching to tab:', tabName);
+    
+    // Hide all content
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.style.display = 'none';
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.className = btn.className.replace('m3-button--filled', 'm3-button--text');
+    });
+    
+    // Show selected content
+    const content = document.getElementById(`content-${tabName}`);
+    if (content) {
+      content.style.display = 'block';
+    }
+    
+    // Add active class to selected button
+    const button = document.getElementById(`tab-${tabName}`);
+    if (button) {
+      button.className = button.className.replace('m3-button--text', 'm3-button--filled');
+    }
+  }
+  
+  // Make switchTab available globally
+  window.switchTab = simpleSwitchTab;
+  
+  // Add click handlers when DOM is ready
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, adding click handlers');
+    
+    // Add click handlers to tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+      console.log('Adding click handler to button:', button.getAttribute('data-tab'));
+      button.addEventListener('click', function() {
+        const tabName = this.getAttribute('data-tab');
+        console.log('Button clicked, switching to tab:', tabName);
+        simpleSwitchTab(tabName);
+      });
+    });
+    
+    // Also add click handlers to the main switchTab function
+    window.switchTab = simpleSwitchTab;
+  });
+</script>
+
+<!-- Inline JavaScript for immediate execution -->
+<script>
+  // Immediate execution - no waiting for DOM
+  console.log('Inline script executing immediately');
+  
+  // Wait a bit for DOM to be ready
+  setTimeout(function() {
+    console.log('Setting up tab navigation');
+    
+        // Auto-fill dates
+        const today = new Date().toISOString().split('T')[0];
+        
+        const incidentDateField = document.getElementById('incidentDate');
+        
+        if (incidentDateField) {
+          incidentDateField.value = today;
+        }
+    
+    // Add click handlers to tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function() {
+        console.log('Button clicked:', this.getAttribute('data-tab'));
+        const tabName = this.getAttribute('data-tab');
+        
+        // Hide all content
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.display = 'none';
+        });
+        
+        // Remove active class from all buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.className = btn.className.replace('m3-button--filled', 'm3-button--text');
+        });
+        
+        // Show selected content
+        const content = document.getElementById(`content-${tabName}`);
+        if (content) {
+          content.style.display = 'block';
+          content.classList.remove('hidden');
+          console.log('Showing content for:', tabName);
+          
+          // Load meldunki when switching to meldunki tab
+          if (tabName === 'meldunki') {
+            loadMeldunki();
+          }
+        }
+        
+        // Add active class to selected button
+        const button = document.getElementById(`tab-${tabName}`);
+        if (button) {
+          button.className = button.className.replace('m3-button--text', 'm3-button--filled');
+        }
+      });
+    });
+  }, 100);
+</script>

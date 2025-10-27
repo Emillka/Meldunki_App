@@ -1,0 +1,164 @@
+---
+// Strona regulaminu
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout 
+  title="Regulamin - FireLog" 
+  description="Regulamin korzystania z systemu FireLog"
+  keywords="regulamin, warunki użytkowania, FireLog"
+>
+  <div class="min-h-screen bg-background flex flex-col">
+    <!-- Header -->
+    <Header currentPath="/terms" />
+    
+    <!-- Main Content -->
+    <div class="flex-1 container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-foreground mb-2">Regulamin</h1>
+        <p class="text-muted-foreground">Ostatnia aktualizacja: {new Date().toLocaleDateString('pl-PL')}</p>
+      </div>
+
+      <!-- Content -->
+      <div class="prose prose-lg max-w-4xl mx-auto">
+        <h2>1. Postanowienia ogólne</h2>
+        <p>
+          Niniejszy regulamin określa warunki korzystania z systemu FireLog, 
+          służącego do rejestrowania meldunków dla jednostek Ochotniczej Straży Pożarnej.
+        </p>
+
+        <h2>2. Definicje</h2>
+        <ul>
+          <li><strong>System</strong> - aplikacja FireLog dostępna pod adresem internetowym</li>
+          <li><strong>Użytkownik</strong> - osoba fizyczna zarejestrowana w systemie</li>
+          <li><strong>Administrator</strong> - osoba zarządzająca jednostką OSP w systemie</li>
+          <li><strong>Meldunek</strong> - elektroniczny raport z akcji strażackiej</li>
+        </ul>
+
+        <h2>3. Warunki rejestracji</h2>
+        <p>Do rejestracji w systemie wymagane jest:</p>
+        <ul>
+          <li>Podanie prawdziwych danych osobowych</li>
+          <li>Przynależność do jednostki OSP</li>
+          <li>Akceptacja niniejszego regulaminu</li>
+          <li>Podanie prawidłowego adresu e-mail</li>
+        </ul>
+
+        <h2>4. Prawa i obowiązki użytkownika</h2>
+        <h3>Prawa użytkownika:</h3>
+        <ul>
+          <li>Dostęp do własnych danych i meldunków</li>
+          <li>Tworzenie, edycja i usuwanie własnych meldunków</li>
+          <li>Przeglądanie meldunków jednostki OSP</li>
+          <li>Zarządzanie własnym profilem</li>
+        </ul>
+
+        <h3>Obowiązki użytkownika:</h3>
+        <ul>
+          <li>Przestrzeganie niniejszego regulaminu</li>
+          <li>Prawdziwość wprowadzanych danych</li>
+          <li>Ochrona danych dostępowych do konta</li>
+          <li>Niepublikowanie treści niezgodnych z prawem</li>
+        </ul>
+
+        <h2>5. Prawa administratora</h2>
+        <p>Administrator jednostki OSP ma prawo do:</p>
+        <ul>
+          <li>Zarządzania użytkownikami jednostki</li>
+          <li>Przeglądania wszystkich meldunków jednostki</li>
+          <li>Edycji i usuwania meldunków w jednostce</li>
+          <li>Dostępu do statystyk jednostki</li>
+        </ul>
+
+        <h2>6. Zasady użytkowania</h2>
+        <ul>
+          <li>System może być używany wyłącznie w celach związanych z działalnością OSP</li>
+          <li>Zabronione jest udostępnianie danych dostępowych osobom trzecim</li>
+          <li>Meldunki muszą zawierać prawdziwe informacje o akcjach</li>
+          <li>Zabronione jest wprowadzanie treści obraźliwych lub niezgodnych z prawem</li>
+        </ul>
+
+        <h2>7. Ochrona danych</h2>
+        <p>
+          Wszystkie dane przetwarzane w systemie są chronione zgodnie z przepisami RODO. 
+          Szczegóły dotyczące ochrony danych znajdują się w Polityce prywatności.
+        </p>
+
+        <h2>8. Odpowiedzialność</h2>
+        <p>
+          Użytkownik ponosi pełną odpowiedzialność za treść wprowadzanych meldunków 
+          i przestrzeganie przepisów prawa.
+        </p>
+
+        <h2>9. Zawieszenie i usunięcie konta</h2>
+        <p>
+          Konto może zostać zawieszone lub usunięte w przypadku:
+        </p>
+        <ul>
+          <li>Naruszenia niniejszego regulaminu</li>
+          <li>Długotrwałej nieaktywności (ponad 2 lata)</li>
+          <li>Żądania użytkownika</li>
+          <li>Decyzji administratora jednostki</li>
+        </ul>
+
+        <h2>10. Zmiany regulaminu</h2>
+        <p>
+          Administrator systemu zastrzega sobie prawo do zmiany niniejszego regulaminu. 
+          O zmianach użytkownicy będą informowani przez e-mail.
+        </p>
+
+        <h2>11. Rozstrzyganie sporów</h2>
+        <p>
+          Wszelkie spory wynikające z korzystania z systemu będą rozstrzygane 
+          zgodnie z prawem polskim przez sądy właściwe dla siedziby administratora.
+        </p>
+
+        <h2>12. Postanowienia końcowe</h2>
+        <p>
+          Regulamin wchodzi w życie z dniem publikacji. 
+          W przypadku niezgodności między wersją polską a innymi wersjami językowymi, 
+          wiążąca jest wersja polska.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .prose h2 {
+    color: var(--md-sys-color-on-surface);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .prose h3 {
+    color: var(--md-sys-color-on-surface);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose p {
+    color: var(--md-sys-color-on-surface-variant);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+  
+  .prose ul {
+    color: var(--md-sys-color-on-surface-variant);
+    margin-bottom: 1rem;
+  }
+  
+  .prose li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .prose strong {
+    color: var(--md-sys-color-on-surface);
+  }
+</style>

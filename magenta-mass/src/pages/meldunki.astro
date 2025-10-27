@@ -1,0 +1,386 @@
+---
+// Strona z listą meldunków
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { SimpleSelect } from '../components/SimpleSelect';
+---
+
+<Layout 
+  title="Meldunki" 
+  description="Przeglądaj i zarządzaj swoimi meldunkami w systemie FireLog"
+  keywords="meldunki, OSP, straż pożarna, lista, zarządzanie"
+>
+  <div class="min-h-screen bg-background flex flex-col">
+    <!-- Header -->
+    <Header currentPath="/meldunki" />
+    
+    <!-- Main Content -->
+    <div class="flex-1 container mx-auto px-4 py-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <div class="flex flex-col sm:flex-row gap-6 items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-foreground mb-2">Meldunki</h1>
+            <p class="text-muted-foreground">Przeglądaj i zarządzaj swoimi meldunkami</p>
+          </div>
+          <div class="flex gap-4">
+            <Button asChild>
+              <a href="/dashboard">
+                <span class="material-icons mr-2">add</span>
+                Nowy Meldunek
+              </a>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters and Search -->
+      <div class="mb-6">
+        <Card>
+          <CardContent class="p-6">
+            <div class="flex flex-col sm:flex-row gap-4">
+              <!-- Search -->
+              <div class="flex-1">
+                <Input 
+                  type="text" 
+                  placeholder="Szukaj w meldunkach..." 
+                  id="searchInput"
+                  class="w-full"
+                />
+              </div>
+              
+              <!-- Date Filter -->
+              <div class="flex gap-2">
+                <Input 
+                  type="date" 
+                  id="dateFrom"
+                  placeholder="Od"
+                />
+                <Input 
+                  type="date" 
+                  id="dateTo"
+                  placeholder="Do"
+                />
+              </div>
+              
+              <!-- Sort -->
+              <SimpleSelect 
+                id="sortSelect" 
+                placeholder="Sortuj według"
+                options={[
+                  { value: "date-desc", label: "Data (najnowsze)" },
+                  { value: "date-asc", label: "Data (najstarsze)" },
+                  { value: "name-asc", label: "Nazwa A-Z" },
+                  { value: "name-desc", label: "Nazwa Z-A" }
+                ]}
+                client:load
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardContent class="p-6 text-center">
+            <div class="text-2xl font-bold text-primary mb-1" id="totalMeldunki">0</div>
+            <div class="text-sm text-muted-foreground">Wszystkich</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent class="p-6 text-center">
+            <div class="text-2xl font-bold text-green-600 mb-1" id="thisMonth">0</div>
+            <div class="text-sm text-muted-foreground">W tym miesiącu</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent class="p-6 text-center">
+            <div class="text-2xl font-bold text-blue-600 mb-1" id="thisWeek">0</div>
+            <div class="text-sm text-muted-foreground">W tym tygodniu</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent class="p-6 text-center">
+            <div class="text-2xl font-bold text-orange-600 mb-1" id="thisYear">0</div>
+            <div class="text-sm text-muted-foreground">W tym roku</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Meldunki List -->
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista Meldunków</CardTitle>
+          <CardDescription>Kliknij na meldunek, aby zobaczyć szczegóły</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div id="meldunkiList" class="space-y-4">
+            <!-- Meldunki będą ładowane dynamicznie przez JavaScript -->
+            <div class="text-center py-12">
+              <span class="material-icons text-6xl text-muted-foreground mb-4 block">article</span>
+              <h3 class="text-xl font-semibold text-foreground mb-2">Ładowanie meldunków...</h3>
+              <p class="text-muted-foreground">Pobieranie listy meldunków z bazy danych.</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Footer -->
+    <Footer />
+  </div>
+</Layout>
+
+<script>
+  // ============================================================================
+  // MELDUNKI PAGE FUNCTIONALITY
+  // ============================================================================
+  
+  let allMeldunki = [];
+  let filteredMeldunki = [];
+  
+  // ============================================================================
+  // 1. CHECK AUTHENTICATION
+  // ============================================================================
+  function checkAuth() {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/login';
+      return false;
+    }
+    return true;
+  }
+  
+  // ============================================================================
+  // 2. LOAD MELDUNKI
+  // ============================================================================
+  async function loadMeldunki() {
+    try {
+      // Load from localStorage instead of API
+      allMeldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
+      filteredMeldunki = [...allMeldunki];
+      
+      updateStats();
+      displayMeldunki(filteredMeldunki);
+    } catch (error) {
+      console.error('Error loading meldunki:', error);
+    }
+  }
+  
+  // ============================================================================
+  // 3. UPDATE STATS
+  // ============================================================================
+  function updateStats() {
+    const now = new Date();
+    const thisMonth = allMeldunki.filter(m => {
+      const date = new Date(m.incident_date);
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+    }).length;
+    
+    const thisWeek = allMeldunki.filter(m => {
+      const date = new Date(m.incident_date);
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      return date >= weekAgo;
+    }).length;
+    
+    const thisYear = allMeldunki.filter(m => {
+      const date = new Date(m.incident_date);
+      return date.getFullYear() === now.getFullYear();
+    }).length;
+    
+    document.getElementById('totalMeldunki').textContent = allMeldunki.length;
+    document.getElementById('thisMonth').textContent = thisMonth;
+    document.getElementById('thisWeek').textContent = thisWeek;
+    document.getElementById('thisYear').textContent = thisYear;
+  }
+  
+  // ============================================================================
+  // 4. DISPLAY MELDUNKI
+  // ============================================================================
+  function displayMeldunki(meldunki) {
+    const container = document.getElementById('meldunkiList');
+    
+    if (meldunki.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-12">
+          <span class="material-icons text-6xl text-muted-foreground mb-4 block">article</span>
+          <h3 class="text-xl font-semibold text-foreground mb-2">Brak meldunków</h3>
+          <p class="text-muted-foreground">Nie masz jeszcze żadnych meldunków. Utwórz pierwszy!</p>
+          <Button asChild class="mt-4">
+            <a href="/dashboard">
+              <span class="material-icons mr-2">add</span>
+              Utwórz pierwszy meldunek
+            </a>
+          </Button>
+        </div>
+      `;
+      return;
+    }
+    
+    container.innerHTML = meldunki.map(meldunek => `
+      <Card class="hover:shadow-md transition-shadow cursor-pointer" onclick="viewMeldunek(${meldunek.id})">
+        <CardContent class="p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-foreground mb-2">${meldunek.incident_name}</h3>
+              <p class="text-sm text-muted-foreground">${new Date(meldunek.incident_date).toLocaleDateString('pl-PL')}</p>
+            </div>
+            <div class="flex gap-2">
+              <Badge variant="secondary">Meldunek</Badge>
+              <Button variant="ghost" size="sm" onclick="event.stopPropagation(); editMeldunek(${meldunek.id})">
+                <span class="material-icons text-sm">edit</span>
+              </Button>
+            </div>
+          </div>
+          
+          <p class="text-muted-foreground mb-4 line-clamp-3">${meldunek.description}</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            ${meldunek.location_address ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">location_on</span>
+                <span class="text-muted-foreground">${meldunek.location_address}</span>
+              </div>
+            ` : ''}
+            
+            ${meldunek.commander ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">person</span>
+                <span class="text-muted-foreground">Dowódca: ${meldunek.commander}</span>
+              </div>
+            ` : ''}
+            
+            ${meldunek.driver ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">drive_eta</span>
+                <span class="text-muted-foreground">Kierowca: ${meldunek.driver}</span>
+              </div>
+            ` : ''}
+            
+            ${meldunek.forces_and_resources ? `
+              <div class="flex items-center gap-2">
+                <span class="material-icons text-sm text-muted-foreground">group</span>
+                <span class="text-muted-foreground">Siły: ${meldunek.forces_and_resources}</span>
+              </div>
+            ` : ''}
+          </div>
+          
+          <div class="mt-4 pt-4 border-t">
+            <div class="flex justify-between items-center text-xs text-muted-foreground">
+              <span>Utworzono: ${new Date(meldunek.created_at).toLocaleString('pl-PL')}</span>
+              <div class="flex gap-2">
+                <Button variant="outline" size="sm" onclick="event.stopPropagation(); viewMeldunek(${meldunek.id})">
+                  <span class="material-icons text-sm mr-1">visibility</span>
+                  Zobacz
+                </Button>
+                <Button variant="outline" size="sm" onclick="event.stopPropagation(); editMeldunek(${meldunek.id})">
+                  <span class="material-icons text-sm mr-1">edit</span>
+                  Edytuj
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    `).join('');
+  }
+  
+  // ============================================================================
+  // 5. FILTER AND SEARCH
+  // ============================================================================
+  function filterMeldunki() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const dateFrom = document.getElementById('dateFrom').value;
+    const dateTo = document.getElementById('dateTo').value;
+    
+    filteredMeldunki = allMeldunki.filter(meldunek => {
+      // Search filter
+      const matchesSearch = !searchTerm || 
+        meldunek.incident_name.toLowerCase().includes(searchTerm) ||
+        meldunek.description.toLowerCase().includes(searchTerm) ||
+        (meldunek.location_address && meldunek.location_address.toLowerCase().includes(searchTerm));
+      
+      // Date filter
+      const incidentDate = new Date(meldunek.incident_date);
+      const fromDate = dateFrom ? new Date(dateFrom) : null;
+      const toDate = dateTo ? new Date(dateTo) : null;
+      
+      const matchesDate = (!fromDate || incidentDate >= fromDate) && 
+                        (!toDate || incidentDate <= toDate);
+      
+      return matchesSearch && matchesDate;
+    });
+    
+    // Sort
+    const sortValue = document.getElementById('sortSelect').value;
+    switch(sortValue) {
+      case 'date-desc':
+        filteredMeldunki.sort((a, b) => new Date(b.incident_date) - new Date(a.incident_date));
+        break;
+      case 'date-asc':
+        filteredMeldunki.sort((a, b) => new Date(a.incident_date) - new Date(b.incident_date));
+        break;
+      case 'name-asc':
+        filteredMeldunki.sort((a, b) => a.incident_name.localeCompare(b.incident_name));
+        break;
+      case 'name-desc':
+        filteredMeldunki.sort((a, b) => b.incident_name.localeCompare(a.incident_name));
+        break;
+    }
+    
+    displayMeldunki(filteredMeldunki);
+  }
+  
+  // ============================================================================
+  // 6. VIEW AND EDIT FUNCTIONS
+  // ============================================================================
+  function viewMeldunek(id) {
+    const meldunek = allMeldunki.find(m => m.id === id);
+    if (meldunek) {
+      // TODO: Implement view modal or redirect to detail page
+      alert(`Szczegóły meldunku: ${meldunek.incident_name}`);
+    }
+  }
+  
+  function editMeldunek(id) {
+    const meldunek = allMeldunki.find(m => m.id === id);
+    if (meldunek) {
+      // TODO: Implement edit functionality
+      alert(`Edycja meldunku: ${meldunek.incident_name}`);
+    }
+  }
+  
+  // ============================================================================
+  // 7. INITIALIZATION
+  // ============================================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('Meldunki page JavaScript loaded');
+    
+    // Check authentication
+    if (!checkAuth()) return;
+    
+    // Load initial data
+    loadMeldunki();
+    
+    // Set up event listeners
+    document.getElementById('searchInput').addEventListener('input', filterMeldunki);
+    document.getElementById('dateFrom').addEventListener('change', filterMeldunki);
+    document.getElementById('dateTo').addEventListener('change', filterMeldunki);
+    document.getElementById('sortSelect').addEventListener('change', filterMeldunki);
+  });
+</script>
+
+<style>
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

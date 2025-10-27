@@ -1,0 +1,213 @@
+---
+// Strona logowania z shadcn/ui
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { Button } from '../components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Alert, AlertDescription } from '../components/ui/alert';
+---
+
+<Layout 
+  title="Logowanie" 
+  description="Zaloguj się do systemu FireLog, aby zarządzać meldunkami swojej jednostki OSP."
+  keywords="logowanie, OSP, straż pożarna, meldunki, system"
+>
+  <div class="min-h-screen bg-background flex flex-col">
+    <!-- Header -->
+    <Header currentPath="/login" />
+    
+    <!-- Login Section -->
+    <section class="flex-1 flex items-center justify-center p-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span class="material-icons text-primary-foreground text-3xl">login</span>
+          </div>
+          <CardTitle className="text-2xl">Logowanie</CardTitle>
+          <CardDescription>
+            Zaloguj się do swojego konta FireLog
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <!-- Message container -->
+          <div id="message" className="hidden mb-6"></div>
+
+          <!-- Login Form -->
+          <form id="loginForm" className="space-y-6">
+            <!-- Email -->
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                id="email"
+                name="email"
+                required
+                autocomplete="email"
+                placeholder="Wprowadź swój email"
+              />
+            </div>
+
+            <!-- Password -->
+            <div className="space-y-2">
+              <Label htmlFor="password">Hasło</Label>
+              <Input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                placeholder="Wprowadź swoje hasło"
+              />
+            </div>
+
+            <!-- Submit Button -->
+            <Button
+              type="submit"
+              id="submitBtn"
+              className="w-full"
+            >
+              <span class="material-icons mr-2">login</span>
+              Zaloguj się
+            </Button>
+          </form>
+
+          <!-- Links -->
+          <div className="mt-8 text-center space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Nie masz konta? 
+              <Button variant="link" asChild className="p-0 h-auto">
+                <a href="/register">Zarejestruj się</a>
+              </Button>
+            </p>
+            <Button variant="link" asChild className="p-0 h-auto">
+              <a href="/">← Powrót do strony głównej</a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
+
+    <!-- Footer -->
+    <Footer showBackToTop={false} />
+  </div>
+</Layout>
+
+<style>
+  /* M3 Text Field Focus Styles */
+  .m3-text-field input:focus {
+    outline: none;
+    border-color: var(--md-sys-color-primary);
+    border-width: 2px;
+  }
+  
+  .m3-text-field input:focus + label,
+  .m3-text-field input:not(:placeholder-shown) + label {
+    top: 8px;
+    font-size: 12px;
+    color: var(--md-sys-color-primary);
+  }
+  
+  /* Message styles */
+  #message.success {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    border: 1px solid var(--md-sys-color-primary);
+  }
+  
+  #message.error {
+    background-color: var(--md-sys-color-error-container);
+    color: var(--md-sys-color-on-error-container);
+    border: 1px solid var(--md-sys-color-error);
+  }
+</style>
+
+<script>
+  const form = document.getElementById('loginForm') as HTMLFormElement;
+  const messageDiv = document.getElementById('message') as HTMLDivElement;
+  const submitBtn = document.getElementById('submitBtn') as HTMLButtonElement;
+
+  function showMessage(message: string, isError: boolean = false) {
+    messageDiv.textContent = message;
+    messageDiv.className = isError ? 'error' : 'success';
+    messageDiv.style.display = 'block';
+  }
+
+  function hideMessage() {
+    messageDiv.style.display = 'none';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage();
+
+    // Disable button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="material-icons" style="font-size: 18px;">hourglass_empty</span>Logowanie...';
+
+    // Get form data
+    const formData = new FormData(form);
+    const data = {
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
+    };
+
+    try {
+      // Call the API endpoint
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        // ✅ Success!
+        showMessage('✅ Logowanie udane! Przekierowuję...', false);
+        
+        // Store access token
+        localStorage.setItem('access_token', result.data.session.access_token);
+        localStorage.setItem('refresh_token', result.data.session.refresh_token);
+        
+        // Log user data
+        console.log('Zalogowany użytkownik:', result.data.user);
+        console.log('Profil:', result.data.profile);
+        console.log('Token:', result.data.session.access_token.substring(0, 20) + '...');
+
+        // Redirect after 1 second
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+
+      } else {
+        // ❌ Error from API
+        let errorMessage = result.error.message;
+        
+        // Show validation details if available
+        if (result.error.details) {
+          const details = Object.entries(result.error.details)
+            .map(([field, msg]) => `${field}: ${msg}`)
+            .join('\n');
+          errorMessage += '\n\n' + details;
+        }
+        
+        showMessage(`❌ ${errorMessage}`, true);
+      }
+
+    } catch (error) {
+      // ❌ Network or other error
+      console.error('Login error:', error);
+      showMessage('❌ Błąd połączenia. Sprawdź czy serwer działa.', true);
+    } finally {
+      // Re-enable button
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<span class="material-icons" style="font-size: 18px;">login</span>Zaloguj się';
+    }
+  });
+</script>

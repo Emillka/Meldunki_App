@@ -1,0 +1,167 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Przejdź do głównej zawartości" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e7]:
+        - link "Przejdź do strony głównej FireLog" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e11]: local_fire_department
+          - generic [ref=e12]:
+            - text: FireLog
+            - paragraph [ref=e13]: System meldunków OSP
+        - generic [ref=e14]:
+          - navigation "Główna nawigacja" [ref=e15]:
+            - link "Strona główna" [ref=e16] [cursor=pointer]:
+              - /url: /
+            - link "O FireLog" [ref=e17] [cursor=pointer]:
+              - /url: /#about
+            - link "Meldunki" [ref=e18] [cursor=pointer]:
+              - /url: /meldunki
+            - link "Dashboard" [ref=e19] [cursor=pointer]:
+              - /url: /dashboard
+          - generic [ref=e21]:
+            - link "Zaloguj się do systemu" [ref=e22] [cursor=pointer]:
+              - /url: /login
+              - generic [ref=e23]: login
+              - text: Zaloguj się
+            - link "Zarejestruj się w systemie" [ref=e24] [cursor=pointer]:
+              - /url: /register
+              - generic [ref=e25]: person_add
+              - text: Zarejestruj się
+      - generic [ref=e26]:
+        - generic [ref=e29]: local_fire_department
+        - heading "FireLog" [level=1] [ref=e30]
+        - generic [ref=e31]:
+          - paragraph [ref=e32]: Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej
+          - generic [ref=e33]:
+            - link "person_add Rozpocznij teraz" [ref=e34] [cursor=pointer]:
+              - /url: /register
+              - generic [ref=e35]: person_add
+              - text: Rozpocznij teraz
+            - link "login Zaloguj się" [ref=e36] [cursor=pointer]:
+              - /url: /login
+              - generic [ref=e37]: login
+              - text: Zaloguj się
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - heading "O FireLog" [level=2] [ref=e41]
+          - paragraph [ref=e42]: Nowoczesne rozwiązanie stworzone specjalnie dla jednostek Ochotniczej Straży Pożarnej. Wszystko czego potrzebujesz do efektywnego zarządzania meldunkami w jednym miejscu.
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - heading "Dlaczego FireLog?" [level=3] [ref=e45]
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - generic [ref=e48]: check_circle
+                - paragraph [ref=e49]: Zastąp papierowe formularze cyfrowymi rozwiązaniami
+              - generic [ref=e50]:
+                - generic [ref=e51]: check_circle
+                - paragraph [ref=e52]: Automatyczna analiza i raportowanie
+              - generic [ref=e53]:
+                - generic [ref=e54]: check_circle
+                - paragraph [ref=e55]: Łatwe zarządzanie zespołem i uprawnieniami
+              - generic [ref=e56]:
+                - generic [ref=e57]: check_circle
+                - paragraph [ref=e58]: Bezpieczne przechowywanie danych
+          - generic [ref=e61]: local_fire_department
+        - generic [ref=e62]:
+          - generic [ref=e63]:
+            - generic [ref=e64]:
+              - generic [ref=e66]: edit_document
+              - generic [ref=e67]: Cyfrowe meldunki
+            - paragraph [ref=e69]: Twórz i zarządzaj meldunkami w formie cyfrowej. Zastąp papierowe formularze nowoczesnymi rozwiązaniami.
+          - generic [ref=e70]:
+            - generic [ref=e71]:
+              - generic [ref=e73]: analytics
+              - generic [ref=e74]: Analiza AI
+            - paragraph [ref=e76]: Automatyczna analiza meldunków z wykorzystaniem sztucznej inteligencji. Otrzymuj cenne wnioski i rekomendacje.
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e80]: group
+              - generic [ref=e81]: Zarządzanie zespołem
+            - paragraph [ref=e83]: Zarządzaj członkami jednostki, przydzielaj role i kontroluj dostęp do systemu.
+          - generic [ref=e84]:
+            - generic [ref=e85]:
+              - generic [ref=e87]: security
+              - generic [ref=e88]: Bezpieczeństwo
+            - paragraph [ref=e90]: Zaawansowane zabezpieczenia i szyfrowanie danych. Twoje meldunki są bezpieczne.
+          - generic [ref=e91]:
+            - generic [ref=e92]:
+              - generic [ref=e94]: smartphone
+              - generic [ref=e95]: Responsywność
+            - paragraph [ref=e97]: Dostęp z każdego urządzenia. Pracuj na komputerze, tablecie lub telefonie.
+          - generic [ref=e98]:
+            - generic [ref=e99]:
+              - generic [ref=e101]: cloud_sync
+              - generic [ref=e102]: Synchronizacja
+            - paragraph [ref=e104]: Automatyczna synchronizacja danych w chmurze. Dostęp do meldunków z każdego miejsca.
+      - generic [ref=e106]:
+        - heading "Gotowy na zmianę?" [level=2] [ref=e107]
+        - paragraph [ref=e108]: Dołącz do jednostek OSP, które już korzystają z FireLog i zmodernizuj swoje zarządzanie meldunkami
+        - generic [ref=e109]:
+          - link "rocket_launch Rozpocznij teraz" [ref=e110] [cursor=pointer]:
+            - /url: /register
+            - generic [ref=e111]: rocket_launch
+            - text: Rozpocznij teraz
+          - link "login Zaloguj się" [ref=e112] [cursor=pointer]:
+            - /url: /login
+            - generic [ref=e113]: login
+            - text: Zaloguj się
+      - generic [ref=e115]:
+        - generic [ref=e116]:
+          - generic [ref=e117]:
+            - generic [ref=e118]:
+              - generic [ref=e120]: local_fire_department
+              - generic [ref=e121]:
+                - text: FireLog
+                - paragraph [ref=e122]: System meldunków OSP
+            - paragraph [ref=e123]: Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej. Zastąp tradycyjne metody cyfrowymi rozwiązaniami.
+          - generic [ref=e124]:
+            - generic [ref=e125]:
+              - heading "Szybkie linki" [level=3] [ref=e126]
+              - list [ref=e127]:
+                - listitem [ref=e128]:
+                  - link "Strona główna" [ref=e129] [cursor=pointer]:
+                    - /url: /
+                - listitem [ref=e130]:
+                  - link "Logowanie" [ref=e131] [cursor=pointer]:
+                    - /url: /login
+                - listitem [ref=e132]:
+                  - link "Rejestracja" [ref=e133] [cursor=pointer]:
+                    - /url: /register
+                - listitem [ref=e134]:
+                  - link "Meldunki" [ref=e135] [cursor=pointer]:
+                    - /url: /meldunki
+                - listitem [ref=e136]:
+                  - link "Dashboard" [ref=e137] [cursor=pointer]:
+                    - /url: /dashboard
+            - generic [ref=e138]:
+              - heading "Wsparcie" [level=3] [ref=e139]
+              - list [ref=e140]:
+                - listitem [ref=e141]:
+                  - link "O aplikacji" [ref=e142] [cursor=pointer]:
+                    - /url: /#about
+                - listitem [ref=e143]:
+                  - link "Polityka prywatności" [ref=e144] [cursor=pointer]:
+                    - /url: /privacy
+                - listitem [ref=e145]:
+                  - link "Regulamin" [ref=e146] [cursor=pointer]:
+                    - /url: /terms
+        - generic [ref=e149]: © 2025 FireLog. Wszystkie prawa zastrzeżone.
+  - generic [ref=e152]:
+    - button "Menu" [ref=e153]:
+      - img [ref=e155]
+      - generic: Menu
+    - button "Inspect" [ref=e159]:
+      - img [ref=e161]
+      - generic: Inspect
+    - button "Audit" [ref=e163]:
+      - img [ref=e165]
+      - generic: Audit
+    - button "Settings" [ref=e168]:
+      - img [ref=e170]
+      - generic: Settings
+```

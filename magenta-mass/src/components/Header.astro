@@ -1,0 +1,419 @@
+---
+// Wspólny header dla wszystkich stron z Material Design 3
+export interface Props {
+  showAuth?: boolean;
+  currentPath?: string;
+}
+
+const { showAuth = true, currentPath = '' } = Astro.props;
+---
+
+<header class="m3-surface" style="position: sticky; top: 0; z-index: 1000; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);">
+  <div class="m3-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; height: 64px;">
+      <!-- Logo & Title -->
+      <div style="display: flex; align-items: center;">
+        <a 
+          href="/" 
+          style="display: flex; align-items: center; gap: 12px; text-decoration: none; transition: transform 0.2s ease;" 
+          aria-label="Przejdź do strony głównej FireLog"
+        >
+          <div style="width: 40px; height: 40px; background-color: var(--md-sys-color-primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.3);">
+            <span class="material-icons" style="color: var(--md-sys-color-on-primary); font-size: 24px;" aria-hidden="true">local_fire_department</span>
+          </div>
+          <div>
+            <span class="m3-title-large" style="color: var(--md-sys-color-on-surface);">FireLog</span>
+            <p style="font-size: 12px; color: var(--md-sys-color-on-surface-variant); margin: 0; line-height: 1;">System meldunków OSP</p>
+          </div>
+        </a>
+      </div>
+      
+      <!-- Navigation & Auth -->
+      {showAuth && (
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <!-- Navigation Links -->
+          <nav style="display: none;" class="md-nav" aria-label="Główna nawigacja">
+            <a 
+              href="/" 
+              class="m3-body-large" 
+              style={`color: var(--md-sys-color-on-surface); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background-color 0.2s ease; ${
+                currentPath === '/' 
+                  ? 'background-color: rgba(211, 47, 47, 0.12); color: var(--md-sys-color-primary);' 
+                  : ''
+              }`}
+            >
+              Strona główna
+            </a>
+            <a 
+              href="/#about" 
+              class="m3-body-large" 
+              style="color: var(--md-sys-color-on-surface); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background-color 0.2s ease;"
+            >
+              O FireLog
+            </a>
+            <a 
+              href="/meldunki" 
+              class="m3-body-large" 
+              style={`color: var(--md-sys-color-on-surface); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background-color 0.2s ease; ${
+                currentPath === '/meldunki' 
+                  ? 'background-color: rgba(211, 47, 47, 0.12); color: var(--md-sys-color-primary);' 
+                  : ''
+              }`}
+            >
+              Meldunki
+            </a>
+            <a 
+              href="/dashboard" 
+              class="m3-body-large" 
+              style={`color: var(--md-sys-color-on-surface); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background-color 0.2s ease; ${
+                currentPath === '/dashboard' 
+                  ? 'background-color: rgba(211, 47, 47, 0.12); color: var(--md-sys-color-primary);' 
+                  : ''
+              }`}
+            >
+              Dashboard
+            </a>
+          </nav>
+          
+          <!-- Auth Section - Will be populated by JavaScript -->
+          <div id="auth-section" style="display: flex; align-items: center; gap: 8px;">
+            <!-- Loading state -->
+            <div id="auth-loading" style="display: flex; align-items: center; gap: 8px;">
+              <span class="material-icons" style="font-size: 18px; animation: spin 1s linear infinite;">hourglass_empty</span>
+              <span class="m3-body-large" style="color: var(--md-sys-color-on-surface-variant);">Ładowanie...</span>
+            </div>
+            
+            <!-- Not logged in state -->
+            <div id="auth-not-logged" style="display: none; align-items: center; gap: 8px;">
+              <a 
+                href="/login" 
+                class="m3-button m3-button--outlined" 
+                aria-label="Zaloguj się do systemu"
+              >
+                <span class="material-icons" style="font-size: 18px;">login</span>
+                Zaloguj się
+              </a>
+              <a 
+                href="/register" 
+                class="m3-button m3-button--filled" 
+                aria-label="Zarejestruj się w systemie"
+              >
+                <span class="material-icons" style="font-size: 18px;">person_add</span>
+                Zarejestruj się
+              </a>
+            </div>
+            
+            <!-- Logged in state -->
+            <div id="auth-logged" style="display: none; align-items: center; gap: 12px;">
+              <!-- User Profile -->
+              <div id="user-profile" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 20px; background-color: rgba(211, 47, 47, 0.08);">
+                <span class="material-icons" style="font-size: 20px; color: var(--md-sys-color-primary);">person</span>
+                <div>
+                  <div id="user-name" class="m3-body-large" style="color: var(--md-sys-color-on-surface); font-weight: 500;"></div>
+                  <div id="user-email" style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);"></div>
+                </div>
+              </div>
+              
+              <!-- Logout Button -->
+              <button 
+                id="logout-btn"
+                class="m3-button m3-button--outlined" 
+                aria-label="Wyloguj się z systemu"
+                style="padding: 8px 16px;"
+              >
+                <span class="material-icons" style="font-size: 18px;">logout</span>
+                Wyloguj
+              </button>
+            </div>
+          </div>
+          
+          <!-- Mobile Menu Button -->
+          <button 
+            class="mobile-menu-button" 
+            style="display: none; padding: 8px; border: none; background: transparent; color: var(--md-sys-color-on-surface); border-radius: 20px; cursor: pointer;" 
+            aria-label="Otwórz menu mobilne" 
+            aria-expanded="false" 
+            id="mobile-menu-button"
+          >
+            <span class="material-icons" style="font-size: 24px;">menu</span>
+          </button>
+        </div>
+      )}
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" style="display: none;" id="mobile-menu">
+      <div style="padding: 16px; border-top: 1px solid var(--md-sys-color-outline-variant);">
+        <a 
+          href="/" 
+          class="m3-body-large" 
+          style={`display: block; text-decoration: none; padding: 12px 16px; border-radius: 20px; margin: 4px 0; ${
+            currentPath === '/' 
+              ? 'background-color: rgba(211, 47, 47, 0.12); color: var(--md-sys-color-primary);' 
+              : 'color: var(--md-sys-color-on-surface);'
+          }`}
+        >
+          Strona główna
+        </a>
+        <a 
+          href="/#about" 
+          class="m3-body-large" 
+          style="display: block; color: var(--md-sys-color-on-surface); text-decoration: none; padding: 12px 16px; border-radius: 20px; margin: 4px 0;"
+        >
+          O FireLog
+        </a>
+        <a 
+          href="/meldunki" 
+          class="m3-body-large" 
+          style={`display: block; text-decoration: none; padding: 12px 16px; border-radius: 20px; margin: 4px 0; ${
+            currentPath === '/meldunki' 
+              ? 'background-color: rgba(211, 47, 47, 0.12); color: var(--md-sys-color-primary);' 
+              : 'color: var(--md-sys-color-on-surface);'
+          }`}
+        >
+          Meldunki
+        </a>
+        <a 
+          href="/dashboard" 
+          class="m3-body-large" 
+          style={`display: block; text-decoration: none; padding: 12px 16px; border-radius: 20px; margin: 4px 0; ${
+            currentPath === '/dashboard' 
+              ? 'background-color: rgba(211, 47, 47, 0.12); color: var(--md-sys-color-primary);' 
+              : 'color: var(--md-sys-color-on-surface);'
+          }`}
+        >
+          Dashboard
+        </a>
+        
+        <!-- Mobile Auth Section -->
+        <div id="mobile-auth-section" style="padding-top: 16px;">
+          <!-- Mobile Not Logged In -->
+          <div id="mobile-auth-not-logged" style="display: flex; flex-direction: column; gap: 8px;">
+            <a 
+              href="/login" 
+              class="m3-button m3-button--outlined" 
+              style="width: 100%; justify-content: center;"
+            >
+              <span class="material-icons" style="font-size: 18px;">login</span>
+              Zaloguj się
+            </a>
+            <a 
+              href="/register" 
+              class="m3-button m3-button--filled" 
+              style="width: 100%; justify-content: center;"
+            >
+              <span class="material-icons" style="font-size: 18px;">person_add</span>
+              Zarejestruj się
+            </a>
+          </div>
+          
+          <!-- Mobile Logged In -->
+          <div id="mobile-auth-logged" style="display: none; flex-direction: column; gap: 12px;">
+            <div id="mobile-user-profile" style="padding: 12px; border-radius: 12px; background-color: rgba(211, 47, 47, 0.08);">
+              <div id="mobile-user-name" class="m3-body-large" style="color: var(--md-sys-color-on-surface); font-weight: 500;"></div>
+              <div id="mobile-user-email" style="font-size: 12px; color: var(--md-sys-color-on-surface-variant);"></div>
+            </div>
+            <button 
+              id="mobile-logout-btn"
+              class="m3-button m3-button--outlined" 
+              style="width: 100%; justify-content: center;"
+            >
+              <span class="material-icons" style="font-size: 18px;">logout</span>
+              Wyloguj się
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  @media (min-width: 768px) {
+    .md-nav {
+      display: flex !important;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .mobile-menu-button {
+      display: none !important;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .mobile-menu-button {
+      display: block !important;
+    }
+  }
+  
+  .mobile-menu-button:hover {
+    background-color: rgba(211, 47, 47, 0.08);
+  }
+  
+  .md-nav a:hover {
+    background-color: rgba(211, 47, 47, 0.08);
+  }
+</style>
+
+<script>
+  // ============================================================================
+  // HEADER AUTHENTICATION MANAGEMENT
+  // ============================================================================
+  
+  let userProfile = null;
+  
+  // ============================================================================
+  // 1. CHECK AUTHENTICATION STATUS
+  // ============================================================================
+  async function checkAuthStatus() {
+    const token = localStorage.getItem('access_token');
+    
+    if (!token) {
+      showNotLoggedIn();
+      return;
+    }
+    
+    try {
+      // Fetch user profile
+      const response = await fetch('/api/auth/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.data) {
+        userProfile = result.data;
+        showLoggedIn(result.data);
+      } else {
+        // Token is invalid, clear it
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        showNotLoggedIn();
+      }
+    } catch (error) {
+      console.error('Auth check error:', error);
+      showNotLoggedIn();
+    }
+  }
+  
+  // ============================================================================
+  // 2. SHOW NOT LOGGED IN STATE
+  // ============================================================================
+  function showNotLoggedIn() {
+    const authLoading = document.getElementById('auth-loading');
+    const authNotLogged = document.getElementById('auth-not-logged');
+    const authLogged = document.getElementById('auth-logged');
+    const mobileAuthNotLogged = document.getElementById('mobile-auth-not-logged');
+    const mobileAuthLogged = document.getElementById('mobile-auth-logged');
+    
+    if (authLoading) authLoading.style.display = 'none';
+    if (authNotLogged) authNotLogged.style.display = 'flex';
+    if (authLogged) authLogged.style.display = 'none';
+    if (mobileAuthNotLogged) mobileAuthNotLogged.style.display = 'flex';
+    if (mobileAuthLogged) mobileAuthLogged.style.display = 'none';
+  }
+  
+  // ============================================================================
+  // 3. SHOW LOGGED IN STATE
+  // ============================================================================
+  function showLoggedIn(data: any) {
+    const authLoading = document.getElementById('auth-loading');
+    const authNotLogged = document.getElementById('auth-not-logged');
+    const authLogged = document.getElementById('auth-logged');
+    const mobileAuthNotLogged = document.getElementById('mobile-auth-not-logged');
+    const mobileAuthLogged = document.getElementById('mobile-auth-logged');
+    
+    // Update user info
+    const userName = document.getElementById('user-name');
+    const userEmail = document.getElementById('user-email');
+    const mobileUserName = document.getElementById('mobile-user-name');
+    const mobileUserEmail = document.getElementById('mobile-user-email');
+    
+    const displayName = data.profile.first_name && data.profile.last_name 
+      ? `${data.profile.first_name} ${data.profile.last_name}`
+      : data.user.email;
+    
+    if (userName) userName.textContent = displayName;
+    if (userEmail) userEmail.textContent = data.user.email;
+    if (mobileUserName) mobileUserName.textContent = displayName;
+    if (mobileUserEmail) mobileUserEmail.textContent = data.user.email;
+    
+    // Show logged in state
+    if (authLoading) authLoading.style.display = 'none';
+    if (authNotLogged) authNotLogged.style.display = 'none';
+    if (authLogged) authLogged.style.display = 'flex';
+    if (mobileAuthNotLogged) mobileAuthNotLogged.style.display = 'none';
+    if (mobileAuthLogged) mobileAuthLogged.style.display = 'flex';
+  }
+  
+  // ============================================================================
+  // 4. LOGOUT FUNCTIONALITY
+  // ============================================================================
+  async function logout() {
+    const token = localStorage.getItem('access_token');
+    
+    if (token) {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+      } catch (error) {
+        console.error('Logout API error:', error);
+      }
+    }
+    
+    // Clear local storage
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    
+    // Redirect to home page
+    window.location.href = '/';
+  }
+  
+  // ============================================================================
+  // 5. INITIALIZATION
+  // ============================================================================
+  document.addEventListener('DOMContentLoaded', function() {
+    // Check authentication status
+    checkAuthStatus();
+    
+    // Set up logout buttons
+    const logoutBtn = document.getElementById('logout-btn');
+    const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+    
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', logout);
+    }
+    
+    if (mobileLogoutBtn) {
+      mobileLogoutBtn.addEventListener('click', logout);
+    }
+    
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileMenuButton && mobileMenu) {
+      mobileMenuButton.addEventListener('click', function() {
+        const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+        mobileMenuButton.setAttribute('aria-expanded', String(!isExpanded));
+        mobileMenu.style.display = isExpanded ? 'none' : 'block';
+        
+        // Update button icon
+        const icon = mobileMenuButton.querySelector('.material-icons');
+        if (icon) {
+          icon.textContent = isExpanded ? 'menu' : 'close';
+        }
+      });
+    }
+  });
+</script>

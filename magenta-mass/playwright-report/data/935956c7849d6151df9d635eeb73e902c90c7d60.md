@@ -1,0 +1,122 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Przejdź do głównej zawartości" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - main [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e7]:
+        - link "Przejdź do strony głównej FireLog" [ref=e9] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e11]: local_fire_department
+          - generic [ref=e12]:
+            - text: FireLog
+            - paragraph [ref=e13]: System meldunków OSP
+        - generic [ref=e14]:
+          - generic [ref=e16]:
+            - link "Zaloguj się do systemu" [ref=e17] [cursor=pointer]:
+              - /url: /login
+              - generic [ref=e18]: login
+              - text: Zaloguj się
+            - link "Zarejestruj się w systemie" [ref=e19] [cursor=pointer]:
+              - /url: /register
+              - generic [ref=e20]: person_add
+              - text: Zarejestruj się
+          - button "Otwórz menu mobilne" [ref=e21] [cursor=pointer]:
+            - generic [ref=e22]: menu
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e27]: local_fire_department
+          - generic [ref=e28]: Rejestracja
+          - generic [ref=e29]: Utwórz nowe konto w systemie FireLog
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - text: Email
+              - textbox "Email" [ref=e33]:
+                - /placeholder: Wprowadź swój email
+            - generic [ref=e34]:
+              - text: Hasło
+              - textbox "Hasło" [ref=e35]:
+                - /placeholder: Wprowadź swoje hasło
+              - paragraph [ref=e36]: "Hasło musi zawierać: wielką i małą literę, cyfrę, znak specjalny"
+            - generic [ref=e37]:
+              - text: Imię (opcjonalne)
+              - textbox "Imię (opcjonalne)" [ref=e38]:
+                - /placeholder: Wprowadź swoje imię
+            - generic [ref=e39]:
+              - text: Nazwisko (opcjonalne)
+              - textbox "Nazwisko (opcjonalne)" [ref=e40]:
+                - /placeholder: Wprowadź swoje nazwisko
+            - generic [ref=e41]:
+              - text: ID Jednostki OSP
+              - textbox "ID Jednostki OSP" [ref=e42]:
+                - /placeholder: ID jednostki
+                - text: 550e8400-e29b-41d4-a716-446655440000
+              - paragraph [ref=e43]: "Testowa jednostka: OSP Warszawa Mokotów"
+            - button "person_add Zarejestruj się" [ref=e44]:
+              - generic [ref=e45]: person_add
+              - text: Zarejestruj się
+          - generic [ref=e46]:
+            - paragraph [ref=e47]:
+              - text: Masz już konto?
+              - link "Zaloguj się" [ref=e48] [cursor=pointer]:
+                - /url: /login
+            - link "← Powrót do strony głównej" [ref=e49] [cursor=pointer]:
+              - /url: /
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e56]: local_fire_department
+              - generic [ref=e57]:
+                - text: FireLog
+                - paragraph [ref=e58]: System meldunków OSP
+            - paragraph [ref=e59]: Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej. Zastąp tradycyjne metody cyfrowymi rozwiązaniami.
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - heading "Szybkie linki" [level=3] [ref=e62]
+              - list [ref=e63]:
+                - listitem [ref=e64]:
+                  - link "Strona główna" [ref=e65] [cursor=pointer]:
+                    - /url: /
+                - listitem [ref=e66]:
+                  - link "Logowanie" [ref=e67] [cursor=pointer]:
+                    - /url: /login
+                - listitem [ref=e68]:
+                  - link "Rejestracja" [ref=e69] [cursor=pointer]:
+                    - /url: /register
+                - listitem [ref=e70]:
+                  - link "Meldunki" [ref=e71] [cursor=pointer]:
+                    - /url: /meldunki
+                - listitem [ref=e72]:
+                  - link "Dashboard" [ref=e73] [cursor=pointer]:
+                    - /url: /dashboard
+            - generic [ref=e74]:
+              - heading "Wsparcie" [level=3] [ref=e75]
+              - list [ref=e76]:
+                - listitem [ref=e77]:
+                  - link "O aplikacji" [ref=e78] [cursor=pointer]:
+                    - /url: /#about
+                - listitem [ref=e79]:
+                  - link "Polityka prywatności" [ref=e80] [cursor=pointer]:
+                    - /url: /privacy
+                - listitem [ref=e81]:
+                  - link "Regulamin" [ref=e82] [cursor=pointer]:
+                    - /url: /terms
+        - generic [ref=e85]: © 2025 FireLog. Wszystkie prawa zastrzeżone.
+  - generic [ref=e88]:
+    - button "Menu" [ref=e89]:
+      - img [ref=e91]
+      - generic: Menu
+    - button "Inspect" [ref=e95]:
+      - img [ref=e97]
+      - generic: Inspect
+    - button "Audit" [ref=e99]:
+      - img [ref=e101]
+      - generic: Audit
+    - button "Settings" [ref=e104]:
+      - img [ref=e106]
+      - generic: Settings
+```
