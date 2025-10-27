@@ -71,15 +71,9 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     <div class="flex-1 container mx-auto px-4 py-8">
       <!-- Page Header -->
       <div class="mb-8">
-        <div class="flex flex-col sm:flex-row gap-6 items-center justify-between">
-          <div class="text-center sm:text-left">
-            <h1 class="text-3xl font-bold text-foreground mb-2">{title}</h1>
-            {description && <p class="text-muted-foreground">{description}</p>}
-          </div>
-          <Card className="p-6 text-center min-w-[120px]">
-            <div class="text-2xl font-bold text-primary mb-1" id="meldunkiCount">0</div>
-            <div class="text-sm text-muted-foreground">Meldunków</div>
-          </Card>
+        <div class="text-center sm:text-left">
+          <h1 class="text-3xl font-bold text-foreground mb-2">{title}</h1>
+          {description && <p class="text-muted-foreground">{description}</p>}
         </div>
       </div>
 
@@ -641,11 +635,65 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   // ============================================================================
   // 2.3. LOAD ACCOUNT STATS
   // ============================================================================
-  function loadAccountStats() {
+  async function loadAccountStats() {
     const container = document.getElementById('accountStats');
     if (!container) return;
     
-    // Load meldunki from localStorage
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No access token found');
+        return;
+      }
+
+      // Load from API
+      const response = await fetch('/api/meldunki', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          const meldunki = result.data || [];
+          const totalMeldunki = meldunki.length;
+          
+          // Calculate this month's meldunki
+          const now = new Date();
+          const thisMonth = meldunki.filter(m => {
+            const date = new Date(m.incident_date);
+            return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+          }).length;
+          
+          container.innerHTML = `
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Wszystkich meldunków</span>
+                <span className="font-bold text-lg">${totalMeldunki}</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">W tym miesiącu</span>
+                <span className="font-bold text-lg">${thisMonth}</span>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Ostatni meldunek</span>
+                <span className="font-medium text-sm">${totalMeldunki > 0 ? new Date(meldunki[meldunki.length - 1].created_at).toLocaleDateString('pl-PL') : 'Brak'}</span>
+              </div>
+            </div>
+          `;
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading account stats:', error);
+    }
+    
+    // Fallback to localStorage
     const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
     const totalMeldunki = meldunki.length;
     
@@ -717,98 +765,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   }
   
   // ============================================================================
-  // 4. LOAD MELDUNKI
-  // ============================================================================
-  async function loadMeldunki() {
-    try {
-      // Load from localStorage instead of API
-      const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
-      document.getElementById('meldunkiCount').textContent = meldunki.length;
-      displayMeldunki(meldunki);
-    } catch (error) {
-      console.error('Error loading meldunki:', error);
-    }
-  }
-  
-  function displayMeldunki(meldunki) {
-    const container = document.getElementById('meldunkiList');
-    
-    if (meldunki.length === 0) {
-      container.innerHTML = `
-        <div class="text-center py-12">
-          <span class="material-icons text-6xl text-muted-foreground mb-4 block">description</span>
-          <h3 class="text-xl font-semibold text-foreground mb-2">Brak meldunków</h3>
-          <p class="text-muted-foreground">Nie masz jeszcze żadnych meldunków. Utwórz pierwszy!</p>
-        </div>
-      `;
-      return;
-    }
-    
-    container.innerHTML = meldunki.map(meldunek => `
-      <Card class="hover:shadow-md transition-shadow">
-        <CardContent class="p-6">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h3 class="text-lg font-semibold text-foreground mb-2">${meldunek.incident_name}</h3>
-              <p class="text-sm text-muted-foreground">${new Date(meldunek.incident_date).toLocaleDateString('pl-PL')}</p>
-            </div>
-            <Badge variant="secondary">Meldunek</Badge>
-          </div>
-          
-          <p class="text-muted-foreground mb-4 line-clamp-3">${meldunek.description}</p>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            ${meldunek.location_address ? `
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-sm text-muted-foreground">location_on</span>
-                <span class="text-muted-foreground">${meldunek.location_address}</span>
-              </div>
-            ` : ''}
-            
-            ${meldunek.commander ? `
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-sm text-muted-foreground">person</span>
-                <span class="text-muted-foreground">Dowódca: ${meldunek.commander}</span>
-              </div>
-            ` : ''}
-            
-            ${meldunek.driver ? `
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-sm text-muted-foreground">drive_eta</span>
-                <span class="text-muted-foreground">Kierowca: ${meldunek.driver}</span>
-              </div>
-            ` : ''}
-            
-            ${meldunek.forces_and_resources ? `
-              <div class="flex items-center gap-2">
-                <span class="material-icons text-sm text-muted-foreground">group</span>
-                <span class="text-muted-foreground">Siły: ${meldunek.forces_and_resources}</span>
-              </div>
-            ` : ''}
-          </div>
-          
-          <div class="mt-4 pt-4 border-t">
-            <div class="flex justify-between items-center text-xs text-muted-foreground">
-              <span>Utworzono: ${new Date(meldunek.created_at).toLocaleString('pl-PL')}</span>
-              <div class="flex gap-2">
-                <Button variant="outline" size="sm">
-                  <span class="material-icons text-sm mr-1">visibility</span>
-                  Zobacz
-                </Button>
-                <Button variant="outline" size="sm">
-                  <span class="material-icons text-sm mr-1">edit</span>
-                  Edytuj
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    `).join('');
-  }
-  
-  // ============================================================================
-  // 5. CREATE MELDUNEK
+  // 4. CREATE MELDUNEK
   // ============================================================================
   async function createMeldunek(formData) {
     try {
@@ -831,9 +788,8 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           // Clear form
           document.getElementById('meldunekForm').reset();
           
-          // Switch to meldunki tab and reload
+          // Switch to meldunki tab
           switchTab('meldunki');
-          loadMeldunki();
         }
       } else {
         const error = await response.json();
@@ -1139,8 +1095,30 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   
   function updateAdminStats() {
     // Update the admin stats cards
-    const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
-    document.getElementById('totalMeldunkiAdmin').textContent = meldunki.length;
+    const token = localStorage.getItem('access_token');
+    if (!token) return;
+    
+    // Load from API
+    fetch('/api/meldunki', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(result => {
+      if (result.success) {
+        const meldunki = result.data || [];
+        document.getElementById('totalMeldunkiAdmin').textContent = meldunki.length;
+      }
+    })
+    .catch(error => {
+      console.error('Error loading admin stats:', error);
+      // Fallback to localStorage
+      const meldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
+      document.getElementById('totalMeldunkiAdmin').textContent = meldunki.length;
+    });
     
     // Mock data for demo
     document.getElementById('totalUsers').textContent = '5';
@@ -1159,8 +1137,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     // Load user profile
     loadUserProfile();
     
-    // Load initial data
-    loadMeldunki();
+    // Initial data loaded
     
     // Set up tab navigation
     document.querySelectorAll('.tab-button').forEach(button => {
@@ -1190,23 +1167,36 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         
         console.log('Form data:', data);
         
-        // Save to localStorage
-        const existingMeldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
-        const newMeldunek = {
-          id: Date.now(),
-          ...data,
-          created_at: new Date().toISOString()
-        };
-        existingMeldunki.push(newMeldunek);
-        localStorage.setItem('meldunki', JSON.stringify(existingMeldunki));
+        // Send to API
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          alert('Błąd: Brak tokenu autoryzacji');
+          return;
+        }
         
-        alert('Meldunek został zapisany!');
+        fetch('/api/meldunki', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            alert('Meldunek został zapisany!');
+          } else {
+            alert('Błąd: ' + result.error.message);
+          }
+        })
+        .catch(error => {
+          console.error('Error creating meldunek:', error);
+          alert('Błąd połączenia. Sprawdź czy serwer działa.');
+        });
         
         // Clear form
         document.getElementById('meldunekForm').reset();
-        
-        // Reload meldunki count
-        loadMeldunki();
       });
     }
     
@@ -1338,10 +1328,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           content.classList.remove('hidden');
           console.log('Showing content for:', tabName);
           
-          // Load meldunki when switching to meldunki tab
-          if (tabName === 'meldunki') {
-            loadMeldunki();
-          }
+          // Tab switched successfully
         }
         
         // Add active class to selected button

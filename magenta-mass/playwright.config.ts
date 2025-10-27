@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+
+// Load test environment variables
+dotenv.config({ path: './test.env.example' });
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -22,7 +26,16 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
+    
+    /* Test environment variables */
+    extraHTTPHeaders: {
+      'X-Test-Environment': 'e2e'
+    },
   },
+  
+  /* Global setup and teardown */
+  // globalSetup: './tests/e2e/global-setup.ts',
+  // globalTeardown: './tests/e2e/global-teardown.ts',
 
   /* Configure projects for major browsers */
   projects: [
@@ -63,9 +76,9 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:4321',
-    reuseExistingServer: !process.env.CI,
-  },
+  // webServer: {
+  //   command: 'npm run dev',
+  //   url: 'http://localhost:4321',
+  //   reuseExistingServer: !process.env.CI,
+  // },
 });

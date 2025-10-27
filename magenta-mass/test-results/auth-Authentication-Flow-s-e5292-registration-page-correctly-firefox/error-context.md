@@ -57,12 +57,16 @@
               - textbox "Nazwisko (opcjonalne)" [ref=e43]:
                 - /placeholder: Wprowadź swoje nazwisko
             - generic [ref=e44]:
-              - text: ID Jednostki OSP
-              - textbox "ID Jednostki OSP" [ref=e45]:
-                - /placeholder: ID jednostki
-                - text: 550e8400-e29b-41d4-a716-446655440000
-              - paragraph [ref=e46]: "Testowa jednostka: OSP Warszawa Mokotów"
-            - button "person_add Zarejestruj się" [ref=e47]:
+              - text: Nazwa Jednostki OSP
+              - combobox "Nazwa Jednostki OSP" [ref=e45]:
+                - option "Wybierz jednostkę OSP" [disabled] [selected]
+                - option "OSP Test Warszawa"
+                - option "OSP Ożarów Mazowiecki"
+                - option "OSP Błonie"
+                - option "OSP Wieliczka"
+                - option "OSP Niepołomice"
+              - paragraph [ref=e46]: Wybierz jednostkę Ochotniczej Straży Pożarnej z listy
+            - button "person_add Zarejestruj się" [ref=e47] [cursor=pointer]:
               - generic [ref=e48]: person_add
               - text: Zarejestruj się
           - generic [ref=e49]:

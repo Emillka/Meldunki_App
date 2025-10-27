@@ -1,36 +1,27 @@
 import type { APIRoute } from 'astro';
-import { AuthService } from '../../../lib/services/auth.service';
-import { validateEmail } from '../../../lib/validation/auth.validation';
-import { successResponse, errorResponse } from '../../../lib/utils/response';
-import { rateLimiter } from '../../../lib/utils/rate-limiter';
+import { AuthService } from '@/lib/services/auth.service';
+import { successResponse, errorResponse } from '@/lib/utils/response';
+import { rateLimiter } from '@/lib/utils/rate-limiter';
+import type { LoginRequestDTO } from '@/lib/types';
 
 /**
  * POST /api/auth/login
- * 
- * Endpoint logowania użytkownika
- * 
- * @returns 200 OK - logowanie udane
- * @returns 400 Bad Request - błąd walidacji
- * @returns 401 Unauthorized - nieprawidłowe dane logowania
- * @returns 429 Too Many Requests - przekroczony limit
- * @returns 500 Internal Server Error - błąd serwera
+ * Loguje użytkownika do systemu
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
-    // ============================================================================
-    // 1. RATE LIMITING CHECK
-    // ============================================================================
-    const clientIp = 
+    // 1. Rate limiting check
+    const clientIp =
       request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
       request.headers.get('x-real-ip') ||
       'unknown';
-    
+
     const rateLimit = rateLimiter.check(
       `login:${clientIp}`,
       5, // max 5 requests
-      900000 // per 15 minutes (15 * 60 * 1000)
+      900000 // per 15 minutes
     );
-    
+
     if (!rateLimit.allowed) {
       return errorResponse(
         429,
@@ -39,71 +30,50 @@ export const POST: APIRoute = async ({ request }) => {
         { retry_after: rateLimit.retryAfter }
       );
     }
-    
-    // ============================================================================
-    // 2. PARSE REQUEST BODY
-    // ============================================================================
+
+    // 2. Parse request body
     let body: unknown;
     try {
-      body = await request.json();
-    } catch {
+      const text = await request.text();
+      console.log('Raw login request body:', text); // Debugging line
+      body = JSON.parse(text);
+    } catch (error) {
+      console.error('JSON parsing error:', error);
       return errorResponse(
         400,
         'VALIDATION_ERROR',
         'Invalid JSON in request body'
       );
     }
+
+    // 3. Validate request data
+    const dto = body as LoginRequestDTO;
     
-    // ============================================================================
-    // 3. VALIDATE REQUEST DATA
-    // ============================================================================
-    const errors: Record<string, string> = {};
-    
-    if (!body || typeof body !== 'object') {
+    if (!dto.email || !dto.password) {
       return errorResponse(
         400,
         'VALIDATION_ERROR',
-        'Invalid request body'
+        'Email and password are required'
       );
     }
+
+    // 4. Sanitize email
+    const email = dto.email.trim().toLowerCase();
     
-    const { email, password } = body as { email?: unknown; password?: unknown };
-    
-    // Email validation
-    if (!email || typeof email !== 'string') {
-      errors.email = 'Email is required';
-    } else if (!validateEmail(email)) {
-      errors.email = 'Invalid email format';
-    }
-    
-    // Password validation
-    if (!password || typeof password !== 'string') {
-      errors.password = 'Password is required';
-    }
-    
-    if (Object.keys(errors).length > 0) {
+    if (!email.includes('@') || email.length < 5) {
       return errorResponse(
         400,
         'VALIDATION_ERROR',
-        'Invalid input data',
-        errors
+        'Invalid email format'
       );
     }
-    
-    // ============================================================================
-    // 4. CALL AUTH SERVICE
-    // ============================================================================
+
+    // 5. Execute login
     const authService = new AuthService();
-    const { data, error } = await authService.loginUser(
-      (email as string).trim().toLowerCase(),
-      password as string
-    );
-    
-    // ============================================================================
-    // 5. HANDLE SERVICE ERRORS
-    // ============================================================================
+    const { data, error } = await authService.loginUser(email, dto.password);
+
     if (error) {
-      // Invalid credentials
+      // Handle specific error types
       if (error.message === 'INVALID_CREDENTIALS') {
         return errorResponse(
           401,
@@ -111,41 +81,28 @@ export const POST: APIRoute = async ({ request }) => {
           'Invalid email or password'
         );
       }
-      
-      // Generic server error
-      console.error('Login error:', {
-        error: error.message,
-        email: (email as string).trim().toLowerCase(),
-        timestamp: new Date().toISOString()
-      });
-      
+
+      // Generic error
       return errorResponse(
         500,
         'SERVER_ERROR',
-        'An unexpected error occurred during login'
+        'Login failed. Please try again.',
+        { original_error: error.message }
       );
     }
-    
-    // ============================================================================
-    // 6. SUCCESS RESPONSE
-    // ============================================================================
+
+    // 6. Success response
     return successResponse(
-      data!,
-      'Login successful',
-      200
+      data,
+      'Login successful'
     );
-    
+
   } catch (error) {
-    // ============================================================================
-    // CATCH-ALL ERROR HANDLER
-    // ============================================================================
-    console.error('Unexpected error in /api/auth/login:', error);
-    
+    console.error('Login endpoint error:', error);
     return errorResponse(
       500,
       'SERVER_ERROR',
-      'An unexpected error occurred'
+      'An unexpected error occurred during login'
     );
   }
 };
-

@@ -1,112 +1,46 @@
 import type { APIRoute } from 'astro';
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../../lib/db/database.types';
+import { supabase } from '@/lib/db/supabase';
+import { successResponse, errorResponse } from '@/lib/utils/response';
 
 /**
- * API endpoint do wylogowania użytkownika
- * 
- * Usuwa sesję użytkownika z Supabase i zwraca potwierdzenie
+ * POST /api/auth/logout
+ * Wylogowuje użytkownika z systemu
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
-    // 1. Pobierz token z nagłówka Authorization
+    // 1. Extract token from Authorization header
     const authHeader = request.headers.get('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: {
-            code: 'MISSING_TOKEN',
-            message: 'Brak tokenu autoryzacji'
-          }
-        }),
-        {
-          status: 401,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
+      return errorResponse(
+        401,
+        'UNAUTHORIZED',
+        'Missing or invalid authorization header'
       );
     }
-    
+
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    
-    // 2. Utwórz klienta Supabase
-    const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
-    
-    if (!supabaseUrl || !supabaseKey) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: {
-            code: 'CONFIGURATION_ERROR',
-            message: 'Błąd konfiguracji serwera'
-          }
-        }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-    }
-    
-    const supabase = createClient<Database>(supabaseUrl, supabaseKey);
-    
-    // 3. Wyloguj użytkownika
+
+    // 2. Sign out user from Supabase
     const { error } = await supabase.auth.signOut();
-    
+
     if (error) {
       console.error('Logout error:', error);
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: {
-            code: 'LOGOUT_FAILED',
-            message: 'Błąd podczas wylogowania'
-          }
-        }),
-        {
-          status: 500,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      // Even if Supabase logout fails, we still return success
+      // because the client will clear the token anyway
     }
-    
-    // 4. Zwróć sukces
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: 'Wylogowanie udane'
-      }),
-      {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+
+    // 3. Success response
+    return successResponse(
+      null,
+      'Logout successful'
     );
-    
+
   } catch (error) {
-    console.error('Unexpected logout error:', error);
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: {
-          code: 'UNEXPECTED_ERROR',
-          message: 'Nieoczekiwany błąd serwera'
-        }
-      }),
-      {
-        status: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+    console.error('Logout endpoint error:', error);
+    return errorResponse(
+      500,
+      'SERVER_ERROR',
+      'An unexpected error occurred during logout'
     );
   }
 };

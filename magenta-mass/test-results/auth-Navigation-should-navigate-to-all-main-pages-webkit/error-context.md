@@ -47,7 +47,7 @@
               - text: Hasło
               - textbox "Hasło" [ref=e38]:
                 - /placeholder: Wprowadź swoje hasło
-            - button "login Zaloguj się" [ref=e39]:
+            - button "login Zaloguj się" [ref=e39] [cursor=pointer]:
               - generic [ref=e40]: login
               - text: Zaloguj się
           - generic [ref=e41]:

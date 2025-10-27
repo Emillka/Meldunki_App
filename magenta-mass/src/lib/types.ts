@@ -128,7 +128,7 @@ export interface UserDTO {
 export interface RegisterRequestDTO {
   email: string;
   password: string;
-  fire_department_id: string;
+  fire_department_name: string;
   first_name?: string;
   last_name?: string;
   role?: 'member' | 'admin';

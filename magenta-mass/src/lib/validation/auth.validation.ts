@@ -51,11 +51,13 @@ export function validateRegisterRequest(
     }
   }
   
-  // Fire department ID validation
-  if (!dto.fire_department_id) {
-    errors.fire_department_id = 'Fire department ID is required';
-  } else if (!validateUUID(dto.fire_department_id)) {
-    errors.fire_department_id = 'Invalid fire department ID format';
+  // Fire department name validation
+  if (!dto.fire_department_name) {
+    errors.fire_department_name = 'Fire department name is required';
+  } else if (dto.fire_department_name.trim().length < 3) {
+    errors.fire_department_name = 'Fire department name must be at least 3 characters';
+  } else if (dto.fire_department_name.length > 255) {
+    errors.fire_department_name = 'Fire department name must not exceed 255 characters';
   }
   
   // First name validation (optional)
@@ -147,7 +149,7 @@ export function validatePasswordStrength(password: string): {
 }
 
 /**
- * Waliduje format UUID v4
+ * Waliduje format UUID (any version)
  * 
  * @param uuid - String UUID do walidacji
  * @returns true jeśli UUID jest poprawny
@@ -159,7 +161,7 @@ export function validatePasswordStrength(password: string): {
  * ```
  */
 export function validateUUID(uuid: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
 }
 
@@ -176,9 +178,10 @@ export function validateUUID(uuid: string): boolean {
  * ```
  */
 export function sanitizeString(input: string | null | undefined): string | null {
-  if (!input) return null;
-  return input
-    .trim()
+  if (input === null || input === undefined) return null;
+  const trimmed = input.trim();
+  if (trimmed === '') return '';
+  return trimmed
     .replace(/[<>]/g, '') // Remove HTML tags
     .substring(0, 255); // Limit length
 }

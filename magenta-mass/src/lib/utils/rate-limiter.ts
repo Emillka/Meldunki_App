@@ -51,6 +51,11 @@ class RateLimiter {
     allowed: boolean;
     retryAfter?: number;
   } {
+    // Walidacja parametrów
+    if (maxRequests <= 0) {
+      return { allowed: false, retryAfter: 0 };
+    }
+    
     const now = Date.now();
     const limit = this.limits.get(key);
     

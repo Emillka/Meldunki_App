@@ -20,7 +20,7 @@ import { Alert, AlertDescription } from '../components/ui/alert';
     <Header currentPath="/register" />
     
     <!-- Registration Section -->
-    <section class="flex-1 flex items-center justify-center p-8">
+    <section class="flex-1 flex items-center justify-center p-4 sm:p-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -87,19 +87,24 @@ import { Alert, AlertDescription } from '../components/ui/alert';
               />
             </div>
 
-            <!-- Fire Department ID -->
+            <!-- Fire Department Name -->
             <div className="space-y-2">
-              <Label htmlFor="fireDepartmentId">ID Jednostki OSP</Label>
-              <Input
-                type="text"
-                id="fireDepartmentId"
-                name="fireDepartmentId"
+              <Label htmlFor="fireDepartmentName">Nazwa Jednostki OSP</Label>
+              <select
+                id="fireDepartmentName"
+                name="fireDepartmentName"
                 required
-                value="550e8400-e29b-41d4-a716-446655440000"
-                placeholder="ID jednostki"
-              />
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <option value="" disabled selected style="color: #6b7280;">Wybierz jednostkę OSP</option>
+                <option value="OSP Test Warszawa">OSP Test Warszawa</option>
+                <option value="OSP Ożarów Mazowiecki">OSP Ożarów Mazowiecki</option>
+                <option value="OSP Błonie">OSP Błonie</option>
+                <option value="OSP Wieliczka">OSP Wieliczka</option>
+                <option value="OSP Niepołomice">OSP Niepołomice</option>
+              </select>
               <p className="text-xs text-muted-foreground">
-                Testowa jednostka: OSP Warszawa Mokotów
+                Wybierz jednostkę Ochotniczej Straży Pożarnej z listy
               </p>
             </div>
 
@@ -192,7 +197,7 @@ import { Alert, AlertDescription } from '../components/ui/alert';
     const data = {
       email: formData.get('email') as string,
       password: formData.get('password') as string,
-      fire_department_id: formData.get('fireDepartmentId') as string,
+      fire_department_name: formData.get('fireDepartmentName') as string,
       first_name: formData.get('firstName') as string || undefined,
       last_name: formData.get('lastName') as string || undefined,
       role: 'member' as const

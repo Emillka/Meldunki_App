@@ -52,15 +52,23 @@ export class MeldunkiService {
   async createMeldunek(command: CreateMeldunekCommand): Promise<{ data: CreateMeldunekResponseDTO | null; error: Error | null }> {
     try {
       // 1. Sprawdzenie czy użytkownik ma dostęp do jednostki OSP
-      const hasAccess = await this.validateUserFireDepartmentAccess(
-        command.user_id, 
-        command.fire_department_id
-      );
-      
-      if (!hasAccess) {
+      try {
+        const hasAccess = await this.validateUserFireDepartmentAccess(
+          command.user_id, 
+          command.fire_department_id
+        );
+        
+        if (!hasAccess) {
+          return {
+            data: null,
+            error: new Error('FIRE_DEPARTMENT_ACCESS_DENIED')
+          };
+        }
+      } catch (error) {
+        // Przekaż oryginalny błąd z validateUserFireDepartmentAccess
         return {
           data: null,
-          error: new Error('FIRE_DEPARTMENT_ACCESS_DENIED')
+          error: error as Error
         };
       }
 
@@ -215,22 +223,17 @@ export class MeldunkiService {
    * @private
    */
   private async validateUserFireDepartmentAccess(userId: string, fireDepartmentId: string): Promise<boolean> {
-    try {
-      const { data: profile, error } = await this.supabase
-        .from('profiles')
-        .select('fire_department_id')
-        .eq('id', userId)
-        .single();
+    const { data: profile, error } = await this.supabase
+      .from('profiles')
+      .select('fire_department_id')
+      .eq('id', userId)
+      .single();
 
-      if (error || !profile) {
-        console.error('Profile fetch failed:', error);
-        return false;
-      }
-
-      return profile.fire_department_id === fireDepartmentId;
-    } catch (error) {
-      console.error('Error validating fire department access:', error);
-      return false;
+    if (error || !profile) {
+      console.error('Profile fetch failed:', error);
+      throw error || new Error('Profile not found');
     }
+
+    return profile.fire_department_id === fireDepartmentId;
   }
 }

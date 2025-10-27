@@ -1,38 +1,18 @@
 import type { APIRoute } from 'astro';
-import { AuthService } from '../../../lib/services/auth.service';
-import { 
-  validateRegisterRequest, 
-  sanitizeString 
-} from '../../../lib/validation/auth.validation';
-import { successResponse, errorResponse } from '../../../lib/utils/response';
-import { rateLimiter } from '../../../lib/utils/rate-limiter';
-import type { RegisterRequestDTO, RegisterUserCommand } from '../../../lib/types';
+import { AuthService } from '@/lib/services/auth.service';
+import { validateRegisterRequest, sanitizeString } from '@/lib/validation/auth.validation';
+import { successResponse, errorResponse } from '@/lib/utils/response';
+import { rateLimiter } from '@/lib/utils/rate-limiter';
+import { supabase } from '@/lib/db/supabase';
+import type { RegisterRequestDTO, RegisterUserCommand } from '@/lib/types';
 
 /**
  * POST /api/auth/register
- * 
- * Endpoint rejestracji nowego użytkownika w systemie FireLog
- * 
- * Funkcjonalności:
- * - Rate limiting (3 żądania/godzinę per IP)
- * - Walidacja danych wejściowych
- * - Sanityzacja stringów (XSS prevention)
- * - Utworzenie użytkownika przez Supabase Auth
- * - Automatyczne utworzenie profilu (trigger bazodanowy)
- * - Zwrócenie sesji JWT
- * 
- * @returns 201 Created - użytkownik utworzony
- * @returns 400 Bad Request - błąd walidacji
- * @returns 404 Not Found - jednostka OSP nie istnieje
- * @returns 409 Conflict - email już istnieje
- * @returns 429 Too Many Requests - przekroczony limit
- * @returns 500 Internal Server Error - błąd serwera
+ * Rejestruje nowego użytkownika w systemie
  */
 export const POST: APIRoute = async ({ request }) => {
   try {
-    // ============================================================================
-    // 1. RATE LIMITING CHECK
-    // ============================================================================
+    // 1. Rate limiting check
     const clientIp = 
       request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
       request.headers.get('x-real-ip') ||
@@ -41,7 +21,7 @@ export const POST: APIRoute = async ({ request }) => {
     const rateLimit = rateLimiter.check(
       `register:${clientIp}`,
       3, // max 3 requests
-      3600000 // per hour (1h = 3600000ms)
+      3600000 // per hour
     );
     
     if (!rateLimit.allowed) {
@@ -53,13 +33,14 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     
-    // ============================================================================
-    // 2. PARSE REQUEST BODY
-    // ============================================================================
+    // 2. Parse request body
     let body: unknown;
     try {
-      body = await request.json();
-    } catch {
+      const text = await request.text();
+      console.log('Raw request body:', text);
+      body = JSON.parse(text);
+    } catch (error) {
+      console.error('JSON parsing error:', error);
       return errorResponse(
         400,
         'VALIDATION_ERROR',
@@ -67,9 +48,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     
-    // ============================================================================
-    // 3. VALIDATE REQUEST DATA
-    // ============================================================================
+    // 3. Validate request data
     const validation = validateRegisterRequest(body);
     if (!validation.valid) {
       return errorResponse(
@@ -82,53 +61,57 @@ export const POST: APIRoute = async ({ request }) => {
     
     const dto = body as RegisterRequestDTO;
     
-    // ============================================================================
-    // 4. SANITIZE STRING INPUTS
-    // ============================================================================
+    // 4. Sanitize string inputs
     const sanitizedDto: RegisterRequestDTO = {
       email: dto.email.trim().toLowerCase(),
-      password: dto.password, // NEVER log or modify password!
-      fire_department_id: dto.fire_department_id,
+      password: dto.password, // NEVER log or modify password
+      fire_department_name: dto.fire_department_name.trim(),
       first_name: sanitizeString(dto.first_name) || undefined,
       last_name: sanitizeString(dto.last_name) || undefined,
       role: dto.role || 'member'
     };
     
-    // ============================================================================
-    // 5. CREATE COMMAND MODEL
-    // ============================================================================
+    // 5. Find fire department by name
+    const { data: fireDept, error: fireDeptError } = await supabase
+      .from('fire_departments')
+      .select('id')
+      .ilike('name', sanitizedDto.fire_department_name)
+      .single();
+    
+    if (fireDeptError || !fireDept) {
+      return errorResponse(
+        400,
+        'FIRE_DEPARTMENT_NOT_FOUND',
+        `Fire department "${sanitizedDto.fire_department_name}" not found`
+      );
+    }
+    
+    // 6. Create command model
     const command: RegisterUserCommand = {
       email: sanitizedDto.email,
       password: sanitizedDto.password,
       profile: {
-        fire_department_id: sanitizedDto.fire_department_id,
+        fire_department_id: fireDept.id,
+        role: sanitizedDto.role || 'member',
         first_name: sanitizedDto.first_name,
-        last_name: sanitizedDto.last_name,
-        role: sanitizedDto.role!
+        last_name: sanitizedDto.last_name
       }
     };
     
-    // ============================================================================
-    // 6. CALL AUTH SERVICE
-    // ============================================================================
+    // 7. Execute registration
     const authService = new AuthService();
     const { data, error } = await authService.registerUser(command);
     
-    // ============================================================================
-    // 7. HANDLE SERVICE ERRORS
-    // ============================================================================
     if (error) {
-      // Fire department not found
+      // Handle specific error types
       if (error.message === 'FIRE_DEPARTMENT_NOT_FOUND') {
         return errorResponse(
-          404,
+          400,
           'FIRE_DEPARTMENT_NOT_FOUND',
-          'The specified fire department does not exist',
-          { fire_department_id: sanitizedDto.fire_department_id }
+          'The specified fire department does not exist'
         );
       }
       
-      // Email already exists
       if (error.message === 'EMAIL_ALREADY_EXISTS') {
         return errorResponse(
           409,
@@ -137,41 +120,27 @@ export const POST: APIRoute = async ({ request }) => {
         );
       }
       
-      // Generic server error
-      console.error('Registration error:', {
-        error: error.message,
-        email: sanitizedDto.email,
-        fire_department_id: sanitizedDto.fire_department_id,
-        timestamp: new Date().toISOString()
-      });
-      
+      // Generic error
       return errorResponse(
         500,
         'SERVER_ERROR',
-        'An unexpected error occurred during registration'
+        'Registration failed. Please try again.',
+        { original_error: error.message }
       );
     }
     
-    // ============================================================================
-    // 8. SUCCESS RESPONSE
-    // ============================================================================
+    // 8. Success response
     return successResponse(
-      data!,
-      'User registered successfully',
-      201
+      data,
+      'User registered successfully'
     );
     
   } catch (error) {
-    // ============================================================================
-    // CATCH-ALL ERROR HANDLER
-    // ============================================================================
-    console.error('Unexpected error in /api/auth/register:', error);
-    
+    console.error('Registration endpoint error:', error);
     return errorResponse(
       500,
       'SERVER_ERROR',
-      'An unexpected error occurred'
+      'An unexpected error occurred during registration'
     );
   }
 };
-

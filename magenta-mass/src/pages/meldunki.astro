@@ -42,71 +42,78 @@ import { SimpleSelect } from '../components/SimpleSelect';
       <!-- Filters and Search -->
       <div class="mb-6">
         <Card>
-          <CardContent class="p-6">
-            <div class="flex flex-col sm:flex-row gap-4">
+          <CardContent className="p-4 sm:p-6">
+            <div class="space-y-4">
               <!-- Search -->
-              <div class="flex-1">
+              <div class="w-full">
                 <Input 
                   type="text" 
                   placeholder="Szukaj w meldunkach..." 
                   id="searchInput"
-                  class="w-full"
+                  className="w-full"
                 />
               </div>
               
-              <!-- Date Filter -->
-              <div class="flex gap-2">
-                <Input 
-                  type="date" 
-                  id="dateFrom"
-                  placeholder="Od"
-                />
-                <Input 
-                  type="date" 
-                  id="dateTo"
-                  placeholder="Do"
-                />
+              <!-- Filters Row -->
+              <div class="flex flex-col sm:flex-row gap-3">
+                <!-- Date Filter -->
+                <div class="flex flex-col sm:flex-row gap-2 flex-1">
+                  <Input 
+                    type="date" 
+                    id="dateFrom"
+                    placeholder="Od"
+                    className="w-full sm:w-auto"
+                  />
+                  <Input 
+                    type="date" 
+                    id="dateTo"
+                    placeholder="Do"
+                    className="w-full sm:w-auto"
+                  />
+                </div>
+                
+                <!-- Sort -->
+                <div class="w-full sm:w-64">
+                  <SimpleSelect 
+                    id="sortSelect" 
+                    placeholder="Sortuj według"
+                    options={[
+                      { value: "date-desc", label: "Data (najnowsze)" },
+                      { value: "date-asc", label: "Data (najstarsze)" },
+                      { value: "name-asc", label: "Nazwa A-Z" },
+                      { value: "name-desc", label: "Nazwa Z-A" }
+                    ]}
+                    client:load
+                  />
+                </div>
               </div>
-              
-              <!-- Sort -->
-              <SimpleSelect 
-                id="sortSelect" 
-                placeholder="Sortuj według"
-                options={[
-                  { value: "date-desc", label: "Data (najnowsze)" },
-                  { value: "date-asc", label: "Data (najstarsze)" },
-                  { value: "name-asc", label: "Nazwa A-Z" },
-                  { value: "name-desc", label: "Nazwa Z-A" }
-                ]}
-                client:load
-              />
             </div>
           </CardContent>
         </Card>
       </div>
 
       <!-- Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card>
-          <CardContent class="p-6 text-center">
+          <CardContent className="p-6 text-center">
             <div class="text-2xl font-bold text-primary mb-1" id="totalMeldunki">0</div>
             <div class="text-sm text-muted-foreground">Wszystkich</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent class="p-6 text-center">
+          <CardContent className="p-6 text-center">
             <div class="text-2xl font-bold text-green-600 mb-1" id="thisMonth">0</div>
             <div class="text-sm text-muted-foreground">W tym miesiącu</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent class="p-6 text-center">
+          <CardContent className="p-6 text-center">
             <div class="text-2xl font-bold text-blue-600 mb-1" id="thisWeek">0</div>
             <div class="text-sm text-muted-foreground">W tym tygodniu</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent class="p-6 text-center">
+          <CardContent className="p-6 text-center">
             <div class="text-2xl font-bold text-orange-600 mb-1" id="thisYear">0</div>
             <div class="text-sm text-muted-foreground">W tym roku</div>
           </CardContent>
@@ -128,6 +135,55 @@ import { SimpleSelect } from '../components/SimpleSelect';
               <p class="text-muted-foreground">Pobieranie listy meldunków z bazy danych.</p>
             </div>
           </div>
+          
+          <!-- Pagination Controls -->
+          <div id="paginationControls" class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4" style="display: none;">
+            <div class="text-sm text-muted-foreground text-center sm:text-left">
+              <span id="paginationInfo">Wyświetlanie 1-10 z 0 meldunków</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button 
+                id="prevPageBtn" 
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 hidden sm:flex"
+                disabled
+                onclick="changePage(-1)"
+              >
+                <span class="material-icons text-sm">chevron_left</span>
+                Poprzednia
+              </button>
+              <button 
+                id="prevPageBtnMobile" 
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 flex sm:hidden"
+                disabled
+                onclick="changePage(-1)"
+              >
+                <span class="material-icons text-sm">chevron_left</span>
+              </button>
+              <div class="flex items-center gap-1 px-2">
+                <span class="text-sm text-muted-foreground hidden sm:inline">Strona</span>
+                <span id="currentPage" class="text-sm font-medium">1</span>
+                <span class="text-sm text-muted-foreground">z</span>
+                <span id="totalPages" class="text-sm font-medium">1</span>
+              </div>
+              <button 
+                id="nextPageBtn" 
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 hidden sm:flex"
+                disabled
+                onclick="changePage(1)"
+              >
+                Następna
+                <span class="material-icons text-sm">chevron_right</span>
+              </button>
+              <button 
+                id="nextPageBtnMobile" 
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 flex sm:hidden"
+                disabled
+                onclick="changePage(1)"
+              >
+                <span class="material-icons text-sm">chevron_right</span>
+              </button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -144,6 +200,11 @@ import { SimpleSelect } from '../components/SimpleSelect';
   
   let allMeldunki = [];
   let filteredMeldunki = [];
+  
+  // Pagination variables
+  const ITEMS_PER_PAGE = 10;
+  let currentPage = 1;
+  let totalPages = 1;
   
   // ============================================================================
   // 1. CHECK AUTHENTICATION
@@ -162,19 +223,73 @@ import { SimpleSelect } from '../components/SimpleSelect';
   // ============================================================================
   async function loadMeldunki() {
     try {
-      // Load from localStorage instead of API
-      allMeldunki = JSON.parse(localStorage.getItem('meldunki') || '[]');
-      filteredMeldunki = [...allMeldunki];
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      // Load from API instead of localStorage
+      const response = await fetch('/api/meldunki', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Token expired, redirect to login
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          window.location.href = '/login';
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
       
-      updateStats();
-      displayMeldunki(filteredMeldunki);
+      if (result.success) {
+        allMeldunki = result.data || [];
+        filteredMeldunki = [...allMeldunki];
+        
+        updateStats();
+        displayMeldunki(filteredMeldunki);
+      } else {
+        console.error('API error:', result.error);
+        showError('Błąd podczas ładowania meldunków: ' + result.error.message);
+      }
     } catch (error) {
       console.error('Error loading meldunki:', error);
+      showError('Błąd połączenia. Sprawdź czy serwer działa.');
     }
   }
   
   // ============================================================================
-  // 3. UPDATE STATS
+  // 3. ERROR HANDLING
+  // ============================================================================
+  function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4';
+    errorDiv.textContent = message;
+    
+    const container = document.querySelector('.container');
+    if (container) {
+      container.insertBefore(errorDiv, container.firstChild);
+      
+      // Remove error after 5 seconds
+      setTimeout(() => {
+        if (errorDiv.parentNode) {
+          errorDiv.parentNode.removeChild(errorDiv);
+        }
+      }, 5000);
+    }
+  }
+
+  // ============================================================================
+  // 4. UPDATE STATS
   // ============================================================================
   function updateStats() {
     const now = new Date();
@@ -194,14 +309,20 @@ import { SimpleSelect } from '../components/SimpleSelect';
       return date.getFullYear() === now.getFullYear();
     }).length;
     
-    document.getElementById('totalMeldunki').textContent = allMeldunki.length;
-    document.getElementById('thisMonth').textContent = thisMonth;
-    document.getElementById('thisWeek').textContent = thisWeek;
-    document.getElementById('thisYear').textContent = thisYear;
+    const totalElement = document.getElementById('totalMeldunki');
+    const monthElement = document.getElementById('thisMonth');
+    const weekElement = document.getElementById('thisWeek');
+    const yearElement = document.getElementById('thisYear');
+    
+    if (totalElement) totalElement.textContent = allMeldunki.length;
+    if (monthElement) monthElement.textContent = thisMonth;
+    if (weekElement) weekElement.textContent = thisWeek;
+    if (yearElement) yearElement.textContent = thisYear;
   }
+
   
   // ============================================================================
-  // 4. DISPLAY MELDUNKI
+  // 5. DISPLAY MELDUNKI
   // ============================================================================
   function displayMeldunki(meldunki) {
     const container = document.getElementById('meldunkiList');
@@ -220,32 +341,51 @@ import { SimpleSelect } from '../components/SimpleSelect';
           </Button>
         </div>
       `;
+      // Hide pagination controls when no data
+      document.getElementById('paginationControls').style.display = 'none';
       return;
     }
     
-    container.innerHTML = meldunki.map(meldunek => `
+    // Calculate pagination
+    totalPages = Math.ceil(meldunki.length / ITEMS_PER_PAGE);
+    currentPage = Math.min(currentPage, totalPages); // Ensure current page is valid
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, meldunki.length);
+    const pageMeldunki = meldunki.slice(startIndex, endIndex);
+    
+    // Update pagination info
+    updatePaginationInfo(meldunki.length, startIndex + 1, endIndex);
+    
+    // Show pagination controls
+    document.getElementById('paginationControls').style.display = 'flex';
+    
+    container.innerHTML = pageMeldunki.map(meldunek => `
       <Card class="hover:shadow-md transition-shadow cursor-pointer" onclick="viewMeldunek(${meldunek.id})">
         <CardContent class="p-6">
           <div class="flex justify-between items-start mb-4">
             <div class="flex-1">
-              <h3 class="text-lg font-semibold text-foreground mb-2">${meldunek.incident_name}</h3>
+              <h3 class="text-lg font-semibold text-foreground mb-2">${meldunek.title}</h3>
               <p class="text-sm text-muted-foreground">${new Date(meldunek.incident_date).toLocaleDateString('pl-PL')}</p>
             </div>
             <div class="flex gap-2">
               <Badge variant="secondary">Meldunek</Badge>
-              <Button variant="ghost" size="sm" onclick="event.stopPropagation(); editMeldunek(${meldunek.id})">
+              <button 
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 w-9"
+                onclick="event.stopPropagation(); editMeldunek('${meldunek.id}')"
+              >
                 <span class="material-icons text-sm">edit</span>
-              </Button>
+              </button>
             </div>
           </div>
           
           <p class="text-muted-foreground mb-4 line-clamp-3">${meldunek.description}</p>
           
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            ${meldunek.location_address ? `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            ${meldunek.location ? `
               <div class="flex items-center gap-2">
                 <span class="material-icons text-sm text-muted-foreground">location_on</span>
-                <span class="text-muted-foreground">${meldunek.location_address}</span>
+                <span class="text-muted-foreground">${meldunek.location}</span>
               </div>
             ` : ''}
             
@@ -274,15 +414,21 @@ import { SimpleSelect } from '../components/SimpleSelect';
           <div class="mt-4 pt-4 border-t">
             <div class="flex justify-between items-center text-xs text-muted-foreground">
               <span>Utworzono: ${new Date(meldunek.created_at).toLocaleString('pl-PL')}</span>
-              <div class="flex gap-2">
-                <Button variant="outline" size="sm" onclick="event.stopPropagation(); viewMeldunek(${meldunek.id})">
+              <div class="flex flex-col sm:flex-row gap-2">
+                <button 
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 w-full sm:w-auto"
+                  onclick="event.stopPropagation(); viewMeldunek('${meldunek.id}')"
+                >
                   <span class="material-icons text-sm mr-1">visibility</span>
                   Zobacz
-                </Button>
-                <Button variant="outline" size="sm" onclick="event.stopPropagation(); editMeldunek(${meldunek.id})">
+                </button>
+                <button 
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3 w-full sm:w-auto"
+                  onclick="event.stopPropagation(); editMeldunek('${meldunek.id}')"
+                >
                   <span class="material-icons text-sm mr-1">edit</span>
                   Edytuj
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -292,7 +438,39 @@ import { SimpleSelect } from '../components/SimpleSelect';
   }
   
   // ============================================================================
-  // 5. FILTER AND SEARCH
+  // 5.1. PAGINATION FUNCTIONS
+  // ============================================================================
+  function updatePaginationInfo(totalItems, startItem, endItem) {
+    document.getElementById('paginationInfo').textContent = 
+      `Wyświetlanie ${startItem}-${endItem} z ${totalItems} meldunków`;
+    document.getElementById('currentPage').textContent = currentPage;
+    document.getElementById('totalPages').textContent = totalPages;
+    
+    // Update button states
+    const prevBtn = document.getElementById('prevPageBtn');
+    const prevBtnMobile = document.getElementById('prevPageBtnMobile');
+    const nextBtn = document.getElementById('nextPageBtn');
+    const nextBtnMobile = document.getElementById('nextPageBtnMobile');
+    
+    if (prevBtn) prevBtn.disabled = currentPage <= 1;
+    if (prevBtnMobile) prevBtnMobile.disabled = currentPage <= 1;
+    if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
+    if (nextBtnMobile) nextBtnMobile.disabled = currentPage >= totalPages;
+  }
+  
+  function changePage(direction) {
+    const newPage = currentPage + direction;
+    if (newPage >= 1 && newPage <= totalPages) {
+      currentPage = newPage;
+      displayMeldunki(filteredMeldunki);
+    }
+  }
+  
+  // Make pagination functions globally available
+  window.changePage = changePage;
+  
+  // ============================================================================
+  // 6. FILTER AND SEARCH
   // ============================================================================
   function filterMeldunki() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -302,9 +480,9 @@ import { SimpleSelect } from '../components/SimpleSelect';
     filteredMeldunki = allMeldunki.filter(meldunek => {
       // Search filter
       const matchesSearch = !searchTerm || 
-        meldunek.incident_name.toLowerCase().includes(searchTerm) ||
+        meldunek.title.toLowerCase().includes(searchTerm) ||
         meldunek.description.toLowerCase().includes(searchTerm) ||
-        (meldunek.location_address && meldunek.location_address.toLowerCase().includes(searchTerm));
+        (meldunek.location && meldunek.location.toLowerCase().includes(searchTerm));
       
       // Date filter
       const incidentDate = new Date(meldunek.incident_date);
@@ -327,34 +505,240 @@ import { SimpleSelect } from '../components/SimpleSelect';
         filteredMeldunki.sort((a, b) => new Date(a.incident_date) - new Date(b.incident_date));
         break;
       case 'name-asc':
-        filteredMeldunki.sort((a, b) => a.incident_name.localeCompare(b.incident_name));
+        filteredMeldunki.sort((a, b) => a.title.localeCompare(b.title));
         break;
       case 'name-desc':
-        filteredMeldunki.sort((a, b) => b.incident_name.localeCompare(a.incident_name));
+        filteredMeldunki.sort((a, b) => b.title.localeCompare(a.title));
         break;
     }
     
+    // Reset to first page when filtering
+    currentPage = 1;
     displayMeldunki(filteredMeldunki);
   }
   
   // ============================================================================
-  // 6. VIEW AND EDIT FUNCTIONS
+  // 7. VIEW AND EDIT FUNCTIONS
   // ============================================================================
   function viewMeldunek(id) {
     const meldunek = allMeldunki.find(m => m.id === id);
     if (meldunek) {
-      // TODO: Implement view modal or redirect to detail page
-      alert(`Szczegóły meldunku: ${meldunek.incident_name}`);
+      // Simple alert instead of modal
+      alert(`Meldunek: ${meldunek.title}\nData: ${new Date(meldunek.incident_date).toLocaleDateString('pl-PL')}\nOpis: ${meldunek.description}`);
+    } else {
+      alert('Nie znaleziono meldunku o ID: ' + id);
     }
   }
+  
+  // Make viewMeldunek globally available
+  window.viewMeldunek = viewMeldunek;
   
   function editMeldunek(id) {
     const meldunek = allMeldunki.find(m => m.id === id);
     if (meldunek) {
       // TODO: Implement edit functionality
-      alert(`Edycja meldunku: ${meldunek.incident_name}`);
+      alert(`Edycja meldunku: ${meldunek.title}`);
     }
   }
+  
+  // Make editMeldunek globally available
+  window.editMeldunek = editMeldunek;
+  
+  function showMeldunekModal(meldunek) {
+    console.log('showMeldunekModal called with:', meldunek);
+    
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    overlay.onclick = () => closeModal();
+    
+    // Create modal content
+    const modal = document.createElement('div');
+    modal.className = 'bg-white rounded-lg shadow-xl max-w-2xl w-full mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto';
+    modal.onclick = (e) => e.stopPropagation();
+    
+    // Build modal content step by step to avoid template string issues
+    const modalContent = document.createElement('div');
+    modalContent.className = 'p-4 sm:p-6';
+    
+    // Header
+    const header = document.createElement('div');
+    header.className = 'flex justify-between items-start mb-4';
+    header.innerHTML = `
+      <h2 class="text-2xl font-bold text-gray-900">${meldunek.title}</h2>
+      <button class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    `;
+    header.querySelector('button').onclick = () => closeModal();
+    modalContent.appendChild(header);
+    
+    // Content container
+    const content = document.createElement('div');
+    content.className = 'space-y-4';
+    
+    // Description
+    const descDiv = document.createElement('div');
+    descDiv.innerHTML = `
+      <h3 class="text-sm font-medium text-gray-500 mb-1">Opis</h3>
+      <p class="text-gray-900">${meldunek.description}</p>
+    `;
+    content.appendChild(descDiv);
+    
+    // Location
+    if (meldunek.location) {
+      const locDiv = document.createElement('div');
+      locDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Lokalizacja</h3>
+        <p class="text-gray-900">${meldunek.location}</p>
+      `;
+      content.appendChild(locDiv);
+    }
+    
+    // Grid with basic info
+    const gridDiv = document.createElement('div');
+    gridDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+    
+    const incidentDate = new Date(meldunek.incident_date).toLocaleDateString('pl-PL');
+    const incidentType = meldunek.incident_type === 'fire' ? 'Pożar' : 
+                        meldunek.incident_type === 'rescue' ? 'Ratownictwo' : 
+                        meldunek.incident_type === 'medical' ? 'Medyczne' : 'Inne';
+    const severity = meldunek.severity === 'low' ? 'Niski' : 
+                    meldunek.severity === 'medium' ? 'Średni' : 
+                    meldunek.severity === 'high' ? 'Wysoki' : 
+                    meldunek.severity === 'critical' ? 'Krytyczny' : meldunek.severity;
+    const status = meldunek.status === 'draft' ? 'Szkic' : 
+                  meldunek.status === 'submitted' ? 'Złożony' : 
+                  meldunek.status === 'approved' ? 'Zatwierdzony' : 
+                  meldunek.status === 'rejected' ? 'Odrzucony' : meldunek.status;
+    
+    gridDiv.innerHTML = `
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Data zdarzenia</h3>
+        <p class="text-gray-900">${incidentDate}</p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Typ zdarzenia</h3>
+        <p class="text-gray-900">${incidentType}</p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Priorytet</h3>
+        <p class="text-gray-900">${severity}</p>
+      </div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Status</h3>
+        <p class="text-gray-900">${status}</p>
+      </div>
+    `;
+    content.appendChild(gridDiv);
+    
+    // Equipment
+    if (meldunek.equipment_used && meldunek.equipment_used.length > 0) {
+      const equipDiv = document.createElement('div');
+      equipDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Użyty sprzęt</h3>
+        <p class="text-gray-900">${meldunek.equipment_used.join(', ')}</p>
+      `;
+      content.appendChild(equipDiv);
+    }
+    
+    // Commander
+    if (meldunek.commander) {
+      const commanderDiv = document.createElement('div');
+      commanderDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Dowódca</h3>
+        <p class="text-gray-900">${meldunek.commander}</p>
+      `;
+      content.appendChild(commanderDiv);
+    }
+    
+    // Driver
+    if (meldunek.driver) {
+      const driverDiv = document.createElement('div');
+      driverDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Kierowca</h3>
+        <p class="text-gray-900">${meldunek.driver}</p>
+      `;
+      content.appendChild(driverDiv);
+    }
+    
+    // Duration
+    if (meldunek.duration_minutes) {
+      const durationDiv = document.createElement('div');
+      durationDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Czas trwania</h3>
+        <p class="text-gray-900">${meldunek.duration_minutes} minut</p>
+      `;
+      content.appendChild(durationDiv);
+    }
+    
+    // Participants
+    if (meldunek.participants_count) {
+      const participantsDiv = document.createElement('div');
+      participantsDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Liczba uczestników</h3>
+        <p class="text-gray-900">${meldunek.participants_count}</p>
+      `;
+      content.appendChild(participantsDiv);
+    }
+    
+    // Weather
+    if (meldunek.weather_conditions) {
+      const weatherDiv = document.createElement('div');
+      weatherDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Warunki pogodowe</h3>
+        <p class="text-gray-900">${meldunek.weather_conditions}</p>
+      `;
+      content.appendChild(weatherDiv);
+    }
+    
+    // Additional notes
+    if (meldunek.additional_notes) {
+      const notesDiv = document.createElement('div');
+      notesDiv.innerHTML = `
+        <h3 class="text-sm font-medium text-gray-500 mb-1">Dodatkowe uwagi</h3>
+        <p class="text-gray-900">${meldunek.additional_notes}</p>
+      `;
+      content.appendChild(notesDiv);
+    }
+    
+    // Timestamps
+    const timestampsDiv = document.createElement('div');
+    timestampsDiv.className = 'pt-4 border-t';
+    const createdDate = new Date(meldunek.created_at).toLocaleString('pl-PL');
+    const updatedDate = new Date(meldunek.updated_at).toLocaleString('pl-PL');
+    timestampsDiv.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500">
+        <div>
+          <span class="font-medium">Utworzony:</span> ${createdDate}
+        </div>
+        <div>
+          <span class="font-medium">Ostatnia aktualizacja:</span> ${updatedDate}
+        </div>
+      </div>
+    `;
+    content.appendChild(timestampsDiv);
+    
+    modalContent.appendChild(content);
+    
+    // Footer
+    const footer = document.createElement('div');
+    footer.className = 'mt-6 flex justify-end space-x-3';
+    footer.innerHTML = `
+      <button class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+        Zamknij
+      </button>
+    `;
+    footer.querySelector('button').onclick = () => closeModal();
+    modalContent.appendChild(footer);
+    
+    modal.appendChild(modalContent);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+  }
+  
+  
   
   // ============================================================================
   // 7. INITIALIZATION
