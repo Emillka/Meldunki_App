@@ -24,7 +24,11 @@ export class TokenManager {
   static saveSession(session: TokenData): void {
     localStorage.setItem(this.ACCESS_TOKEN_KEY, session.access_token);
     localStorage.setItem(this.REFRESH_TOKEN_KEY, session.refresh_token);
-    localStorage.setItem(this.EXPIRES_AT_KEY, session.expires_at.toString());
+    // Supabase zwraca expires_at w sekundach — normalizujemy do milisekund
+    const normalizedExpiresAt = session.expires_at < 1e12
+      ? session.expires_at * 1000
+      : session.expires_at;
+    localStorage.setItem(this.EXPIRES_AT_KEY, normalizedExpiresAt.toString());
   }
 
   /**

@@ -15,11 +15,5 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT) || 10000
-  },
-  // Ensure proper environment variable handling
-  vite: {
-    define: {
-      'process.env': process.env
-    }
   }
 });
