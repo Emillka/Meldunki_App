@@ -84,10 +84,18 @@ export class AuthService {
       }
       
       // 2. Utworzenie użytkownika przez Supabase Auth
+      // Ustaw docelowy URL przekierowania z e-maila potwierdzającego
+      const siteUrl =
+        process.env.PUBLIC_SITE_URL ||
+        (typeof import.meta !== 'undefined' ? (import.meta as any).env?.PUBLIC_SITE_URL : undefined) ||
+        process.env.RENDER_EXTERNAL_URL ||
+        'https://meldunki-app.onrender.com';
+
       const { data: authData, error: authError } = await this.supabase.auth.signUp({
         email: command.email,
         password: command.password,
         options: {
+          emailRedirectTo: `${siteUrl}/login`,
           data: {
             fire_department_id: command.profile.fire_department_id,
             first_name: command.profile.first_name,
