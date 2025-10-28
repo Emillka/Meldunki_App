@@ -14,6 +14,6 @@ export default defineConfig({
   integrations: [react(), tailwind()],
   server: {
     host: '0.0.0.0',
-    port: process.env.PORT || 10000
+    port: parseInt(process.env.PORT) || 10000
   }
 });
