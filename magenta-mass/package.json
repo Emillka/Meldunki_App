@@ -12,10 +12,15 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:unit": "vitest run",
+    "test:api": "vitest run src/pages/api/**/*.test.ts",
+    "test:integration": "vitest run src/lib/services/__tests__/integration.test.ts",
+    "test:performance": "vitest run src/lib/services/__tests__/performance.test.ts",
+    "test:security": "vitest run src/lib/services/__tests__/security.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
-    "test:all": "npm run test:unit && npm run test:e2e"
+    "test:all": "npm run test:unit && npm run test:api && npm run test:integration && npm run test:performance && npm run test:security && npm run test:e2e",
+    "test:ci": "npm run test:unit && npm run test:api && npm run test:integration && npm run test:e2e"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.5",
