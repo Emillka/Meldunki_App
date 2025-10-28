@@ -5,7 +5,7 @@
 buildCommand: npm run build
 
 # Start Command - Render uruchomi aplikację
-startCommand: npm run preview
+startCommand: npm start
 
 # Root Directory - Render będzie szukał aplikacji w tym katalogu
 rootDir: magenta-mass
@@ -34,6 +34,7 @@ region: frankfurt
 # Environment Variables (ustaw w Render Dashboard)
 # PUBLIC_SUPABASE_URL - URL Twojego projektu Supabase
 # PUBLIC_SUPABASE_ANON_KEY - Anon key z Supabase
+# SUPABASE_SERVICE_ROLE_KEY - Service role key z Supabase
 # NODE_ENV - production (automatycznie ustawione przez Render)
 
 # Custom Headers (opcjonalne)
