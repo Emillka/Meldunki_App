@@ -97,10 +97,18 @@ export class AuthService {
         }
       });
       
+      console.log('Supabase signUp response:', { 
+        user: authData?.user?.id, 
+        session: !!authData?.session,
+        error: authError?.message 
+      });
+      
       if (authError) {
+        console.error('Supabase signUp error:', authError);
         // Sprawdzenie czy email już istnieje
         if (authError.message.includes('already registered') || 
-            authError.message.includes('already been registered')) {
+            authError.message.includes('already been registered') ||
+            authError.message.includes('User already registered')) {
           return {
             data: null,
             error: new Error('EMAIL_ALREADY_EXISTS')
@@ -110,10 +118,29 @@ export class AuthService {
         return { data: null, error: authError };
       }
       
-      if (!authData.user || !authData.session) {
+      if (!authData.user) {
+        console.error('No user created:', authData);
         return {
           data: null,
-          error: new Error('User or session not created')
+          error: new Error('User not created')
+        };
+      }
+      
+      // Sprawdź czy sesja istnieje (może być null jeśli wymagane jest potwierdzenie emaila)
+      if (!authData.session) {
+        console.log('No session created - email confirmation may be required');
+        // Zwróć sukces ale bez sesji - użytkownik musi potwierdzić email
+        return {
+          data: {
+            user: {
+              id: authData.user.id,
+              email: authData.user.email!,
+              created_at: authData.user.created_at
+            },
+            profile: null, // Profil zostanie utworzony po potwierdzeniu emaila
+            session: null
+          },
+          error: null
         };
       }
       

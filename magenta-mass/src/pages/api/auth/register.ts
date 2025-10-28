@@ -129,7 +129,18 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     
-    // 8. Success response
+    // 8. Check if email confirmation is required
+    if (data && !data.session) {
+      return successResponse(
+        {
+          user: data.user,
+          message: 'Registration successful. Please check your email to confirm your account.'
+        },
+        'Registration successful. Please check your email to confirm your account.'
+      );
+    }
+    
+    // 9. Success response with session
     return successResponse(
       data,
       'User registered successfully'

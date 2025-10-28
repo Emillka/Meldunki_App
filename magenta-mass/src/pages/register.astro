@@ -216,7 +216,19 @@ import { Alert, AlertDescription } from '../components/ui/alert';
       const result = await response.json();
 
       if (result.success) {
-        // ✅ Success!
+        // Check if email confirmation is required
+        if (result.data.message && result.data.message.includes('check your email')) {
+          // ✅ Success but email confirmation required
+          showMessage('✅ Rejestracja udana! Sprawdź swój email i kliknij link potwierdzający.', false);
+          
+          // Don't redirect, let user know to check email
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 5000);
+          return;
+        }
+        
+        // ✅ Success with immediate session!
         showMessage('✅ Rejestracja udana! Przekierowuję...', false);
         
         // Store session using TokenManager
