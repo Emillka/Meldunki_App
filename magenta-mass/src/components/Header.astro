@@ -267,51 +267,53 @@ const { showAuth = true, currentPath = '' } = Astro.props;
   // 1. CHECK AUTHENTICATION STATUS
   // ============================================================================
   async function checkAuthStatus() {
+    console.log('Header: checkAuthStatus() called');
+    
+    // Always use fallback method for now to avoid TokenManager issues
+    const token = localStorage.getItem('access_token');
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    console.log('Header: tokens in localStorage:', { 
+      access_token: token ? 'exists' : 'null',
+      refresh_token: refreshToken ? 'exists' : 'null'
+    });
+    
+    if (!token) {
+      console.log('Header: no access token, showing not logged in');
+      showNotLoggedIn();
+      return;
+    }
+    
     try {
-      const { TokenManager } = await import('@/lib/utils/token-manager');
-      const { isAuthenticated, user } = await TokenManager.checkAuth();
-      
-      if (isAuthenticated && user) {
-        userProfile = user;
-        showLoggedIn(user);
-      } else {
-        showNotLoggedIn();
-      }
-    } catch (error) {
-      console.warn('TokenManager not available, using fallback:', error);
-      // Fallback to old method
-      const token = localStorage.getItem('access_token');
-      
-      if (!token) {
-        showNotLoggedIn();
-        return;
-      }
-      
-      try {
-        // Fetch user profile
-        const response = await fetch('/api/auth/profile', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        const result = await response.json();
-        
-        if (result.success && result.data) {
-          userProfile = result.data;
-          showLoggedIn(result.data);
-        } else {
-          // Token is invalid, clear it
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
-          showNotLoggedIn();
+      console.log('Header: making profile request');
+      // Fetch user profile
+      const response = await fetch('/api/auth/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      } catch (fetchError) {
-        console.error('Auth check error:', fetchError);
+      });
+      
+      console.log('Header: profile response status:', response.status);
+      const result = await response.json();
+      console.log('Header: profile response:', result);
+      
+      if (result.success && result.data) {
+        console.log('Header: auth successful, showing logged in');
+        userProfile = result.data;
+        showLoggedIn(result.data);
+      } else {
+        console.log('Header: auth failed, clearing tokens');
+        // Token is invalid, clear it
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('expires_at');
         showNotLoggedIn();
       }
+    } catch (fetchError) {
+      console.error('Header: auth check error:', fetchError);
+      showNotLoggedIn();
     }
   }
   
