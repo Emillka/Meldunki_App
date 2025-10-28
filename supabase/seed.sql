@@ -46,6 +46,14 @@ join public.provinces p on c.province_id = p.id
 where p.name = 'małopolskie' and c.name = 'krakowski'
 on conflict do nothing;
 
+-- insert test fire department for testing (let it generate its own UUID)
+insert into public.fire_departments (county_id, name)
+select c.id, 'OSP Test Warszawa'
+from public.counties c
+join public.provinces p on c.province_id = p.id
+where p.name = 'mazowieckie' and c.name = 'warszawski zachodni'
+on conflict (county_id, name) do nothing;
+
 -- display created fire departments
 select 
   fd.id,

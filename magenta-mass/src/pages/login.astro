@@ -34,32 +34,32 @@ import { Alert, AlertDescription } from '../components/ui/alert';
         
         <CardContent>
           <!-- Message container -->
-          <div id="message" className="hidden mb-6"></div>
+          <div id="message" class="hidden mb-6"></div>
 
           <!-- Login Form -->
-          <form id="loginForm" className="space-y-6">
+          <form id="loginForm" class="space-y-6">
             <!-- Email -->
-            <div className="space-y-2">
+            <div class="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 type="email"
                 id="email"
                 name="email"
                 required
-                autocomplete="email"
+                autoComplete="email"
                 placeholder="Wprowadź swój email"
               />
             </div>
 
             <!-- Password -->
-            <div className="space-y-2">
+            <div class="space-y-2">
               <Label htmlFor="password">Hasło</Label>
               <Input
                 type="password"
                 id="password"
                 name="password"
                 required
-                autocomplete="current-password"
+                autoComplete="current-password"
                 placeholder="Wprowadź swoje hasło"
               />
             </div>
@@ -76,8 +76,8 @@ import { Alert, AlertDescription } from '../components/ui/alert';
           </form>
 
           <!-- Links -->
-          <div className="mt-8 text-center space-y-4">
-            <p className="text-sm text-muted-foreground">
+          <div class="mt-8 text-center space-y-4">
+            <p class="text-sm text-muted-foreground">
               Nie masz konta? 
               <Button variant="link" asChild className="p-0 h-auto">
                 <a href="/register">Zarejestruj się</a>

@@ -272,8 +272,7 @@ Plik .env.test:
 ```env
 # Test environment variables
 NODE_ENV=test
-PUBLIC_SUPABASE_URL=http://localhost:54321
-PUBLIC_SUPABASE_ANON_KEY=test-anon-key
+
 SUPABASE_SERVICE_ROLE_KEY=test-service-role-key
 ALLOWED_ORIGINS=http://localhost:4321
 OPENROUTER_API_KEY=test-api-key

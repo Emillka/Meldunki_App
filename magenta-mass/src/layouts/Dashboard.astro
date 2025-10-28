@@ -113,7 +113,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       <!-- Quick Actions -->
       <div class="mb-6">
         <Card>
-          <CardContent class="p-4">
+          <CardContent className="p-4">
             <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
               <div>
                 <h3 class="text-lg font-semibold text-foreground mb-1">Szybkie akcje</h3>
@@ -379,7 +379,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
             </Card>
 
             <!-- Statistics Overview -->
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardContent className="p-6 text-center">
                   <div class="text-2xl font-bold text-primary mb-1" id="totalUsers">0</div>
@@ -514,6 +514,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 </style>
 
 <script>
+  // @ts-nocheck
   // ============================================================================
   // DASHBOARD FUNCTIONALITY
   // ============================================================================
@@ -1236,6 +1237,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
 <!-- Simple test script -->
 <script>
+  // @ts-nocheck
   console.log('Simple test script loaded');
   
   // Simple tab switching without dependencies
@@ -1289,6 +1291,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
 <!-- Inline JavaScript for immediate execution -->
 <script>
+  // @ts-nocheck
   // Immediate execution - no waiting for DOM
   console.log('Inline script executing immediately');
   

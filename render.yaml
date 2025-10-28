@@ -1,0 +1,47 @@
+# Render Configuration
+# Ten plik konfiguruje deployment na Render.com
+
+# Build Command - Render automatycznie wykryje Astro, ale możemy być explicit
+buildCommand: npm run build
+
+# Start Command - Render uruchomi aplikację
+startCommand: npm run preview
+
+# Root Directory - Render będzie szukał aplikacji w tym katalogu
+rootDir: magenta-mass
+
+# Environment - Render automatycznie ustawi NODE_ENV=production
+environment: production
+
+# Node Version - Render użyje tej wersji Node.js
+nodeVersion: 20
+
+# Health Check Path - Render sprawdzi czy aplikacja działa
+healthCheckPath: /api/health
+
+# Auto Deploy - Render automatycznie deployuje przy push do main branch
+autoDeploy: true
+
+# Branch - Render będzie deployować z tego brancha
+branch: main
+
+# Plan - Darmowy plan Render
+plan: free
+
+# Region - Najbliższy region (Europe)
+region: frankfurt
+
+# Environment Variables (ustaw w Render Dashboard)
+# PUBLIC_SUPABASE_URL - URL Twojego projektu Supabase
+# PUBLIC_SUPABASE_ANON_KEY - Anon key z Supabase
+# NODE_ENV - production (automatycznie ustawione przez Render)
+
+# Custom Headers (opcjonalne)
+# Możesz dodać custom headers w Render Dashboard
+
+# Redirects (opcjonalne)
+# Możesz skonfigurować redirects w Render Dashboard
+
+# SSL - Render automatycznie zapewnia SSL dla darmowych planów
+
+# Monitoring - Render ma wbudowane monitoring i logi

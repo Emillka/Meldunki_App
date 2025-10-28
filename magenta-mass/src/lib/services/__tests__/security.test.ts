@@ -441,7 +441,7 @@ describe('Security Tests', () => {
         const mockIncidentSelect = vi.fn().mockReturnValue({ single: mockIncidentSingle });
         const mockIncidentInsert = vi.fn().mockReturnValue({ select: mockIncidentSelect });
 
-        mockSupabase.from.mockImplementation((table) => {
+        mockSupabase.from.mockImplementation((table: string) => {
           if (table === 'profiles') {
             return { select: mockProfileSelect };
           } else if (table === 'incidents') {

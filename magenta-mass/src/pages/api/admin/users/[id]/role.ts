@@ -1,7 +1,6 @@
-export const prerender = false;
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../../../lib/db/database.types';
+import type { Database } from '../../../../../lib/db/database.types';
 
 // Disable prerendering for API routes
 export const prerender = false;

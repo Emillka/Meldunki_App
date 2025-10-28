@@ -21,8 +21,8 @@
 -- ============================================================================
 
 -- enable uuid generation for primary keys
--- uuid-ossp provides uuid_generate_v4() function for creating random uuids
-create extension if not exists "uuid-ossp";
+-- use gen_random_uuid() which is available by default in PostgreSQL 13+
+-- no need to create uuid-ossp extension
 
 -- ============================================================================
 -- section 2: core tables
@@ -35,7 +35,7 @@ create extension if not exists "uuid-ossp";
 --        polish provinces. it forms the top of the administrative hierarchy.
 -- ----------------------------------------------------------------------------
 create table public.provinces (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name varchar(100) not null unique,
   created_at timestamptz not null default now()
 );
@@ -53,7 +53,7 @@ comment on column public.provinces.created_at is 'timestamp when the record was 
 --        names within the same province.
 -- ----------------------------------------------------------------------------
 create table public.counties (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   province_id uuid not null references public.provinces(id) on delete cascade,
   name varchar(100) not null,
   created_at timestamptz not null default now(),
@@ -76,7 +76,7 @@ comment on column public.counties.created_at is 'timestamp when the record was c
 --        departments that have associated users.
 -- ----------------------------------------------------------------------------
 create table public.fire_departments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   county_id uuid not null references public.counties(id) on delete cascade,
   name varchar(255) not null,
   created_at timestamptz not null default now(),
@@ -130,7 +130,7 @@ comment on column public.profiles.updated_at is 'timestamp of last profile updat
 --        (category, summary) are nullable and populated asynchronously.
 -- ----------------------------------------------------------------------------
 create table public.incidents (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   fire_department_id uuid not null references public.fire_departments(id) on delete restrict,
   incident_date date not null,
