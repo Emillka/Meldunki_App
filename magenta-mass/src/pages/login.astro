@@ -171,9 +171,14 @@ import { Alert, AlertDescription } from '../components/ui/alert';
         // ✅ Success!
         showMessage('✅ Logowanie udane! Przekierowuję...', false);
         
-        // Store access token
-        localStorage.setItem('access_token', result.data.session.access_token);
-        localStorage.setItem('refresh_token', result.data.session.refresh_token);
+        // Store session using TokenManager
+        const { TokenManager } = await import('@/lib/utils/token-manager');
+        TokenManager.saveSession({
+          access_token: result.data.session.access_token,
+          refresh_token: result.data.session.refresh_token,
+          expires_at: result.data.session.expires_at,
+          expires_in: result.data.session.expires_in
+        });
         
         // Log user data
         console.log('Zalogowany użytkownik:', result.data.user);

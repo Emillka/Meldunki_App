@@ -267,32 +267,14 @@ const { showAuth = true, currentPath = '' } = Astro.props;
   // 1. CHECK AUTHENTICATION STATUS
   // ============================================================================
   async function checkAuthStatus() {
-    const token = localStorage.getItem('access_token');
-    
-    if (!token) {
-      showNotLoggedIn();
-      return;
-    }
-    
     try {
-      // Fetch user profile
-      const response = await fetch('/api/auth/profile', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const { TokenManager } = await import('@/lib/utils/token-manager');
+      const { isAuthenticated, user } = await TokenManager.checkAuth();
       
-      const result = await response.json();
-      
-      if (result.success && result.data) {
-        userProfile = result.data;
-        showLoggedIn(result.data);
+      if (isAuthenticated && user) {
+        userProfile = user;
+        showLoggedIn(user);
       } else {
-        // Token is invalid, clear it
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
         showNotLoggedIn();
       }
     } catch (error) {
@@ -355,25 +337,12 @@ const { showAuth = true, currentPath = '' } = Astro.props;
   // 4. LOGOUT FUNCTIONALITY
   // ============================================================================
   async function logout() {
-    const token = localStorage.getItem('access_token');
-    
-    if (token) {
-      try {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      } catch (error) {
-        console.error('Logout API error:', error);
-      }
+    try {
+      const { TokenManager } = await import('@/lib/utils/token-manager');
+      await TokenManager.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
     }
-    
-    // Clear local storage
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
     
     // Redirect to home page
     window.location.href = '/';

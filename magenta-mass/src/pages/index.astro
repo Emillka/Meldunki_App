@@ -282,37 +282,19 @@ import { Badge } from '../components/ui/badge';
   });
   
   async function checkAuthAndUpdateContent() {
-    const token = localStorage.getItem('access_token');
     const publicContent = document.getElementById('public-content');
     const loggedContent = document.getElementById('logged-content');
     
-    if (!token) {
-      // Not logged in - show public content
-      if (publicContent) publicContent.style.display = 'block';
-      if (loggedContent) loggedContent.style.display = 'none';
-      return;
-    }
-    
     try {
-      // Check if token is valid
-      const response = await fetch('/api/auth/profile', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const { TokenManager } = await import('@/lib/utils/token-manager');
+      const { isAuthenticated, user } = await TokenManager.checkAuth();
       
-      const result = await response.json();
-      
-      if (result.success && result.data) {
+      if (isAuthenticated && user) {
         // Logged in - show logged content
         if (publicContent) publicContent.style.display = 'none';
         if (loggedContent) loggedContent.style.display = 'block';
       } else {
-        // Token is invalid, show public content
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        // Not logged in - show public content
         if (publicContent) publicContent.style.display = 'block';
         if (loggedContent) loggedContent.style.display = 'none';
       }
