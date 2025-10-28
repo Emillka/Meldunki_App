@@ -13,7 +13,7 @@ const {
   title, 
   description = "FireLog - System meldunków dla Ochotniczej Straży Pożarnej", 
   keywords = "OSP, straż pożarna, meldunki, system, ochotnicza straż pożarna",
-  ogImage = "/og-image.jpg",
+  ogImage = "/favicon.svg",
   noIndex = false,
   canonical
 } = Astro.props;
@@ -54,7 +54,6 @@ const canonicalUrl = canonical || Astro.url.href;
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -423,7 +422,6 @@ const canonicalUrl = canonical || Astro.url.href;
     <meta name="msapplication-TileColor" content="#dc2626" />
     
     <!-- Preload Critical Resources -->
-    <link rel="preload" href="/src/styles/design-system.css" as="style" />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" />
   </head>
   <body>

@@ -41,13 +41,18 @@ export const GET: APIRoute = async ({ request }) => {
     // 3. Get user profile
     console.log('Profile endpoint - looking for profile for user:', user.id);
     
-    // Try to get profile with service role key to bypass RLS
-    const supabaseService = createClient<Database>(
-      process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY
-    );
+    // Use service role key if available, otherwise use anon key
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    console.log('Profile endpoint - service role key available:', !!serviceRoleKey);
     
-    const { data: profile, error: profileError } = await supabaseService
+    const supabaseForProfile = serviceRoleKey 
+      ? createClient<Database>(
+          process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL,
+          serviceRoleKey
+        )
+      : supabase;
+    
+    const { data: profile, error: profileError } = await supabaseForProfile
       .from('profiles')
       .select(`
         id,

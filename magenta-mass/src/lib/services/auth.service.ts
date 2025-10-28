@@ -31,7 +31,11 @@ export class AuthService {
     // Pozwala to na tworzenie użytkowników bez wymuszenia weryfikacji email
     // W server-side używamy process.env zamiast import.meta.env
     const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY || process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase configuration missing');
+    }
     
     this.supabase = createClient<Database>(
       supabaseUrl,
@@ -145,8 +149,8 @@ export class AuthService {
               email: authData.user.email!,
               created_at: authData.user.created_at
             },
-            profile: null, // Profil zostanie utworzony po potwierdzeniu emaila
-            session: null
+            profile: null as any, // Profil zostanie utworzony po potwierdzeniu emaila
+            session: null as any
           },
           error: null
         };
