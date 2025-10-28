@@ -210,13 +210,26 @@ import { SimpleSelect } from '../components/SimpleSelect';
   // ============================================================================
   // 1. CHECK AUTHENTICATION
   // ============================================================================
-  function checkAuth() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      window.location.href = '/login';
-      return false;
+  async function checkAuth() {
+    try {
+      const { TokenManager } = await import('@/lib/utils/token-manager');
+      const { isAuthenticated } = await TokenManager.checkAuth();
+      
+      if (!isAuthenticated) {
+        window.location.href = '/login';
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Auth check error:', error);
+      // Fallback to old method if TokenManager fails
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        window.location.href = '/login';
+        return false;
+      }
+      return true;
     }
-    return true;
   }
   
   // ============================================================================
@@ -224,7 +237,16 @@ import { SimpleSelect } from '../components/SimpleSelect';
   // ============================================================================
   async function loadMeldunki() {
     try {
-      const token = localStorage.getItem('access_token');
+      let token;
+      
+      try {
+        const { TokenManager } = await import('@/lib/utils/token-manager');
+        token = await TokenManager.getValidAccessToken();
+      } catch (error) {
+        console.warn('TokenManager not available, using fallback:', error);
+        token = localStorage.getItem('access_token');
+      }
+      
       if (!token) {
         window.location.href = '/login';
         return;
@@ -242,8 +264,13 @@ import { SimpleSelect } from '../components/SimpleSelect';
       if (!response.ok) {
         if (response.status === 401) {
           // Token expired, redirect to login
-          const { TokenManager } = await import('@/lib/utils/token-manager');
-          TokenManager.clearSession();
+          try {
+            const { TokenManager } = await import('@/lib/utils/token-manager');
+            TokenManager.clearSession();
+          } catch (error) {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+          }
           window.location.href = '/login';
           return;
         }
@@ -742,13 +769,13 @@ import { SimpleSelect } from '../components/SimpleSelect';
   
   
   // ============================================================================
-  // 7. INITIALIZATION
+  // INITIALIZATION
   // ============================================================================
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', async function() {
     console.log('Meldunki page JavaScript loaded');
     
     // Check authentication
-    if (!checkAuth()) return;
+    if (!(await checkAuth())) return;
     
     // Load initial data
     loadMeldunki();
