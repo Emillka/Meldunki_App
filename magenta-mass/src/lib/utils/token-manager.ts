@@ -124,19 +124,28 @@ export class TokenManager {
    * Pobiera ważny access token (odświeża jeśli potrzeba)
    */
   static async getValidAccessToken(): Promise<string | null> {
+    console.log('getValidAccessToken() called');
+    
     // Jeśli token jest ważny, zwróć go
     if (this.isTokenValid()) {
+      console.log('Token is valid, returning existing token');
       return this.getAccessToken();
     }
 
+    console.log('Token is not valid, checking if needs refresh');
     // Jeśli potrzebuje odświeżenia, spróbuj odświeżyć
     if (this.needsRefresh()) {
+      console.log('Token needs refresh, attempting refresh');
       const newSession = await this.refreshToken();
       if (newSession) {
+        console.log('Token refreshed successfully');
         return newSession.access_token;
+      } else {
+        console.log('Token refresh failed');
       }
     }
 
+    console.log('No valid token available');
     // Jeśli nie można odświeżyć, zwróć null
     return null;
   }
@@ -145,13 +154,18 @@ export class TokenManager {
    * Sprawdza autoryzację użytkownika
    */
   static async checkAuth(): Promise<{ isAuthenticated: boolean; user?: any }> {
+    console.log('TokenManager.checkAuth() called');
+    
     const token = await this.getValidAccessToken();
+    console.log('Token from getValidAccessToken:', token ? 'exists' : 'null');
     
     if (!token) {
+      console.log('No valid token found');
       return { isAuthenticated: false };
     }
 
     try {
+      console.log('Making profile request with token');
       const response = await fetch('/api/auth/profile', {
         method: 'GET',
         headers: {
@@ -160,14 +174,18 @@ export class TokenManager {
         }
       });
 
+      console.log('Profile response status:', response.status);
       const result = await response.json();
+      console.log('Profile response:', result);
 
       if (result.success && result.data) {
+        console.log('Auth check successful');
         return { 
           isAuthenticated: true, 
           user: result.data 
         };
       } else {
+        console.log('Auth check failed, clearing session');
         // Token jest nieprawidłowy, wyczyść sesję
         this.clearSession();
         return { isAuthenticated: false };
