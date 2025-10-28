@@ -231,19 +231,16 @@ import { Alert, AlertDescription } from '../components/ui/alert';
         // ✅ Success with immediate session!
         showMessage('✅ Rejestracja udana! Przekierowuję...', false);
         
-        // Store session using TokenManager
-        const { TokenManager } = await import('@/lib/utils/token-manager');
-        TokenManager.saveSession({
-          access_token: result.data.session.access_token,
-          refresh_token: result.data.session.refresh_token,
-          expires_at: result.data.session.expires_at,
-          expires_in: result.data.session.expires_in
-        });
+        // Store session directly in localStorage (avoid TokenManager issues)
+        localStorage.setItem('access_token', result.data.session.access_token);
+        localStorage.setItem('refresh_token', result.data.session.refresh_token);
+        localStorage.setItem('expires_at', result.data.session.expires_at.toString());
         
         // Log user data
         console.log('Zarejestrowany użytkownik:', result.data.user);
         console.log('Profil:', result.data.profile);
         console.log('Token:', result.data.session.access_token.substring(0, 20) + '...');
+        console.log('Session saved to localStorage');
 
         // Redirect after 2 seconds
         setTimeout(() => {
