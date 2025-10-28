@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview --host 0.0.0.0 --port $PORT",
+    "preview": "node ./dist/server/entry.mjs",
     "astro": "astro",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.5",
+    "@astrojs/node": "^9.5.0",
     "@astrojs/react": "^4.4.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
