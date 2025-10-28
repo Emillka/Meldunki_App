@@ -1,7 +1,8 @@
 import type { APIRoute } from 'astro';
-import { supabase } from '@/lib/db/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { successResponse, errorResponse } from '@/lib/utils/response';
 import type { MeldunekDTO } from '@/lib/types';
+import type { Database } from '@/lib/db/database.types';
 
 /**
  * GET /api/meldunki
@@ -21,7 +22,17 @@ export const GET: APIRoute = async ({ request }) => {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    // 2. Verify token and get user
+    // 2. Create Supabase client with service role key if available
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    
+    const supabase = createClient<Database>(
+      supabaseUrl,
+      serviceRoleKey || supabaseAnonKey
+    );
+
+    // 3. Verify token and get user
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
@@ -33,13 +44,22 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // 3. Get user's fire department ID
+    console.log('Meldunki GET endpoint - looking for profile for user:', user.id);
+    console.log('Meldunki GET endpoint - service role key available:', !!serviceRoleKey);
+    
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('fire_department_id')
       .eq('id', user.id)
       .single();
 
+    console.log('Meldunki GET endpoint - profile query result:', { 
+      profile: profile?.fire_department_id, 
+      error: profileError?.message 
+    });
+
     if (profileError || !profile) {
+      console.error('Profile not found for user:', user.id, 'Error:', profileError);
       return errorResponse(
         404,
         'PROFILE_NOT_FOUND',
@@ -139,7 +159,17 @@ export const POST: APIRoute = async ({ request }) => {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    // 2. Verify token and get user
+    // 2. Create Supabase client with service role key if available
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    
+    const supabase = createClient<Database>(
+      supabaseUrl,
+      serviceRoleKey || supabaseAnonKey
+    );
+
+    // 3. Verify token and get user
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
@@ -151,13 +181,22 @@ export const POST: APIRoute = async ({ request }) => {
     }
 
     // 3. Get user's fire department ID
+    console.log('Meldunki POST endpoint - looking for profile for user:', user.id);
+    console.log('Meldunki POST endpoint - service role key available:', !!serviceRoleKey);
+    
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('fire_department_id')
       .eq('id', user.id)
       .single();
 
+    console.log('Meldunki POST endpoint - profile query result:', { 
+      profile: profile?.fire_department_id, 
+      error: profileError?.message 
+    });
+
     if (profileError || !profile) {
+      console.error('Profile not found for user:', user.id, 'Error:', profileError);
       return errorResponse(
         404,
         'PROFILE_NOT_FOUND',
