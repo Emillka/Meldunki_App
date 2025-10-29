@@ -174,6 +174,22 @@ export class AuthService {
         };
       }
       
+      // Update profile with is_verified if provided
+      if (command.profile.is_verified !== undefined) {
+        const { error: updateError } = await this.supabase
+          .from('profiles')
+          .update({ is_verified: command.profile.is_verified } as any)
+          .eq('id', authData.user.id);
+        
+        if (updateError) {
+          console.error('Failed to update is_verified:', updateError);
+          // Don't fail registration, just log the error
+        } else {
+          // Update profile object for response
+          (profile as any).is_verified = command.profile.is_verified;
+        }
+      }
+      
       // 4. Formatowanie odpowiedzi
       const user: UserDTO = {
         id: authData.user.id,
@@ -187,6 +203,7 @@ export class AuthService {
         first_name: profile.first_name,
         last_name: profile.last_name,
         role: profile.role,
+        is_verified: (profile as any).is_verified ?? false,
         created_at: profile.created_at,
         updated_at: profile.updated_at
       };
@@ -252,7 +269,15 @@ export class AuthService {
         };
       }
       
-      // 2. Pobranie profilu użytkownika
+      // 2. Sprawdzenie czy email został potwierdzony
+      if (!authData.user.email_confirmed_at) {
+        return {
+          data: null,
+          error: new Error('EMAIL_NOT_CONFIRMED')
+        };
+      }
+      
+      // 3. Pobranie profilu użytkownika
       const { data: profile, error: profileError } = await this.supabase
         .from('profiles')
         .select('*')
@@ -267,7 +292,7 @@ export class AuthService {
         };
       }
       
-      // 3. Formatowanie odpowiedzi (używamy tego samego typu co register)
+      // 4. Formatowanie odpowiedzi (używamy tego samego typu co register)
       const user: UserDTO = {
         id: authData.user.id,
         email: authData.user.email!,
@@ -280,6 +305,7 @@ export class AuthService {
         first_name: profile.first_name,
         last_name: profile.last_name,
         role: profile.role,
+        is_verified: (profile as any).is_verified ?? false,
         created_at: profile.created_at,
         updated_at: profile.updated_at
       };

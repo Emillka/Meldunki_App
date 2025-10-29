@@ -82,6 +82,14 @@ export const POST: APIRoute = async ({ request }) => {
         );
       }
 
+      if (error.message === 'EMAIL_NOT_CONFIRMED') {
+        return errorResponse(
+          403,
+          'EMAIL_NOT_CONFIRMED',
+          'Musisz potwierdzić swój adres email przed zalogowaniem. Sprawdź swoją skrzynkę pocztową i kliknij link aktywacyjny.'
+        );
+      }
+
       // Generic error
       return errorResponse(
         500,
