@@ -42,7 +42,7 @@ const { showBackToTop = true } = Astro.props;
                 Strona główna
               </a>
             </li>
-            <li>
+            <li id="footer-login-link" style="display: block;">
               <a 
                 href="/login" 
                 class="m3-body-large" 
@@ -51,7 +51,7 @@ const { showBackToTop = true } = Astro.props;
                 Logowanie
               </a>
             </li>
-            <li>
+            <li id="footer-register-link" style="display: block;">
               <a 
                 href="/register" 
                 class="m3-body-large" 
@@ -157,8 +157,8 @@ const { showBackToTop = true } = Astro.props;
 </style>
 
 <script>
-  // Back to top functionality
-  document.addEventListener('DOMContentLoaded', function() {
+  // Back to top functionality and auth-based footer visibility
+  document.addEventListener('DOMContentLoaded', async function() {
     const backToTopButton = document.getElementById('back-to-top');
     
     if (backToTopButton) {
@@ -185,5 +185,49 @@ const { showBackToTop = true } = Astro.props;
         });
       });
     }
+    
+    // Hide login/register links for logged-in users
+    async function checkAuthAndUpdateFooter() {
+      const loginLink = document.getElementById('footer-login-link');
+      const registerLink = document.getElementById('footer-register-link');
+      
+      if (!loginLink || !registerLink) return;
+      
+      try {
+        const token = localStorage.getItem('access_token');
+        
+        if (token) {
+          // Check if token is valid
+          const response = await fetch('/api/auth/profile', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+              // User is logged in - hide login/register links
+              loginLink.style.display = 'none';
+              registerLink.style.display = 'none';
+              return;
+            }
+          }
+        }
+        
+        // User is not logged in - show links
+        loginLink.style.display = 'block';
+        registerLink.style.display = 'block';
+      } catch (error) {
+        console.error('Error checking auth for footer:', error);
+        // On error, show links (default to logged out state)
+        loginLink.style.display = 'block';
+        registerLink.style.display = 'block';
+      }
+    }
+    
+    checkAuthAndUpdateFooter();
   });
 </script>

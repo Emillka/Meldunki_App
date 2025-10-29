@@ -262,7 +262,7 @@ export const PATCH: APIRoute = async ({ request, params }) => {
           role: updatedProfile.role,
           updated_at: updatedProfile.updated_at
         },
-        message: `Rola użytkownika została zmieniona na ${role === 'admin' ? 'Administrator' : 'Członek'}`
+        message: `Rola użytkownika została zmieniona na ${role === 'admin' ? 'Administrator' : 'Strażak administrator'}`
       }),
       {
         status: 200,

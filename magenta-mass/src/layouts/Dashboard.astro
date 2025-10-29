@@ -544,7 +544,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       if (isAuthenticated && user) {
         userProfile = user;
         document.getElementById('userEmail').textContent = userProfile.user.email;
-        document.getElementById('userRole').textContent = userProfile.profile.role === 'admin' ? 'Administrator' : 'Członek';
+        document.getElementById('userRole').textContent = userProfile.profile.role === 'admin' ? 'Administrator' : 'Strażak administrator';
         
         // Show admin panel if user is admin
         if (userProfile.profile.role === 'admin') {
@@ -604,7 +604,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           <span class="material-icons text-muted-foreground">admin_panel_settings</span>
           <div>
             <div className="text-sm text-muted-foreground">Rola</div>
-            <div className="font-medium">${profile.profile.role === 'admin' ? 'Administrator' : 'Członek'}</div>
+            <div className="font-medium">${profile.profile.role === 'admin' ? 'Administrator' : 'Strażak administrator'}</div>
           </div>
         </div>
         
@@ -998,7 +998,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="${user.role === 'admin' ? 'default' : 'secondary'}">
-            ${user.role === 'admin' ? 'Administrator' : 'Członek'}
+            ${user.role === 'admin' ? 'Administrator' : 'Strażak administrator'}
           </Badge>
           <div className="text-xs text-muted-foreground">
             ${new Date(user.created_at).toLocaleDateString('pl-PL')}
@@ -1034,7 +1034,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          alert(`Rola użytkownika została zmieniona na ${newRole === 'admin' ? 'Administrator' : 'Członek'}`);
+          alert(`Rola użytkownika została zmieniona na ${newRole === 'admin' ? 'Administrator' : 'Strażak administrator'}`);
           loadDepartmentUsers();
         }
       } else {
