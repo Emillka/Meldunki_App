@@ -351,5 +351,81 @@ export class AuthService {
     
     return !error && !!data;
   }
+  
+  /**
+   * Wysyła email z linkiem resetowania hasła
+   * 
+   * @param email - Email użytkownika, który chce zresetować hasło
+   * @returns Obiekt z informacją o sukcesie lub błędem
+   */
+  async requestPasswordReset(email: string): Promise<{ data: { message: string } | null; error: Error | null }> {
+    try {
+      const siteUrl =
+        process.env.PUBLIC_SITE_URL ||
+        (typeof import.meta !== 'undefined' ? (import.meta as any).env?.PUBLIC_SITE_URL : undefined) ||
+        process.env.RENDER_EXTERNAL_URL ||
+        'https://meldunki-app.onrender.com';
+
+      const { data, error } = await this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${siteUrl}/reset-password`,
+      });
+
+      if (error) {
+        console.error('Password reset request error:', error);
+        return {
+          data: null,
+          error: error
+        };
+      }
+
+      return {
+        data: {
+          message: 'Link resetowania hasła został wysłany na podany adres email.'
+        },
+        error: null
+      };
+    } catch (error) {
+      console.error('Unexpected error in requestPasswordReset:', error);
+      return {
+        data: null,
+        error: error instanceof Error ? error : new Error('Unknown error')
+      };
+    }
+  }
+  
+  /**
+   * Resetuje hasło użytkownika używając tokena z linku
+   * 
+   * @param newPassword - Nowe hasło
+   * @returns Obiekt z informacją o sukcesie lub błędem
+   */
+  async resetPassword(newPassword: string): Promise<{ data: { message: string } | null; error: Error | null }> {
+    try {
+      const { data, error } = await this.supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        console.error('Password reset error:', error);
+        return {
+          data: null,
+          error: error
+        };
+      }
+
+      return {
+        data: {
+          message: 'Hasło zostało pomyślnie zresetowane.'
+        },
+        error: null
+      };
+    } catch (error) {
+      console.error('Unexpected error in resetPassword:', error);
+      return {
+        data: null,
+        error: error instanceof Error ? error : new Error('Unknown error')
+      };
+    }
+  }
 }
 

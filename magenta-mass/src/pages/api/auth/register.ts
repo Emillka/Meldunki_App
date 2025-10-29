@@ -88,7 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
           return errorResponse(
             409,
             'EMAIL_ALREADY_EXISTS',
-            'Konto z tym adresem email już istnieje. Jeśli zapomniałeś hasła, użyj opcji resetowania hasła.'
+            'Konto z tym adresem email już istnieje. Jeśli zapomniałeś hasła, użyj opcji resetowania hasła na stronie logowania.'
           );
         }
       } catch (err) {
@@ -143,7 +143,7 @@ export const POST: APIRoute = async ({ request }) => {
         return errorResponse(
           409,
           'EMAIL_ALREADY_EXISTS',
-          'Konto z tym adresem email już istnieje. Jeśli zapomniałeś hasła, użyj opcji resetowania hasła.'
+          'Konto z tym adresem email już istnieje. Jeśli zapomniałeś hasła, użyj opcji resetowania hasła na stronie logowania.'
         );
       }
       
