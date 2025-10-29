@@ -90,6 +90,15 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
             Profil
           </button>
           <button 
+            id="tab-meldunek" 
+            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground"
+            data-tab="meldunek"
+            onclick="switchTab('meldunek')"
+          >
+            <span class="material-icons text-sm">add</span>
+            Nowy Meldunek
+          </button>
+          <button 
             id="tab-admin" 
             class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hidden"
             data-tab="admin"
@@ -253,6 +262,100 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        <!-- Nowy Meldunek Tab -->
+        <div id="content-meldunek" class="tab-content hidden">
+          <Card>
+            <CardHeader>
+              <CardTitle>Nowy Meldunek</CardTitle>
+              <CardDescription>Utwórz nowy meldunek zdarzenia</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form id="meldunekForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label htmlFor="incident_name">Nazwa zdarzenia *</Label>
+                    <Input
+                      type="text"
+                      id="incident_name"
+                      name="incident_name"
+                      placeholder="Np. Pożar budynku mieszkalnego"
+                      required
+                    />
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <Label htmlFor="incident_date">Data zdarzenia *</Label>
+                    <Input
+                      type="datetime-local"
+                      id="incident_date"
+                      name="incident_date"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div class="space-y-2">
+                  <Label htmlFor="location_address">Lokalizacja</Label>
+                  <Input
+                    type="text"
+                    id="location_address"
+                    name="location_address"
+                    placeholder="Np. ul. Główna 123, Warszawa"
+                  />
+                </div>
+                
+                <div class="space-y-2">
+                  <Label htmlFor="description">Opis zdarzenia *</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    placeholder="Szczegółowy opis zdarzenia..."
+                    rows={5}
+                    required
+                  />
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label htmlFor="commander">Dowódca</Label>
+                    <Input
+                      type="text"
+                      id="commander"
+                      name="commander"
+                      placeholder="Imię i nazwisko dowódcy"
+                    />
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <Label htmlFor="driver">Kierowca</Label>
+                    <Input
+                      type="text"
+                      id="driver"
+                      name="driver"
+                      placeholder="Imię i nazwisko kierowcy"
+                    />
+                  </div>
+                </div>
+                
+                <div class="space-y-2">
+                  <Label htmlFor="forces_and_resources">Siły i środki</Label>
+                  <Textarea
+                    id="forces_and_resources"
+                    name="forces_and_resources"
+                    placeholder="Opis użytych sił i środków..."
+                    rows={3}
+                  />
+                </div>
+                
+                <Button type="submit" className="w-full">
+                  <span class="material-icons mr-2">save</span>
+                  Utwórz meldunek
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
 
         <!-- Admin Panel Tab -->
@@ -707,6 +810,61 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     }
   }
   
+  async function createMeldunek(formData) {
+    try {
+      let token;
+      
+      try {
+        const { TokenManager } = await import('@/lib/utils/token-manager');
+        token = await TokenManager.getValidAccessToken();
+      } catch (error) {
+        console.warn('TokenManager not available, using fallback:', error);
+        token = localStorage.getItem('access_token');
+      }
+      
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+      
+      const response = await fetch('/api/meldunki', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          incident_name: formData.get('incident_name'),
+          description: formData.get('description'),
+          incident_date: formData.get('incident_date'),
+          location_address: formData.get('location_address') || null,
+          commander: formData.get('commander') || null,
+          driver: formData.get('driver') || null,
+          forces_and_resources: formData.get('forces_and_resources') || null
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          alert('Meldunek został utworzony pomyślnie!');
+          // Reset form
+          document.getElementById('meldunekForm').reset();
+          // Set default date to today
+          const now = new Date();
+          const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+          document.getElementById('incident_date').value = localDateTime;
+        }
+      } else {
+        const error = await response.json();
+        alert(`Błąd podczas tworzenia meldunku: ${error.error?.message || 'Nieznany błąd'}`);
+      }
+    } catch (error) {
+      console.error('Error creating meldunek:', error);
+      alert('Błąd podczas tworzenia meldunku');
+    }
+  }
+  
   async function changePassword(formData) {
     try {
       const token = localStorage.getItem('access_token');
@@ -1028,6 +1186,24 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       });
     }
     
+    // Set up meldunek form submission
+    const meldunekForm = document.getElementById('meldunekForm');
+    if (meldunekForm) {
+      meldunekForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        createMeldunek(formData);
+      });
+      
+      // Set default date to now
+      const dateInput = document.getElementById('incident_date');
+      if (dateInput) {
+        const now = new Date();
+        const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+        dateInput.value = localDateTime;
+      }
+    }
+    
     // Set up logout
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
@@ -1036,7 +1212,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     
     // Handle URL hash
     const hash = window.location.hash.substring(1);
-    if (hash && ['profil', 'admin'].includes(hash)) {
+    if (hash && ['profil', 'admin', 'meldunek'].includes(hash)) {
       switchTab(hash);
     } else {
       // Default to profil tab if no hash
