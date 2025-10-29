@@ -6,7 +6,9 @@ import type { Database } from '@/lib/db/database.types';
 
 /**
  * GET /api/meldunki
- * Pobiera meldunki dla jednostki OSP zalogowanego użytkownika
+ * Pobiera meldunki dla zalogowanego użytkownika
+ * Query params:
+ *   - department: if true, returns all meldunki from user's fire department (default: false - only user's meldunki)
  */
 export const GET: APIRoute = async ({ request }) => {
   try {
@@ -22,7 +24,11 @@ export const GET: APIRoute = async ({ request }) => {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    // 2. Create Supabase client with service role key if available
+    // 2. Parse query parameters
+    const url = new URL(request.url);
+    const includeDepartment = url.searchParams.get('department') === 'true';
+
+    // 3. Create Supabase client with service role key if available
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
     const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
@@ -32,7 +38,7 @@ export const GET: APIRoute = async ({ request }) => {
       serviceRoleKey || supabaseAnonKey
     );
 
-    // 3. Verify token and get user
+    // 4. Verify token and get user
     const { data: { user }, error: authError } = await supabase.auth.getUser(token);
     
     if (authError || !user) {
@@ -43,9 +49,10 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    // 3. Get user's fire department ID
+    // 5. Get user's fire department ID
     console.log('Meldunki GET endpoint - looking for profile for user:', user.id);
     console.log('Meldunki GET endpoint - service role key available:', !!serviceRoleKey);
+    console.log('Meldunki GET endpoint - includeDepartment:', includeDepartment);
     
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
@@ -67,8 +74,8 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    // 4. Get incidents for the user's fire department only
-    const { data: incidents, error: incidentsError } = await supabase
+    // 6. Build query - by default show only user's meldunki, unless department=true
+    let query = supabase
       .from('incidents')
       .select(`
         id,
@@ -87,8 +94,17 @@ export const GET: APIRoute = async ({ request }) => {
         driver,
         created_at,
         updated_at
-      `)
-      .eq('fire_department_id', profile.fire_department_id!)
+      `);
+
+    if (includeDepartment && profile.fire_department_id) {
+      // Show all meldunki from user's fire department
+      query = query.eq('fire_department_id', profile.fire_department_id);
+    } else {
+      // Show only user's own meldunki (default behavior)
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data: incidents, error: incidentsError } = await query
       .order('created_at', { ascending: false })
       .limit(100);
 
