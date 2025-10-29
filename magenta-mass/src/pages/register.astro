@@ -128,8 +128,15 @@ import { Alert, AlertDescription } from '../components/ui/alert';
                 maxLength={20}
                 className="uppercase"
               />
-              <p class="text-xs text-muted-foreground">
-                Kod otrzymany od administratora jednostki OSP. Zapewnia bezpieczeństwo rejestracji.
+              <Alert className="mt-2">
+                <AlertDescription className="text-xs">
+                  <strong>Gdzie otrzymać kod?</strong> Kod weryfikacyjny otrzymujesz od administratora 
+                  swojej jednostki OSP <strong>przed rejestracją</strong> (telefonicznie, osobiście lub mailowo). 
+                  Nie możesz go otrzymać przez ten formularz - musisz go mieć przed rozpoczęciem rejestracji.
+                </AlertDescription>
+              </Alert>
+              <p class="text-xs text-muted-foreground mt-2">
+                Kod zapewnia bezpieczeństwo rejestracji i dostęp tylko dla członków jednostki.
               </p>
             </div>
 
