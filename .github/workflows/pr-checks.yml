@@ -16,10 +16,6 @@ jobs:
     name: Linting & Type Checking
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        working-directory: ./magenta-mass
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,28 +25,20 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: magenta-mass/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('magenta-mass/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd magenta-mass
+          npm ci
       
       - name: Run Astro type checking
-        run: npx astro check
+        run: |
+          cd magenta-mass
+          npx astro check
   
   unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        working-directory: ./magenta-mass
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,25 +48,25 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: magenta-mass/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('magenta-mass/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd magenta-mass
+          npm ci
       
       - name: Run unit tests
-        run: npm run test:unit
+        run: |
+          cd magenta-mass
+          npm run test:unit
       
       - name: Run API tests
-        run: npm run test:api
+        run: |
+          cd magenta-mass
+          npm run test:api
       
       - name: Run integration tests
-        run: npm run test:integration
+        run: |
+          cd magenta-mass
+          npm run test:integration
       
       - name: Upload test coverage
         uses: codecov/codecov-action@v4
@@ -94,10 +82,6 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
     
-    defaults:
-      run:
-        working-directory: ./magenta-mass
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -107,30 +91,31 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: magenta-mass/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('magenta-mass/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd magenta-mass
+          npm ci
       
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: |
+          cd magenta-mass
+          npx playwright install --with-deps
       
       - name: Setup test environment
         run: |
+          cd magenta-mass
           cp test.env.example .env.test || true
           echo "Test environment setup completed"
       
       - name: Build application
-        run: npm run build
+        run: |
+          cd magenta-mass
+          npm run build
       
       - name: Start application server
-        run: npm start &
+        run: |
+          cd magenta-mass
+          npm start &
         env:
           PORT: 4321
       
@@ -139,7 +124,9 @@ jobs:
           timeout 60 bash -c 'until curl -f http://localhost:4321; do sleep 2; done'
       
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: |
+          cd magenta-mass
+          npm run test:e2e
         env:
           CI: true
       
@@ -155,10 +142,6 @@ jobs:
     name: Build Check
     runs-on: ubuntu-latest
     
-    defaults:
-      run:
-        working-directory: ./magenta-mass
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -168,22 +151,19 @@ jobs:
         with:
           node-version: '20'
       
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: magenta-mass/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('magenta-mass/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-      
       - name: Install dependencies
-        run: npm ci
+        run: |
+          cd magenta-mass
+          npm ci
       
       - name: Build application
-        run: npm run build
+        run: |
+          cd magenta-mass
+          npm run build
       
       - name: Verify build output
         run: |
+          cd magenta-mass
           if [ ! -d "dist" ]; then
             echo "Build failed - dist directory not found"
             exit 1
