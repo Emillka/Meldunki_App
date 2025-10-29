@@ -81,17 +81,8 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       <div class="mb-6">
         <div class="flex space-x-1 bg-muted p-1 rounded-lg">
           <button 
-            id="tab-meldunek" 
-            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors bg-background text-foreground shadow-sm"
-            data-tab="meldunek"
-            onclick="switchTab('meldunek')"
-          >
-            <span class="material-icons text-sm">add</span>
-            Dodaj
-          </button>
-          <button 
             id="tab-profil" 
-            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground"
+            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors bg-background text-foreground shadow-sm"
             data-tab="profil"
             onclick="switchTab('profil')"
           >
@@ -140,110 +131,8 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
       <!-- Content Area -->
       <div class="space-y-6">
-        <!-- Formularz dodawania meldunku - w zakładce "Meldunek" -->
-        <div id="content-meldunek" class="tab-content">
-          <Card>
-            <CardHeader>
-              <CardTitle>Nowy Meldunek</CardTitle>
-              <CardDescription>Wypełnij formularz, aby utworzyć nowy meldunek</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form id="meldunekForm" class="space-y-6">
-                <!-- Incident Name -->
-                <div class="space-y-2">
-                  <Label htmlFor="incidentName">Nazwa zdarzenia *</Label>
-                  <Input
-                    type="text"
-                    id="incidentName"
-                    name="incidentName"
-                    required
-                    placeholder="Wprowadź nazwę zdarzenia"
-                  />
-                </div>
-
-                <!-- Description -->
-                <div class="space-y-2">
-                  <Label htmlFor="description">Opis przebiegu akcji *</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    required
-                    rows={4}
-                    placeholder="Opisz przebieg akcji"
-                  />
-                </div>
-
-                <!-- Incident Date -->
-                <div class="space-y-2">
-                  <Label htmlFor="incidentDate">Data zdarzenia *</Label>
-                  <Input
-                    type="date"
-                    id="incidentDate"
-                    name="incidentDate"
-                    required
-                  />
-                </div>
-
-                <!-- Location Address -->
-                <div class="space-y-2">
-                  <Label htmlFor="locationAddress">Adres zdarzenia</Label>
-                  <Input
-                    type="text"
-                    id="locationAddress"
-                    name="locationAddress"
-                    placeholder="Wprowadź adres zdarzenia"
-                  />
-                </div>
-
-                <!-- Forces and Resources -->
-                <div class="space-y-2">
-                  <Label htmlFor="forcesAndResources">Siły i środki zadysponowane</Label>
-                  <Input
-                    type="text"
-                    id="forcesAndResources"
-                    name="forcesAndResources"
-                    placeholder="Opisz zadysponowane siły i środki"
-                  />
-                </div>
-
-                <!-- Commander and Driver -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div class="space-y-2">
-                    <Label htmlFor="commander">Dowódca akcji</Label>
-                    <Input
-                      type="text"
-                      id="commander"
-                      name="commander"
-                      placeholder="Imię i nazwisko dowódcy"
-                    />
-                  </div>
-                  <div class="space-y-2">
-                    <Label htmlFor="driver">Kierowca pojazdu</Label>
-                    <Input
-                      type="text"
-                      id="driver"
-                      name="driver"
-                      placeholder="Imię i nazwisko kierowcy"
-                    />
-                  </div>
-                </div>
-
-                <!-- Submit Button -->
-                <Button
-                  type="submit"
-                  id="submitMeldunekBtn"
-                  className="w-full"
-                >
-                  <span class="material-icons mr-2">save</span>
-                  Zapisz Meldunek
-                </Button>
-            </form>
-          </CardContent>
-        </Card>
-        </div>
-
         <!-- Profil Tab -->
-        <div id="content-profil" class="tab-content hidden">
+        <div id="content-profil" class="tab-content">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Profile Information -->
           <Card>
@@ -518,7 +407,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   // DASHBOARD FUNCTIONALITY
   // ============================================================================
   
-  let currentTab = 'meldunek'; // Default to meldunek tab
+  let currentTab = 'profil'; // Default to profil tab
   let userProfile = null;
   
   // ============================================================================
@@ -769,43 +658,6 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   }
   
   // ============================================================================
-  // 4. CREATE MELDUNEK
-  // ============================================================================
-  async function createMeldunek(formData) {
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch('/api/meldunki', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          // Show success message
-          alert('Meldunek został utworzony pomyślnie!');
-          
-          // Clear form
-          document.getElementById('meldunekForm').reset();
-          
-          // Redirect to meldunki page to see the new meldunek
-          window.location.href = '/meldunki';
-        }
-      } else {
-        const error = await response.json();
-        alert(`Błąd: ${error.error.message}`);
-      }
-    } catch (error) {
-      console.error('Error creating meldunek:', error);
-      alert('Błąd podczas tworzenia meldunku');
-    }
-  }
-  
-  // ============================================================================
   // 6. LOGOUT
   // ============================================================================
   async function logout() {
@@ -821,7 +673,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   }
   
   // ============================================================================
-  // 7. PROFILE MANAGEMENT
+  // 4. PROFILE MANAGEMENT
   // ============================================================================
   async function updateProfile(formData) {
     try {
@@ -903,7 +755,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   }
   
   // ============================================================================
-  // 8. ADMIN PANEL FUNCTIONS
+  // 5. ADMIN PANEL FUNCTIONS
   // ============================================================================
   async function loadAdminData() {
     if (!userProfile || userProfile.profile.role !== 'admin') return;
@@ -1134,7 +986,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   }
   
   // ============================================================================
-  // 9. INITIALIZATION
+  // 6. INITIALIZATION
   // ============================================================================
   document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard JavaScript loaded');
@@ -1155,58 +1007,6 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         switchTab(tabName);
       });
     });
-    
-    // Set up form submission
-    const form = document.getElementById('meldunekForm');
-    if (form) {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-            const data = {
-              incident_name: formData.get('incidentName'),
-              description: formData.get('description'),
-              incident_date: formData.get('incidentDate'),
-              location_address: formData.get('locationAddress'),
-              forces_and_resources: formData.get('forcesAndResources'),
-              commander: formData.get('commander'),
-              driver: formData.get('driver')
-            };
-        
-        console.log('Form data:', data);
-        
-        // Send to API
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-          alert('Błąd: Brak tokenu autoryzacji');
-          return;
-        }
-        
-        fetch('/api/meldunki', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(result => {
-          if (result.success) {
-            alert('Meldunek został zapisany!');
-          } else {
-            alert('Błąd: ' + result.error.message);
-          }
-        })
-        .catch(error => {
-          console.error('Error creating meldunek:', error);
-          alert('Błąd połączenia. Sprawdź czy serwer działa.');
-        });
-        
-        // Clear form
-        document.getElementById('meldunekForm').reset();
-      });
-    }
     
     // Set up profile form submission
     const profileForm = document.getElementById('profileForm');
@@ -1236,11 +1036,11 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     
     // Handle URL hash
     const hash = window.location.hash.substring(1);
-    if (hash && ['meldunek', 'profil', 'admin'].includes(hash)) {
+    if (hash && ['profil', 'admin'].includes(hash)) {
       switchTab(hash);
     } else {
-      // Default to meldunek tab if no hash
-      switchTab('meldunek');
+      // Default to profil tab if no hash
+      switchTab('profil');
     }
   });
 </script>
@@ -1311,15 +1111,6 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   // Wait a bit for DOM to be ready
   setTimeout(function() {
     console.log('Setting up tab navigation');
-    
-        // Auto-fill dates
-        const today = new Date().toISOString().split('T')[0];
-        
-        const incidentDateField = document.getElementById('incidentDate');
-        
-        if (incidentDateField) {
-          incidentDateField.value = today;
-        }
     
     // Add click handlers to tab buttons
     document.querySelectorAll('[data-tab]').forEach(button => {
