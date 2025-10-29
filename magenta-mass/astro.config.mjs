@@ -15,5 +15,25 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT) || 10000
-  }
+  },
+  // Build optimizations
+  vite: {
+    build: {
+      // Optimize build speed
+      minify: 'esbuild',
+      cssMinify: true,
+      // Reduce bundle size
+      rollupOptions: {
+        output: {
+          manualChunks: undefined
+        }
+      }
+    },
+    // Faster dependency resolution
+    optimizeDeps: {
+      include: ['@supabase/supabase-js']
+    }
+  },
+  // Compress output
+  compressHTML: true
 });

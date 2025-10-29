@@ -7,6 +7,8 @@
     "build": "astro build",
     "preview": "node ./dist/server/entry.mjs",
     "start": "node ./dist/server/entry.mjs",
+    "prebuild": "echo 'Building...'",
+    "postbuild": "echo 'Build complete!'",
     "astro": "astro",
     "test": "vitest",
     "test:ui": "vitest --ui",

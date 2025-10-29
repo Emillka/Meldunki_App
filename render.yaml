@@ -2,10 +2,10 @@
 # Ten plik konfiguruje deployment na Render.com
 
 # Build Command - Render automatycznie wykryje Astro, ale możemy być explicit
-buildCommand: npm run build
+buildCommand: cd magenta-mass && npm ci && npm run build
 
 # Start Command - Render uruchomi aplikację
-startCommand: npm start
+startCommand: cd magenta-mass && npm start
 
 # Root Directory - Render będzie szukał aplikacji w tym katalogu
 rootDir: magenta-mass
@@ -31,18 +31,11 @@ plan: free
 # Region - Najbliższy region (Europe)
 region: frankfurt
 
+# Build Settings - Optimize build
+installCommand: cd magenta-mass && npm ci --prefer-offline --no-audit
+
 # Environment Variables (ustaw w Render Dashboard)
 # PUBLIC_SUPABASE_URL - URL Twojego projektu Supabase
 # PUBLIC_SUPABASE_ANON_KEY - Anon key z Supabase
 # SUPABASE_SERVICE_ROLE_KEY - Service role key z Supabase
 # NODE_ENV - production (automatycznie ustawione przez Render)
-
-# Custom Headers (opcjonalne)
-# Możesz dodać custom headers w Render Dashboard
-
-# Redirects (opcjonalne)
-# Możesz skonfigurować redirects w Render Dashboard
-
-# SSL - Render automatycznie zapewnia SSL dla darmowych planów
-
-# Monitoring - Render ma wbudowane monitoring i logi
