@@ -81,13 +81,13 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       <div class="mb-6">
         <div class="flex space-x-1 bg-muted p-1 rounded-lg">
           <button 
-            id="tab-nowy" 
+            id="tab-meldunek" 
             class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors bg-background text-foreground shadow-sm"
-            data-tab="nowy"
-            onclick="switchTab('nowy')"
+            data-tab="meldunek"
+            onclick="switchTab('meldunek')"
           >
             <span class="material-icons text-sm">add</span>
-            Nowy Meldunek
+            Dodaj
           </button>
           <button 
             id="tab-profil" 
@@ -140,8 +140,8 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
       <!-- Content Area -->
       <div class="space-y-6">
-        <!-- Nowy Meldunek Tab -->
-        <div id="content-nowy" class="tab-content">
+        <!-- Formularz dodawania meldunku - w zakładce "Meldunek" -->
+        <div id="content-meldunek" class="tab-content">
           <Card>
             <CardHeader>
               <CardTitle>Nowy Meldunek</CardTitle>
@@ -237,11 +237,10 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
                   <span class="material-icons mr-2">save</span>
                   Zapisz Meldunek
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
+            </form>
+          </CardContent>
+        </Card>
         </div>
-
 
         <!-- Profil Tab -->
         <div id="content-profil" class="tab-content hidden">
@@ -519,7 +518,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   // DASHBOARD FUNCTIONALITY
   // ============================================================================
   
-  let currentTab = 'nowy';
+  let currentTab = 'meldunek'; // Default to meldunek tab
   let userProfile = null;
   
   // ============================================================================
@@ -733,7 +732,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   // 3. TAB NAVIGATION
   // ============================================================================
   function switchTab(tabName) {
-    // Hide all content
+    // Hide all tab content
     document.querySelectorAll('.tab-content').forEach(content => {
       content.style.display = 'none';
       content.classList.add('hidden');
@@ -793,8 +792,8 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           // Clear form
           document.getElementById('meldunekForm').reset();
           
-          // Switch to meldunki tab
-          switchTab('meldunki');
+          // Redirect to meldunki page to see the new meldunek
+          window.location.href = '/meldunki';
         }
       } else {
         const error = await response.json();
@@ -1237,8 +1236,11 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     
     // Handle URL hash
     const hash = window.location.hash.substring(1);
-    if (hash && ['nowy', 'profil'].includes(hash)) {
+    if (hash && ['meldunek', 'profil', 'admin'].includes(hash)) {
       switchTab(hash);
+    } else {
+      // Default to meldunek tab if no hash
+      switchTab('meldunek');
     }
   });
 </script>
@@ -1252,26 +1254,29 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   function simpleSwitchTab(tabName) {
     console.log('Switching to tab:', tabName);
     
-    // Hide all content
+    // Hide all tab content
     document.querySelectorAll('.tab-content').forEach(content => {
       content.style.display = 'none';
     });
     
     // Remove active class from all buttons
-    document.querySelectorAll('.tab-button').forEach(btn => {
+    document.querySelectorAll('[data-tab]').forEach(btn => {
       btn.className = btn.className.replace('m3-button--filled', 'm3-button--text');
+      btn.className = btn.className.replace('bg-background text-foreground shadow-sm', 'text-muted-foreground hover:text-foreground');
     });
     
     // Show selected content
     const content = document.getElementById(`content-${tabName}`);
     if (content) {
       content.style.display = 'block';
+      content.classList.remove('hidden');
     }
     
     // Add active class to selected button
     const button = document.getElementById(`tab-${tabName}`);
     if (button) {
       button.className = button.className.replace('m3-button--text', 'm3-button--filled');
+      button.className = button.className.replace('text-muted-foreground hover:text-foreground', 'bg-background text-foreground shadow-sm');
     }
   }
   
@@ -1283,7 +1288,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     console.log('DOM loaded, adding click handlers');
     
     // Add click handlers to tab buttons
-    document.querySelectorAll('.tab-button').forEach(button => {
+    document.querySelectorAll('[data-tab]').forEach(button => {
       console.log('Adding click handler to button:', button.getAttribute('data-tab'));
       button.addEventListener('click', function() {
         const tabName = this.getAttribute('data-tab');
@@ -1317,19 +1322,21 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         }
     
     // Add click handlers to tab buttons
-    document.querySelectorAll('.tab-button').forEach(button => {
+    document.querySelectorAll('[data-tab]').forEach(button => {
       button.addEventListener('click', function() {
         console.log('Button clicked:', this.getAttribute('data-tab'));
         const tabName = this.getAttribute('data-tab');
         
-        // Hide all content
+        // Hide all tab content (only profil and admin tabs, formularz is always visible)
         document.querySelectorAll('.tab-content').forEach(content => {
           content.style.display = 'none';
+          content.classList.add('hidden');
         });
         
         // Remove active class from all buttons
-        document.querySelectorAll('.tab-button').forEach(btn => {
+        document.querySelectorAll('[data-tab]').forEach(btn => {
           btn.className = btn.className.replace('m3-button--filled', 'm3-button--text');
+          btn.className = btn.className.replace('bg-background text-foreground shadow-sm', 'text-muted-foreground hover:text-foreground');
         });
         
         // Show selected content
@@ -1346,6 +1353,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         const button = document.getElementById(`tab-${tabName}`);
         if (button) {
           button.className = button.className.replace('m3-button--text', 'm3-button--filled');
+          button.className = button.className.replace('text-muted-foreground hover:text-foreground', 'bg-background text-foreground shadow-sm');
         }
       });
     });
