@@ -67,7 +67,6 @@ export const POST: APIRoute = async ({ request }) => {
       email: dto.email.trim().toLowerCase(),
       password: dto.password, // NEVER log or modify password
       fire_department_name: dto.fire_department_name.trim(),
-      verification_code: dto.verification_code.trim().toUpperCase(), // Normalize to uppercase
       first_name: sanitizeString(dto.first_name) || undefined,
       last_name: sanitizeString(dto.last_name) || undefined,
       role: dto.role || 'member'
@@ -98,10 +97,10 @@ export const POST: APIRoute = async ({ request }) => {
       }
     }
     
-    // 6. Find fire department by name and verify code
+    // 6. Find fire department by name
     const { data: fireDept, error: fireDeptError } = await supabase
       .from('fire_departments')
-      .select('id, verification_code')
+      .select('id')
       .ilike('name', sanitizedDto.fire_department_name)
       .single();
     
@@ -113,30 +112,20 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
     
-    // 7. Verify verification code
-    const fireDeptData = fireDept as unknown as { id: string; verification_code: string | null };
-    if (!fireDeptData.verification_code || fireDeptData.verification_code !== sanitizedDto.verification_code) {
-      return errorResponse(
-        403,
-        'INVALID_VERIFICATION_CODE',
-        'Nieprawidłowy kod weryfikacyjny. Skontaktuj się z administratorem jednostki OSP w celu uzyskania poprawnego kodu.'
-      );
-    }
-    
-    // 8. Create command model
+    // 7. Create command model
     const command: RegisterUserCommand = {
       email: sanitizedDto.email,
       password: sanitizedDto.password,
       profile: {
-        fire_department_id: fireDeptData.id,
+        fire_department_id: (fireDept as unknown as { id: string }).id,
         role: sanitizedDto.role || 'member',
         first_name: sanitizedDto.first_name,
         last_name: sanitizedDto.last_name,
-        is_verified: true // User is verified because they provided correct code
+        is_verified: false // User needs to be verified by admin after registration
       }
     };
     
-    // 9. Execute registration
+    // 8. Execute registration
     const authService = new AuthService();
     const { data, error } = await authService.registerUser(command);
     
@@ -155,14 +144,6 @@ export const POST: APIRoute = async ({ request }) => {
           409,
           'EMAIL_ALREADY_EXISTS',
           'Konto z tym adresem email już istnieje. Jeśli zapomniałeś hasła, użyj opcji resetowania hasła.'
-        );
-      }
-      
-      if (error.message === 'INVALID_VERIFICATION_CODE') {
-        return errorResponse(
-          403,
-          'INVALID_VERIFICATION_CODE',
-          'Nieprawidłowy kod weryfikacyjny. Skontaktuj się z administratorem jednostki OSP.'
         );
       }
       

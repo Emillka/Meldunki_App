@@ -72,6 +72,7 @@ export type ErrorCode =
   | 'CONFLICT'
   | 'EMAIL_ALREADY_EXISTS'
   | 'FIRE_DEPARTMENT_NOT_FOUND'
+  | 'INVALID_VERIFICATION_CODE'
   | 'PROVINCE_NOT_FOUND'
   | 'COUNTY_NOT_FOUND'
   | 'PROFILE_NOT_FOUND'
@@ -293,10 +294,16 @@ export interface FireDepartmentDetailResponseDTO {
  * Basic profile DTO
  * Based on profiles table Row type with selected fields
  */
-export type ProfileDTO = Pick<
-  DbProfile,
-  'id' | 'fire_department_id' | 'first_name' | 'last_name' | 'role' | 'created_at' | 'updated_at'
->;
+export type ProfileDTO = {
+  id: string;
+  fire_department_id: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  role: string;
+  is_verified: boolean;
+  created_at: string;
+  updated_at: string;
+};
 
 /**
  * Profile with fire department reference
@@ -507,6 +514,7 @@ export interface RegisterUserCommand {
     first_name?: string;
     last_name?: string;
     role: 'member' | 'admin';
+    is_verified?: boolean; // Whether user is verified (default false)
   };
 }
 

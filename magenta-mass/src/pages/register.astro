@@ -116,30 +116,6 @@ import { Alert, AlertDescription } from '../components/ui/alert';
               </p>
             </div>
 
-            <!-- Verification Code -->
-            <div class="space-y-2">
-              <Label htmlFor="verificationCode">Kod Weryfikacyjny Jednostki</Label>
-              <Input
-                type="text"
-                id="verificationCode"
-                name="verificationCode"
-                required
-                placeholder="Wprowadź kod weryfikacyjny"
-                maxLength={20}
-                className="uppercase"
-              />
-              <Alert className="mt-2">
-                <AlertDescription className="text-xs">
-                  <strong>Gdzie otrzymać kod?</strong> Kod weryfikacyjny otrzymujesz od administratora 
-                  swojej jednostki OSP <strong>przed rejestracją</strong> (telefonicznie, osobiście lub mailowo). 
-                  Nie możesz go otrzymać przez ten formularz - musisz go mieć przed rozpoczęciem rejestracji.
-                </AlertDescription>
-              </Alert>
-              <p class="text-xs text-muted-foreground mt-2">
-                Kod zapewnia bezpieczeństwo rejestracji i dostęp tylko dla członków jednostki.
-              </p>
-            </div>
-
             <!-- Submit Button -->
             <Button
               type="submit"
@@ -198,11 +174,6 @@ import { Alert, AlertDescription } from '../components/ui/alert';
     background-color: var(--md-sys-color-error-container);
     color: var(--md-sys-color-on-error-container);
     border: 1px solid var(--md-sys-color-error);
-  }
-  
-  /* Uppercase input style */
-  .uppercase {
-    text-transform: uppercase;
   }
 </style>
 
