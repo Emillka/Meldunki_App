@@ -1,4 +1,4 @@
-import type { RegisterRequestDTO } from '../types';
+import type { RegisterRequestDTO, UpdateProfileRequestDTO } from '../types';
 
 /**
  * Wynik walidacji z listą błędów
@@ -163,6 +163,61 @@ export function validatePasswordStrength(password: string): {
 export function validateUUID(uuid: string): boolean {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   return uuidRegex.test(uuid);
+}
+
+/**
+ * Waliduje dane wejściowe dla aktualizacji profilu
+ * 
+ * @param data - Dane do walidacji (unknown type dla bezpieczeństwa)
+ * @returns Obiekt z informacją czy dane są poprawne i listą błędów
+ * 
+ * @example
+ * ```typescript
+ * const validation = validateUpdateProfileRequest(requestBody);
+ * if (!validation.valid) {
+ *   return errorResponse(400, 'VALIDATION_ERROR', 'Invalid input', validation.errors);
+ * }
+ * ```
+ */
+export function validateUpdateProfileRequest(
+  data: unknown
+): ValidationResult {
+  const errors: Record<string, string> = {};
+  
+  // Type guard - sprawdzenie czy data jest obiektem
+  if (!data || typeof data !== 'object') {
+    return { valid: false, errors: { _general: 'Invalid request body' } };
+  }
+  
+  const dto = data as Partial<UpdateProfileRequestDTO>;
+  
+  // First name validation (optional, can be empty string)
+  if (dto.first_name !== undefined) {
+    if (dto.first_name !== null && typeof dto.first_name !== 'string') {
+      errors.first_name = 'First name must be a string';
+    } else if (typeof dto.first_name === 'string' && dto.first_name.length > 100) {
+      errors.first_name = 'First name must not exceed 100 characters';
+    }
+  }
+  
+  // Last name validation (optional, can be empty string)
+  if (dto.last_name !== undefined) {
+    if (dto.last_name !== null && typeof dto.last_name !== 'string') {
+      errors.last_name = 'Last name must be a string';
+    } else if (typeof dto.last_name === 'string' && dto.last_name.length > 100) {
+      errors.last_name = 'Last name must not exceed 100 characters';
+    }
+  }
+  
+  // At least one field must be provided
+  if (dto.first_name === undefined && dto.last_name === undefined) {
+    errors._general = 'At least one field (first_name or last_name) must be provided';
+  }
+  
+  return {
+    valid: Object.keys(errors).length === 0,
+    errors
+  };
 }
 
 /**
