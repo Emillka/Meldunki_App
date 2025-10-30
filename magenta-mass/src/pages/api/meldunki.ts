@@ -269,24 +269,28 @@ export const POST: APIRoute = async ({ request }) => {
     const computedCategory = categorizeIncident(`${incident_name} ${description}`);
     const computedSummary = generateSummary(incident_name, description, location_address);
 
-    // 7. Create incident in database
+    // 7. Create incident in database (omit fire_department_id if null to satisfy RLS)
+    const insertData: any = {
+      user_id: user.id,
+      incident_name: incident_name.trim(),
+      description: description.trim(),
+      incident_date: incident_date,
+      location_address: location_address?.trim() || null,
+      forces_and_resources: forces_and_resources?.trim() || null,
+      commander: commander?.trim() || null,
+      driver: driver?.trim() || null,
+      start_time: new Date().toISOString(),
+      end_time: null,
+      category: computedCategory,
+      summary: computedSummary
+    };
+    if (fireDepartmentId) {
+      insertData.fire_department_id = fireDepartmentId;
+    }
+
     const { data: incident, error: insertError } = await supabase
       .from('incidents')
-      .insert({
-        user_id: user.id,
-        fire_department_id: fireDepartmentId,
-        incident_name: incident_name.trim(),
-        description: description.trim(),
-        incident_date: incident_date,
-        location_address: location_address?.trim() || null,
-        forces_and_resources: forces_and_resources?.trim() || null,
-        commander: commander?.trim() || null,
-        driver: driver?.trim() || null,
-        start_time: new Date().toISOString(),
-        end_time: null,
-        category: computedCategory,
-        summary: computedSummary
-      })
+      .insert(insertData)
       .select()
       .single();
 
@@ -294,21 +298,7 @@ export const POST: APIRoute = async ({ request }) => {
       console.error('Failed to create incident:', insertError);
       console.error('User ID:', user.id);
       console.error('Fire Department ID:', fireDepartmentId);
-      console.error('Data being inserted:', {
-        user_id: user.id,
-        fire_department_id: fireDepartmentId,
-        incident_name: incident_name.trim(),
-        description: description.trim(),
-        incident_date: incident_date,
-        location_address: location_address?.trim() || null,
-        forces_and_resources: forces_and_resources?.trim() || null,
-        commander: commander?.trim() || null,
-        driver: driver?.trim() || null,
-        start_time: new Date().toISOString(),
-        end_time: null,
-        category: computedCategory,
-        summary: computedSummary
-      });
+      console.error('Data being inserted:', insertData);
       return errorResponse(
         500,
         'SERVER_ERROR',
