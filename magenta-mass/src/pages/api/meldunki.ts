@@ -93,13 +93,11 @@ export const GET: APIRoute = async ({ request }) => {
       error: profileError?.message 
     });
 
+    let fireDepartmentId: string | null = null;
     if (profileError || !profile) {
-      console.error('Profile not found for user:', user.id, 'Error:', profileError);
-      return errorResponse(
-        404,
-        'PROFILE_NOT_FOUND',
-        'User profile not found'
-      );
+      console.warn('Profile not found for user, proceeding with fire_department_id = null. User:', user.id, 'Error:', profileError?.message);
+    } else {
+      fireDepartmentId = profile.fire_department_id as unknown as string | null;
     }
 
     const profileWithVerification = profile as { fire_department_id: string | null; is_verified: boolean };
@@ -281,7 +279,7 @@ export const POST: APIRoute = async ({ request }) => {
       .from('incidents')
       .insert({
         user_id: user.id,
-        fire_department_id: profile.fire_department_id!,
+        fire_department_id: fireDepartmentId,
         incident_name: incident_name.trim(),
         description: description.trim(),
         incident_date: incident_date,
