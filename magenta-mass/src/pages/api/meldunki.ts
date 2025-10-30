@@ -323,3 +323,175 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 };
+
+/**
+ * PUT /api/meldunki?id={id}
+ * Aktualizuje istniejący meldunek należący do zalogowanego użytkownika
+ */
+export const PUT: APIRoute = async ({ request, url }) => {
+  try {
+    // 1. Authorization header
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return errorResponse(
+        401,
+        'UNAUTHORIZED',
+        'Missing or invalid authorization header'
+      );
+    }
+
+    const token = authHeader.substring(7);
+
+    // 2. Validate query param id
+    const id = url.searchParams.get('id');
+    if (!id) {
+      return errorResponse(400, 'VALIDATION_ERROR', 'Missing required query param: id');
+    }
+
+    // 3. Supabase client
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = createClient<Database>(supabaseUrl, serviceRoleKey || supabaseAnonKey);
+
+    // 4. Auth user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return errorResponse(401, 'UNAUTHORIZED', 'Invalid or expired token');
+    }
+
+    // 5. Fetch incident and check ownership
+    const { data: existing, error: fetchError } = await supabase
+      .from('incidents')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existing) {
+      return errorResponse(404, 'NOT_FOUND', 'Meldunek not found');
+    }
+
+    if (existing.user_id !== user.id) {
+      return errorResponse(403, 'FORBIDDEN', 'You are not allowed to update this meldunek');
+    }
+
+    // 6. Parse body and build update payload (partial update)
+    const body = await request.json().catch(() => ({}));
+    const updatePayload: Record<string, unknown> = {};
+
+    if (typeof body.incident_name === 'string') updatePayload.incident_name = body.incident_name.trim();
+    if (typeof body.description === 'string') updatePayload.description = body.description.trim();
+    if (typeof body.location_address === 'string') updatePayload.location_address = body.location_address.trim();
+    if (typeof body.forces_and_resources === 'string') updatePayload.forces_and_resources = body.forces_and_resources.trim();
+    if (typeof body.commander === 'string') updatePayload.commander = body.commander.trim();
+    if (typeof body.driver === 'string') updatePayload.driver = body.driver.trim();
+    if (typeof body.incident_date === 'string') updatePayload.incident_date = body.incident_date;
+    if (typeof body.category === 'string') updatePayload.category = body.category;
+
+    if (Object.keys(updatePayload).length === 0) {
+      return errorResponse(400, 'VALIDATION_ERROR', 'No valid fields to update');
+    }
+
+    // 7. Perform update
+    const { data: updated, error: updateError } = await supabase
+      .from('incidents')
+      .update({ ...updatePayload })
+      .eq('id', id)
+      .select('*')
+      .single();
+
+    if (updateError || !updated) {
+      return errorResponse(500, 'SERVER_ERROR', 'Failed to update meldunek');
+    }
+
+    const meldunekDTO: MeldunekDTO = {
+      id: updated.id,
+      user_id: updated.user_id,
+      fire_department_id: updated.fire_department_id,
+      title: updated.incident_name,
+      description: updated.description,
+      location: updated.location_address || '',
+      incident_type: updated.category as 'fire' | 'rescue' | 'medical' | 'other',
+      severity: 'medium',
+      status: 'submitted',
+      created_at: updated.created_at,
+      updated_at: updated.updated_at,
+      incident_date: updated.incident_date,
+      duration_minutes: updated.end_time && updated.start_time ?
+        Math.round((new Date(updated.end_time).getTime() - new Date(updated.start_time).getTime()) / 60000) :
+        undefined,
+      participants_count: undefined,
+      equipment_used: updated.forces_and_resources ? updated.forces_and_resources.split(', ') : undefined,
+      weather_conditions: undefined,
+      additional_notes: updated.summary || undefined
+    };
+
+    return successResponse(meldunekDTO, 'Meldunek zaktualizowany');
+  } catch (error) {
+    console.error('Update meldunek endpoint error:', error);
+    return errorResponse(500, 'SERVER_ERROR', 'An unexpected error occurred while updating meldunek');
+  }
+};
+
+/**
+ * DELETE /api/meldunki?id={id}
+ * Usuwa meldunek należący do zalogowanego użytkownika
+ */
+export const DELETE: APIRoute = async ({ request, url }) => {
+  try {
+    // 1. Authorization header
+    const authHeader = request.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return errorResponse(401, 'UNAUTHORIZED', 'Missing or invalid authorization header');
+    }
+    const token = authHeader.substring(7);
+
+    // 2. Validate id
+    const id = url.searchParams.get('id');
+    if (!id) {
+      return errorResponse(400, 'VALIDATION_ERROR', 'Missing required query param: id');
+    }
+
+    // 3. Supabase client
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = createClient<Database>(supabaseUrl, serviceRoleKey || supabaseAnonKey);
+
+    // 4. Auth user
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
+      return errorResponse(401, 'UNAUTHORIZED', 'Invalid or expired token');
+    }
+
+    // 5. Fetch and check ownership
+    const { data: existing, error: fetchError } = await supabase
+      .from('incidents')
+      .select('id, user_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !existing) {
+      return errorResponse(404, 'NOT_FOUND', 'Meldunek not found');
+    }
+
+    if (existing.user_id !== user.id) {
+      return errorResponse(403, 'FORBIDDEN', 'You are not allowed to delete this meldunek');
+    }
+
+    // 6. Delete
+    const { error: deleteError } = await supabase
+      .from('incidents')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      return errorResponse(500, 'SERVER_ERROR', 'Failed to delete meldunek');
+    }
+
+    return successResponse({ id }, 'Meldunek usunięty');
+  } catch (error) {
+    console.error('Delete meldunek endpoint error:', error);
+    return errorResponse(500, 'SERVER_ERROR', 'An unexpected error occurred while deleting meldunek');
+  }
+};
