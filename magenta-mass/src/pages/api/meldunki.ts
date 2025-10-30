@@ -4,6 +4,19 @@ import { successResponse, errorResponse } from '@/lib/utils/response';
 import type { MeldunekDTO } from '@/lib/types';
 import type { Database } from '@/lib/db/database.types';
 
+function categorizeIncident(description: string): 'fire' | 'rescue' | 'medical' | 'other' {
+  const text = description.toLowerCase();
+  if (/(pożar|pozar|pali|dym)/.test(text)) return 'fire';
+  if (/(wypadek|kolizja|zderzenie|ratownic|uwolnieni|drzewo|zalani|podtopieni)/.test(text)) return 'rescue';
+  if (/(medycz|reanimac|rko|utrata przytomno|zasłabni)/.test(text)) return 'medical';
+  return 'other';
+}
+
+function generateSummary(name: string, description: string, location?: string | null): string {
+  const base = `${name}. ${location ? `${location}. ` : ''}${description}`.trim();
+  return base.length > 200 ? base.slice(0, 197) + '…' : base;
+}
+
 /**
  * GET /api/meldunki
  * Pobiera meldunki dla zalogowanego użytkownika
@@ -49,19 +62,20 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    // 5. Get user's fire department ID
+    // 5. Get user's fire department ID and verification status
     console.log('Meldunki GET endpoint - looking for profile for user:', user.id);
     console.log('Meldunki GET endpoint - service role key available:', !!serviceRoleKey);
     console.log('Meldunki GET endpoint - includeDepartment:', includeDepartment);
     
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('fire_department_id')
+      .select('fire_department_id, is_verified')
       .eq('id', user.id)
       .single();
 
     console.log('Meldunki GET endpoint - profile query result:', { 
       profile: profile?.fire_department_id, 
+      is_verified: (profile as any)?.is_verified,
       error: profileError?.message 
     });
 
@@ -74,7 +88,9 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    // 6. Build query - by default show only user's meldunki, unless department=true
+    const profileWithVerification = profile as { fire_department_id: string | null; is_verified: boolean };
+
+    // 6. Build query - show department meldunki only if user is verified AND department=true
     let query = supabase
       .from('incidents')
       .select(`
@@ -96,11 +112,12 @@ export const GET: APIRoute = async ({ request }) => {
         updated_at
       `);
 
-    if (includeDepartment && profile.fire_department_id) {
-      // Show all meldunki from user's fire department
-      query = query.eq('fire_department_id', profile.fire_department_id);
+    // Only show department meldunki if user is verified AND explicitly requested
+    if (includeDepartment && profileWithVerification.fire_department_id && profileWithVerification.is_verified) {
+      // Show all meldunki from user's fire department (verified member)
+      query = query.eq('fire_department_id', profileWithVerification.fire_department_id);
     } else {
-      // Show only user's own meldunki (default behavior)
+      // Show only user's own meldunki (default behavior or unverified user)
       query = query.eq('user_id', user.id);
     }
 
@@ -241,7 +258,11 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // 6. Create incident in database
+    // 6. Rule-based business logic: category + summary
+    const computedCategory = categorizeIncident(`${incident_name} ${description}`);
+    const computedSummary = generateSummary(incident_name, description, location_address);
+
+    // 7. Create incident in database
     const { data: incident, error: insertError } = await supabase
       .from('incidents')
       .insert({
@@ -256,8 +277,8 @@ export const POST: APIRoute = async ({ request }) => {
         driver: driver?.trim() || null,
         start_time: new Date().toISOString(),
         end_time: null,
-        category: 'other', // Default category
-        summary: null
+        category: computedCategory,
+        summary: computedSummary
       })
       .select()
       .single();
@@ -278,8 +299,8 @@ export const POST: APIRoute = async ({ request }) => {
         driver: driver?.trim() || null,
         start_time: new Date().toISOString(),
         end_time: null,
-        category: 'other',
-        summary: null
+        category: computedCategory,
+        summary: computedSummary
       });
       return errorResponse(
         500,

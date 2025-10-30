@@ -404,6 +404,13 @@ import { SimpleSelect } from '../components/SimpleSelect';
               >
                 <span class="material-icons text-sm">edit</span>
               </button>
+              <button 
+                class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-destructive/10 text-destructive h-9 w-9"
+                onclick="event.stopPropagation(); deleteMeldunek('${meldunek.id}')"
+                title="Usuń"
+              >
+                <span class="material-icons text-sm">delete</span>
+              </button>
             </div>
           </div>
           
@@ -456,6 +463,13 @@ import { SimpleSelect } from '../components/SimpleSelect';
                 >
                   <span class="material-icons text-sm mr-1">edit</span>
                   Edytuj
+                </button>
+                <button 
+                  class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-destructive/10 text-destructive h-9 rounded-md px-3 w-full sm:w-auto"
+                  onclick="event.stopPropagation(); deleteMeldunek('${meldunek.id}')"
+                >
+                  <span class="material-icons text-sm mr-1">delete</span>
+                  Usuń
                 </button>
               </div>
             </div>
@@ -564,13 +578,103 @@ import { SimpleSelect } from '../components/SimpleSelect';
   function editMeldunek(id) {
     const meldunek = allMeldunki.find(m => m.id === id);
     if (meldunek) {
-      // TODO: Implement edit functionality
-      alert(`Edycja meldunku: ${meldunek.title}`);
+      (async () => {
+        try {
+          const newTitle = prompt('Nowy tytuł zdarzenia:', meldunek.title);
+          if (newTitle === null) return; // cancelled
+          const newDesc = prompt('Nowy opis zdarzenia:', meldunek.description || '');
+          if (newDesc === null) return; // cancelled
+
+          // optional location edit
+          const newLoc = prompt('Nowa lokalizacja (opcjonalnie):', meldunek.location || '');
+
+          let token;
+          try {
+            const { TokenManager } = await import('@/lib/utils/token-manager');
+            token = await TokenManager.getValidAccessToken();
+          } catch (error) {
+            console.warn('TokenManager not available, using fallback:', error);
+            token = localStorage.getItem('access_token');
+          }
+
+          if (!token) {
+            window.location.href = '/login';
+            return;
+          }
+
+          const response = await fetch(`/api/meldunki/${id}`, {
+            method: 'PATCH',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              incident_name: newTitle.trim(),
+              description: newDesc.trim(),
+              location_address: newLoc ? newLoc.trim() : undefined
+            })
+          });
+
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            alert(`Nie udało się zapisać zmian: ${err?.error?.message || response.status}`);
+            return;
+          }
+
+          alert('Zmiany zapisane pomyślnie');
+          await loadMeldunki();
+        } catch (e) {
+          console.error('Edit meldunek error:', e);
+          alert('Wystąpił błąd podczas edycji');
+        }
+      })();
     }
   }
   
   // Make editMeldunek globally available
   window.editMeldunek = editMeldunek;
+  
+  async function deleteMeldunek(id) {
+    try {
+      if (!confirm('Czy na pewno chcesz usunąć ten meldunek? Tej operacji nie można cofnąć.')) return;
+
+      let token;
+      try {
+        const { TokenManager } = await import('@/lib/utils/token-manager');
+        token = await TokenManager.getValidAccessToken();
+      } catch (error) {
+        console.warn('TokenManager not available, using fallback:', error);
+        token = localStorage.getItem('access_token');
+      }
+
+      if (!token) {
+        window.location.href = '/login';
+        return;
+      }
+
+      const response = await fetch(`/api/meldunki/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        alert(`Nie udało się usunąć meldunku: ${err?.error?.message || response.status}`);
+        return;
+      }
+
+      alert('Meldunek usunięty');
+      await loadMeldunki();
+    } catch (e) {
+      console.error('Delete meldunek error:', e);
+      alert('Wystąpił błąd podczas usuwania');
+    }
+  }
+  
+  // Make deleteMeldunek globally available
+  window.deleteMeldunek = deleteMeldunek;
   
   function showMeldunekModal(meldunek) {
     console.log('showMeldunekModal called with:', meldunek);
