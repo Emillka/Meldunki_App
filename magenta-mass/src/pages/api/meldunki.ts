@@ -93,14 +93,11 @@ export const GET: APIRoute = async ({ request }) => {
       error: profileError?.message 
     });
 
-    let fireDepartmentId: string | null = null;
-    if (profileError || !profile) {
-      console.warn('Profile not found for user, proceeding with fire_department_id = null. User:', user.id, 'Error:', profileError?.message);
-    } else {
-      fireDepartmentId = profile.fire_department_id as unknown as string | null;
-    }
-
-    const profileWithVerification = profile as { fire_department_id: string | null; is_verified: boolean };
+    // Prepare safe profile object for further logic
+    const effectiveProfile: { fire_department_id: string | null; is_verified: boolean } =
+      profile && !profileError
+        ? (profile as { fire_department_id: string | null; is_verified: boolean })
+        : { fire_department_id: null, is_verified: false };
 
     // 6. Build query - show department meldunki only if user is verified AND department=true
     let query = supabase
@@ -125,9 +122,9 @@ export const GET: APIRoute = async ({ request }) => {
       `);
 
     // Only show department meldunki if user is verified AND explicitly requested
-    if (includeDepartment && profileWithVerification.fire_department_id && profileWithVerification.is_verified) {
+    if (includeDepartment && effectiveProfile.fire_department_id && effectiveProfile.is_verified) {
       // Show all meldunki from user's fire department (verified member)
-      query = query.eq('fire_department_id', profileWithVerification.fire_department_id);
+      query = query.eq('fire_department_id', effectiveProfile.fire_department_id);
     } else {
       // Show only user's own meldunki (default behavior or unverified user)
       query = query.eq('user_id', user.id);
