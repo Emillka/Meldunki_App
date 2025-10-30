@@ -521,15 +521,26 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       const { TokenManager } = await import('@/lib/utils/token-manager');
       const { isAuthenticated } = await TokenManager.checkAuth();
       
-      if (!isAuthenticated) {
+      if (isAuthenticated) return true;
+      // Fallback below
+    } catch (error) {
+      console.warn('Dashboard: TokenManager check failed, using fallback:', error);
+    }
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/login';
+      return false;
+    }
+    try {
+      const resp = await fetch('/api/auth/profile', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (resp.status === 401) {
         window.location.href = '/login';
         return false;
       }
       return true;
-    } catch (error) {
-      console.error('Auth check error:', error);
-      window.location.href = '/login';
-      return false;
+    } catch (e) {
+      console.error('Dashboard: auth fallback error:', e);
+      return true;
     }
   }
   
@@ -557,11 +568,10 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         populateProfileForm(userProfile);
         loadAccountStats();
       } else {
-        window.location.href = '/login';
+        // Be lenient; header handles UI state
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      window.location.href = '/login';
     }
   }
   

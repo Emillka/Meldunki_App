@@ -214,20 +214,30 @@ import { SimpleSelect } from '../components/SimpleSelect';
     try {
       const { TokenManager } = await import('@/lib/utils/token-manager');
       const { isAuthenticated } = await TokenManager.checkAuth();
-      
-      if (!isAuthenticated) {
-        window.location.href = '/login';
-        return false;
-      }
-      return true;
+      if (isAuthenticated) return true;
     } catch (error) {
-      console.error('Auth check error:', error);
-      // Fallback to old method if TokenManager fails
-      const token = localStorage.getItem('access_token');
-      if (!token) {
+      console.warn('Auth check via TokenManager failed, using fallback:', error);
+    }
+
+    // Fallback: if we have a token, verify only 401 triggers redirect
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      window.location.href = '/login';
+      return false;
+    }
+    try {
+      const resp = await fetch('/api/auth/profile', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (resp.status === 401) {
         window.location.href = '/login';
         return false;
       }
+      // Any other status (including 200 with profile null) — allow navigation
+      return true;
+    } catch (e) {
+      console.error('Auth fallback error:', e);
+      // Network hiccup: allow page to render; header UI will show not logged state
       return true;
     }
   }
