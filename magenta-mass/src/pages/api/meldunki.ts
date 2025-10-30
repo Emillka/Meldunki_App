@@ -4,6 +4,19 @@ import { successResponse, errorResponse } from '@/lib/utils/response';
 import type { MeldunekDTO } from '@/lib/types';
 import type { Database } from '@/lib/db/database.types';
 
+function categorizeIncident(description: string): 'fire' | 'rescue' | 'medical' | 'other' {
+  const text = description.toLowerCase();
+  if (/(pożar|pozar|pali|dym)/.test(text)) return 'fire';
+  if (/(wypadek|kolizja|zderzenie|ratownic|uwolnieni|drzewo|zalani|podtopieni)/.test(text)) return 'rescue';
+  if (/(medycz|reanimac|rko|utrata przytomno|zasłabni)/.test(text)) return 'medical';
+  return 'other';
+}
+
+function generateSummary(name: string, description: string, location?: string | null): string {
+  const base = `${name}. ${location ? `${location}. ` : ''}${description}`.trim();
+  return base.length > 200 ? base.slice(0, 197) + '…' : base;
+}
+
 /**
  * GET /api/meldunki
  * Pobiera meldunki dla zalogowanego użytkownika
@@ -49,32 +62,44 @@ export const GET: APIRoute = async ({ request }) => {
       );
     }
 
-    // 5. Get user's fire department ID
+    // 5. Get user's fire department ID and verification status
     console.log('Meldunki GET endpoint - looking for profile for user:', user.id);
     console.log('Meldunki GET endpoint - service role key available:', !!serviceRoleKey);
     console.log('Meldunki GET endpoint - includeDepartment:', includeDepartment);
     
-    const { data: profile, error: profileError } = await supabase
+    let { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('fire_department_id')
+      .select('fire_department_id, is_verified')
       .eq('id', user.id)
       .single();
 
+    // Fallback: if production DB doesn't have is_verified column yet
+    if (profileError && typeof profileError.message === 'string' && profileError.message.toLowerCase().includes('is_verified')) {
+      const fallback = await supabase
+        .from('profiles')
+        .select('fire_department_id')
+        .eq('id', user.id)
+        .single();
+      profile = fallback.data as any;
+      profileError = fallback.error as any;
+      if (profile && (profile as any).fire_department_id !== undefined) {
+        (profile as any).is_verified = false;
+      }
+    }
+
     console.log('Meldunki GET endpoint - profile query result:', { 
       profile: profile?.fire_department_id, 
+      is_verified: (profile as any)?.is_verified,
       error: profileError?.message 
     });
 
-    if (profileError || !profile) {
-      console.error('Profile not found for user:', user.id, 'Error:', profileError);
-      return errorResponse(
-        404,
-        'PROFILE_NOT_FOUND',
-        'User profile not found'
-      );
-    }
+    // Prepare safe profile object for further logic
+    const effectiveProfile: { fire_department_id: string | null; is_verified: boolean } =
+      profile && !profileError
+        ? (profile as { fire_department_id: string | null; is_verified: boolean })
+        : { fire_department_id: null, is_verified: false };
 
-    // 6. Build query - by default show only user's meldunki, unless department=true
+    // 6. Build query - show department meldunki only if user is verified AND department=true
     let query = supabase
       .from('incidents')
       .select(`
@@ -96,11 +121,12 @@ export const GET: APIRoute = async ({ request }) => {
         updated_at
       `);
 
-    if (includeDepartment && profile.fire_department_id) {
-      // Show all meldunki from user's fire department
-      query = query.eq('fire_department_id', profile.fire_department_id);
+    // Only show department meldunki if user is verified AND explicitly requested
+    if (includeDepartment && effectiveProfile.fire_department_id && effectiveProfile.is_verified) {
+      // Show all meldunki from user's fire department (verified member)
+      query = query.eq('fire_department_id', effectiveProfile.fire_department_id);
     } else {
-      // Show only user's own meldunki (default behavior)
+      // Show only user's own meldunki (default behavior or unverified user)
       query = query.eq('user_id', user.id);
     }
 
@@ -211,13 +237,11 @@ export const POST: APIRoute = async ({ request }) => {
       error: profileError?.message 
     });
 
+    let fireDepartmentId: string | null = null;
     if (profileError || !profile) {
-      console.error('Profile not found for user:', user.id, 'Error:', profileError);
-      return errorResponse(
-        404,
-        'PROFILE_NOT_FOUND',
-        'User profile not found'
-      );
+      console.warn('POST /api/meldunki: profile not found; proceeding with fire_department_id = null for user', user.id, 'Error:', profileError?.message);
+    } else {
+      fireDepartmentId = (profile as any).fire_department_id ?? null;
     }
 
     // 4. Parse request body
@@ -241,46 +265,40 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    // 6. Create incident in database
+    // 6. Rule-based business logic: category + summary
+    const computedCategory = categorizeIncident(`${incident_name} ${description}`);
+    const computedSummary = generateSummary(incident_name, description, location_address);
+
+    // 7. Create incident in database (omit fire_department_id if null to satisfy RLS)
+    const insertData: any = {
+      user_id: user.id,
+      incident_name: incident_name.trim(),
+      description: description.trim(),
+      incident_date: incident_date,
+      location_address: location_address?.trim() || null,
+      forces_and_resources: forces_and_resources?.trim() || null,
+      commander: commander?.trim() || null,
+      driver: driver?.trim() || null,
+      start_time: new Date().toISOString(),
+      end_time: null,
+      category: computedCategory,
+      summary: computedSummary
+    };
+    if (fireDepartmentId) {
+      insertData.fire_department_id = fireDepartmentId;
+    }
+
     const { data: incident, error: insertError } = await supabase
       .from('incidents')
-      .insert({
-        user_id: user.id,
-        fire_department_id: profile.fire_department_id!,
-        incident_name: incident_name.trim(),
-        description: description.trim(),
-        incident_date: incident_date,
-        location_address: location_address?.trim() || null,
-        forces_and_resources: forces_and_resources?.trim() || null,
-        commander: commander?.trim() || null,
-        driver: driver?.trim() || null,
-        start_time: new Date().toISOString(),
-        end_time: null,
-        category: 'other', // Default category
-        summary: null
-      })
+      .insert(insertData)
       .select()
       .single();
 
     if (insertError) {
       console.error('Failed to create incident:', insertError);
       console.error('User ID:', user.id);
-      console.error('Fire Department ID:', profile.fire_department_id);
-      console.error('Data being inserted:', {
-        user_id: user.id,
-        fire_department_id: profile.fire_department_id!,
-        incident_name: incident_name.trim(),
-        description: description.trim(),
-        incident_date: incident_date,
-        location_address: location_address?.trim() || null,
-        forces_and_resources: forces_and_resources?.trim() || null,
-        commander: commander?.trim() || null,
-        driver: driver?.trim() || null,
-        start_time: new Date().toISOString(),
-        end_time: null,
-        category: 'other',
-        summary: null
-      });
+      console.error('Fire Department ID:', fireDepartmentId);
+      console.error('Data being inserted:', insertData);
       return errorResponse(
         500,
         'SERVER_ERROR',

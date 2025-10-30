@@ -44,13 +44,7 @@ const { showAuth = true, currentPath = '' } = Astro.props;
             >
               Strona główna
             </a>
-            <a 
-              href="/#about" 
-              class="m3-body-large" 
-              style="color: var(--md-sys-color-on-surface); text-decoration: none; padding: 8px 16px; border-radius: 20px; transition: background-color 0.2s ease;"
-            >
-              O FireLog
-            </a>
+            
             <a 
               href="/meldunki" 
               class="m3-body-large" 
@@ -166,13 +160,7 @@ const { showAuth = true, currentPath = '' } = Astro.props;
         >
           Strona główna
         </a>
-        <a 
-          href="/#about" 
-          class="m3-body-large" 
-          style="display: block; color: var(--md-sys-color-on-surface); text-decoration: none; padding: 12px 16px; border-radius: 20px; margin: 4px 0;"
-        >
-          O FireLog
-        </a>
+        
         <a 
           href="/meldunki" 
           class="m3-body-large" 
@@ -327,16 +315,21 @@ const { showAuth = true, currentPath = '' } = Astro.props;
       const result = await response.json();
       console.log('Header: profile response:', result);
       
+      if (response.status === 401) {
+        console.log('Header: unauthorized, clearing tokens');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('expires_at');
+        showNotLoggedIn();
+        return;
+      }
+
       if (result.success && result.data) {
         console.log('Header: auth successful, showing logged in');
         userProfile = result.data;
         showLoggedIn(result.data);
       } else {
-        console.log('Header: auth failed, clearing tokens');
-        // Token is invalid, clear it
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('expires_at');
+        console.log('Header: auth failed, but keeping tokens to avoid loops');
         showNotLoggedIn();
       }
     } catch (fetchError) {
@@ -378,7 +371,7 @@ const { showAuth = true, currentPath = '' } = Astro.props;
     const mobileUserName = document.getElementById('mobile-user-name');
     const mobileUserEmail = document.getElementById('mobile-user-email');
     
-    const displayName = data.profile.first_name && data.profile.last_name 
+    const displayName = data?.profile?.first_name && data?.profile?.last_name 
       ? `${data.profile.first_name} ${data.profile.last_name}`
       : data.user.email;
     

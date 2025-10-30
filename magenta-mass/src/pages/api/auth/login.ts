@@ -16,10 +16,21 @@ export const POST: APIRoute = async ({ request }) => {
       request.headers.get('x-real-ip') ||
       'unknown';
 
+    // More permissive and precise rate limiting: key by IP + email (if available)
+    // Allow env overrides: RATE_LIMIT_MAX and RATE_LIMIT_WINDOW_MS
+    let bodyForKey: any = undefined;
+    try {
+      bodyForKey = JSON.parse((await request.clone().text()) || '{}');
+    } catch {}
+
+    // Make generic limiter permissive by default
+    const rlMax = Number(process.env.RATE_LIMIT_MAX ?? import.meta.env.RATE_LIMIT_MAX ?? 100); // default 100 req
+    const rlWindow = Number(process.env.RATE_LIMIT_WINDOW_MS ?? import.meta.env.RATE_LIMIT_WINDOW_MS ?? 10 * 60 * 1000); // default 10 min
+
     const rateLimit = rateLimiter.check(
-      `login:${clientIp}`,
-      5, // max 5 requests
-      900000 // per 15 minutes
+      `login:${clientIp}:${(bodyForKey?.email || '').toString().toLowerCase()}`,
+      rlMax,
+      rlWindow
     );
 
     if (!rateLimit.allowed) {
@@ -75,6 +86,22 @@ export const POST: APIRoute = async ({ request }) => {
     if (error) {
       // Handle specific error types
       if (error.message === 'INVALID_CREDENTIALS') {
+        // Stricter limiter only for failed attempts per IP+email
+        const failMax = Number(process.env.FAIL_RATE_LIMIT_MAX ?? import.meta.env.FAIL_RATE_LIMIT_MAX ?? 10); // default 10 failed attempts
+        const failWindow = Number(process.env.FAIL_RATE_LIMIT_WINDOW_MS ?? import.meta.env.FAIL_RATE_LIMIT_WINDOW_MS ?? 15 * 60 * 1000); // default 15 min
+        const failedLimit = rateLimiter.check(
+          `loginfail:${clientIp}:${email}`,
+          failMax,
+          failWindow
+        );
+        if (!failedLimit.allowed) {
+          return errorResponse(
+            429,
+            'TOO_MANY_REQUESTS',
+            'Too many failed login attempts. Please try again later.',
+            { retry_after: failedLimit.retryAfter }
+          );
+        }
         return errorResponse(
           401,
           'INVALID_CREDENTIALS',

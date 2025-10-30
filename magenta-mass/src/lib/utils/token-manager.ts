@@ -110,12 +110,12 @@ export class TokenManager {
         return newSession;
       } else {
         console.error('Token refresh failed:', result.error);
-        this.clearSession();
+        // Be lenient: do not clear session here to avoid immediate logout loops
         return null;
       }
     } catch (error) {
       console.error('Token refresh error:', error);
-      this.clearSession();
+      // Be lenient: keep existing tokens; caller may still try with current access token
       return null;
     }
   }
@@ -185,14 +185,13 @@ export class TokenManager {
           user: result.data 
         };
       } else {
-        console.log('Auth check failed, clearing session');
-        // Token jest nieprawidłowy, wyczyść sesję
-        this.clearSession();
+        console.log('Auth check failed, but keeping session to avoid loops');
+        // Be lenient: do not clear session automatically
         return { isAuthenticated: false };
       }
     } catch (error) {
       console.error('Auth check error:', error);
-      this.clearSession();
+      // Be lenient: do not clear session automatically
       return { isAuthenticated: false };
     }
   }

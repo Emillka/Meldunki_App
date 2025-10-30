@@ -85,6 +85,12 @@ FireLog solves these problems by:
 - **[GitHub Actions](https://github.com/features/actions)** - Automated testing and deployment pipelines
 - **[DigitalOcean](https://www.digitalocean.com/)** - Application hosting via Docker containers
 
+### Public URL (Deployment)
+
+This project is ready to deploy on Render.com. Follow `RENDER_DEPLOYMENT_GUIDE.md`. After deployment, add your app URL here:
+
+- App URL: <your-public-url-here>
+
 ## Getting Started Locally
 
 ### Prerequisites
