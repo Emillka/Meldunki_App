@@ -82,12 +82,16 @@ export const GET: APIRoute = async ({ request }) => {
     });
 
     if (profileError || !profile) {
-      console.error('Profile not found for user:', user.id, 'Error:', profileError);
-      return errorResponse(
-        404,
-        'PROFILE_NOT_FOUND',
-        'User profile not found'
-      );
+      console.warn('Profile not found or not accessible via RLS. Returning user-only payload. Error:', profileError?.message);
+      // Fallback: return user data without profile to avoid login loops when RLS blocks profiles
+      return successResponse({
+        user: {
+          id: user.id,
+          email: user.email,
+          created_at: user.created_at
+        },
+        profile: null
+      });
     }
 
     // 4. Format response
