@@ -67,11 +67,25 @@ export const GET: APIRoute = async ({ request }) => {
     console.log('Meldunki GET endpoint - service role key available:', !!serviceRoleKey);
     console.log('Meldunki GET endpoint - includeDepartment:', includeDepartment);
     
-    const { data: profile, error: profileError } = await supabase
+    let { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('fire_department_id, is_verified')
       .eq('id', user.id)
       .single();
+
+    // Fallback: if production DB doesn't have is_verified column yet
+    if (profileError && typeof profileError.message === 'string' && profileError.message.toLowerCase().includes('is_verified')) {
+      const fallback = await supabase
+        .from('profiles')
+        .select('fire_department_id')
+        .eq('id', user.id)
+        .single();
+      profile = fallback.data as any;
+      profileError = fallback.error as any;
+      if (profile && (profile as any).fire_department_id !== undefined) {
+        (profile as any).is_verified = false;
+      }
+    }
 
     console.log('Meldunki GET endpoint - profile query result:', { 
       profile: profile?.fire_department_id, 
