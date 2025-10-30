@@ -237,13 +237,11 @@ export const POST: APIRoute = async ({ request }) => {
       error: profileError?.message 
     });
 
+    let fireDepartmentId: string | null = null;
     if (profileError || !profile) {
-      console.error('Profile not found for user:', user.id, 'Error:', profileError);
-      return errorResponse(
-        404,
-        'PROFILE_NOT_FOUND',
-        'User profile not found'
-      );
+      console.warn('POST /api/meldunki: profile not found; proceeding with fire_department_id = null for user', user.id, 'Error:', profileError?.message);
+    } else {
+      fireDepartmentId = (profile as any).fire_department_id ?? null;
     }
 
     // 4. Parse request body
@@ -295,10 +293,10 @@ export const POST: APIRoute = async ({ request }) => {
     if (insertError) {
       console.error('Failed to create incident:', insertError);
       console.error('User ID:', user.id);
-      console.error('Fire Department ID:', profile.fire_department_id);
+      console.error('Fire Department ID:', fireDepartmentId);
       console.error('Data being inserted:', {
         user_id: user.id,
-        fire_department_id: profile.fire_department_id!,
+        fire_department_id: fireDepartmentId,
         incident_name: incident_name.trim(),
         description: description.trim(),
         incident_date: incident_date,
