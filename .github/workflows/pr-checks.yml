@@ -10,7 +10,6 @@ jobs:
   lint-and-unit:
     name: Typecheck and Unit Tests
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,7 +54,6 @@ jobs:
   lint-and-type-check:
     name: Linting & Type Checking
     runs-on: ubuntu-latest
-    continue-on-error: true
     
     steps:
       - name: Checkout code
@@ -81,7 +79,6 @@ jobs:
   unit-tests:
     name: Unit Tests (fast)
     runs-on: ubuntu-latest
-    continue-on-error: true
     
     steps:
       - name: Checkout code
@@ -110,7 +107,6 @@ jobs:
     name: API & Integration (on label full-ci)
     runs-on: ubuntu-latest
     if: contains(github.event.pull_request.labels.*.name, 'full-ci')
-    continue-on-error: true
     services:
       postgres:
         image: postgres:17
@@ -171,7 +167,6 @@ jobs:
     name: E2E Tests (Optional)
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
-    continue-on-error: true
     
     steps:
       - name: Checkout code
@@ -232,7 +227,6 @@ jobs:
   build-check:
     name: Build Check
     runs-on: ubuntu-latest
-    continue-on-error: true
     
     steps:
       - name: Checkout code
