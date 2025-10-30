@@ -417,6 +417,7 @@ import { SimpleSelect } from '../components/SimpleSelect';
               </div>
             ` : ''}
             
+            
             ${meldunek.commander ? `
               <div class="flex items-center gap-2">
                 <span class="material-icons text-sm text-muted-foreground">person</span>
@@ -558,8 +559,7 @@ import { SimpleSelect } from '../components/SimpleSelect';
   function viewMeldunek(id) {
     const meldunek = allMeldunki.find(m => m.id === id);
     if (meldunek) {
-      // Simple alert instead of modal
-      alert(`Meldunek: ${meldunek.title}\nData: ${new Date(meldunek.incident_date).toLocaleDateString('pl-PL')}\nOpis: ${meldunek.description}`);
+      showMeldunekModal(meldunek);
     } else {
       alert('Nie znaleziono meldunku o ID: ' + id);
     }
@@ -571,47 +571,7 @@ import { SimpleSelect } from '../components/SimpleSelect';
   function editMeldunek(id) {
     const meldunek = allMeldunki.find(m => m.id === id);
     if (meldunek) {
-      const newTitle = prompt('Nowy tytuł meldunku:', meldunek.title);
-      if (newTitle === null) return;
-      const newDescription = prompt('Nowy opis meldunku:', meldunek.description || '');
-      if (newDescription === null) return;
-
-      (async () => {
-        try {
-          let token;
-          try {
-            const { TokenManager } = await import('@/lib/utils/token-manager');
-            token = await TokenManager.getValidAccessToken();
-          } catch (e) {
-            token = localStorage.getItem('access_token');
-          }
-          if (!token) {
-            window.location.href = '/login';
-            return;
-          }
-
-          const resp = await fetch(`/api/meldunki?id=${encodeURIComponent(id)}`, {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ incident_name: newTitle, description: newDescription })
-          });
-
-          if (!resp.ok) {
-            const err = await resp.json().catch(() => ({}));
-            showError('Nie udało się zaktualizować meldunku' + (err?.error?.message ? `: ${err.error.message}` : ''));
-            return;
-          }
-
-          await loadMeldunki();
-          alert('Meldunek zaktualizowany');
-        } catch (error) {
-          console.error('Edit meldunek error:', error);
-          showError('Błąd podczas aktualizacji meldunku');
-        }
-      })();
+      openEditMeldunekModal(meldunek);
     }
   }
   
@@ -667,7 +627,7 @@ import { SimpleSelect } from '../components/SimpleSelect';
     
     // Create modal overlay
     const overlay = document.createElement('div');
-    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    overlay.className = 'app-modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
     overlay.onclick = () => closeModal();
     
     // Create modal content
@@ -710,6 +670,7 @@ import { SimpleSelect } from '../components/SimpleSelect';
       `;
       content.appendChild(locDiv);
     }
+    
     
     // Grid with basic info
     const gridDiv = document.createElement('div');
@@ -837,15 +798,22 @@ import { SimpleSelect } from '../components/SimpleSelect';
     
     modalContent.appendChild(content);
     
-    // Footer
+    // Footer with actions
     const footer = document.createElement('div');
-    footer.className = 'mt-6 flex justify-end space-x-3';
-    footer.innerHTML = `
-      <button class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
-        Zamknij
-      </button>
+    footer.className = 'mt-6 flex justify-between items-center space-x-3';
+    const meta = document.createElement('div');
+    meta.className = 'text-xs text-gray-500';
+    meta.textContent = `ID: ${meldunek.id}${meldunek.fire_department_id ? ' • Jednostka: ' + meldunek.fire_department_id : ''}`;
+    const actions = document.createElement('div');
+    actions.className = 'flex gap-2';
+    actions.innerHTML = `
+      <button class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">Zamknij</button>
+      <button id="editFromDetailsBtn" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Edytuj</button>
     `;
-    footer.querySelector('button').onclick = () => closeModal();
+    actions.querySelector('button')!.onclick = () => closeModal();
+    actions.querySelector('#editFromDetailsBtn')!.onclick = () => { closeModal(); openEditMeldunekModal(meldunek); };
+    footer.appendChild(meta);
+    footer.appendChild(actions);
     modalContent.appendChild(footer);
     
     modal.appendChild(modalContent);
@@ -855,6 +823,154 @@ import { SimpleSelect } from '../components/SimpleSelect';
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
   }
+
+  function openEditMeldunekModal(meldunek) {
+    const overlay = document.createElement('div');
+    overlay.className = 'app-modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    overlay.onclick = () => closeModal();
+
+    const modal = document.createElement('div');
+    modal.className = 'bg-white rounded-lg shadow-xl max-w-2xl w-full mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto';
+    modal.onclick = (e) => e.stopPropagation();
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'p-4 sm:p-6';
+
+    const header = document.createElement('div');
+    header.className = 'flex justify-between items-start mb-4';
+    header.innerHTML = `
+      <h2 class="text-2xl font-bold text-gray-900">Edytuj meldunek</h2>
+      <button class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    `;
+    header.querySelector('button').onclick = () => closeModal();
+    modalContent.appendChild(header);
+
+    const form = document.createElement('form');
+    form.className = 'space-y-4';
+    form.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Nazwa zdarzenia</label>
+          <input id="edit_incident_name" class="input" value="${meldunek.title || ''}" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Data zdarzenia</label>
+          <input id="edit_incident_date" type="datetime-local" class="input" value="${formatDateTimeLocal(meldunek.incident_date)}" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Lokalizacja</label>
+        <input id="edit_location_address" class="input" value="${meldunek.location || ''}" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Opis</label>
+        <textarea id="edit_description" class="input" rows="4">${meldunek.description || ''}</textarea>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Dowódca</label>
+          <input id="edit_commander" class="input" value="${meldunek.commander || ''}" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Kierowca</label>
+          <input id="edit_driver" class="input" value="${meldunek.driver || ''}" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Siły i środki (rozdziel przecinkami)</label>
+        <input id="edit_forces_and_resources" class="input" value="${(meldunek.equipment_used || []).join(', ')}" />
+      </div>
+    `;
+
+    const footer = document.createElement('div');
+    footer.className = 'mt-6 flex justify-end space-x-3';
+    footer.innerHTML = `
+      <button type="button" id="cancelEditBtn" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">Anuluj</button>
+      <button type="submit" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition-colors">Zapisz zmiany</button>
+    `;
+
+    form.appendChild(footer);
+    modalContent.appendChild(form);
+    modal.appendChild(modalContent);
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    document.getElementById('cancelEditBtn')!.onclick = () => closeModal();
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        let token;
+        try {
+          const { TokenManager } = await import('@/lib/utils/token-manager');
+          token = await TokenManager.getValidAccessToken();
+        } catch (e) {
+          token = localStorage.getItem('access_token');
+        }
+        if (!token) { window.location.href = '/login'; return; }
+
+        const payload = {
+          incident_name: (document.getElementById('edit_incident_name') as HTMLInputElement).value.trim(),
+          description: (document.getElementById('edit_description') as HTMLTextAreaElement).value.trim(),
+          incident_date: (document.getElementById('edit_incident_date') as HTMLInputElement).value,
+          location_address: (document.getElementById('edit_location_address') as HTMLInputElement).value.trim(),
+          commander: (document.getElementById('edit_commander') as HTMLInputElement).value.trim(),
+          driver: (document.getElementById('edit_driver') as HTMLInputElement).value.trim(),
+          forces_and_resources: (document.getElementById('edit_forces_and_resources') as HTMLInputElement).value.trim()
+        };
+
+        const resp = await fetch(`/api/meldunki?id=${encodeURIComponent(meldunek.id)}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!resp.ok) {
+          const err = await resp.json().catch(() => ({}));
+          showError('Nie udało się zaktualizować meldunku' + (err?.error?.message ? `: ${err.error.message}` : ''));
+          return;
+        }
+
+        closeModal();
+        await loadMeldunki();
+        alert('Meldunek zaktualizowany');
+      } catch (error) {
+        console.error('Edit meldunek error:', error);
+        showError('Błąd podczas aktualizacji meldunku');
+      }
+    };
+  }
+
+  function formatDateTimeLocal(isoString) {
+    if (!isoString) return '';
+    const d = new Date(isoString);
+    const pad = (n) => String(n).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const mi = pad(d.getMinutes());
+    return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+  }
+
+  function closeModal() {
+    // Remove the top-most modal overlay and restore body scroll
+    const overlays = document.querySelectorAll('.app-modal-overlay');
+    if (overlays.length > 0) {
+      const last = overlays[overlays.length - 1];
+      if (last && last.parentNode) last.parentNode.removeChild(last);
+    }
+    // If no overlays remain, restore scroll
+    if (document.querySelectorAll('.app-modal-overlay').length === 0) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Map preview removed
   
   
   

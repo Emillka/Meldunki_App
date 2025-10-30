@@ -19,7 +19,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 <Layout title={title} description={description}>
   <div class="min-h-screen bg-background flex flex-col">
     <!-- Navigation Header -->
-    <nav class="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav class="sticky top-0 z-50 border-b border-primary/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="container mx-auto px-4">
         <div class="flex justify-between items-center h-16">
           <!-- Logo & Title -->
@@ -79,10 +79,10 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
       <!-- Tab Navigation -->
       <div class="mb-6">
-        <div class="flex space-x-1 bg-muted p-1 rounded-lg">
+        <div class="flex space-x-1 bg-muted p-1 rounded-lg shadow-sm ring-1 ring-border">
           <button 
             id="tab-profil" 
-            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors bg-background text-foreground shadow-sm"
+          class="tab-button flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors bg-background text-foreground shadow-sm"
             data-tab="profil"
             onclick="switchTab('profil')"
           >
@@ -91,7 +91,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           </button>
           <button 
             id="tab-meldunek" 
-            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground"
+          class="tab-button flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground"
             data-tab="meldunek"
             onclick="switchTab('meldunek')"
           >
@@ -100,7 +100,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           </button>
           <button 
             id="tab-admin" 
-            class="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hidden"
+          class="tab-button flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors text-muted-foreground hover:text-foreground hidden"
             data-tab="admin"
             onclick="switchTab('admin')"
           >
@@ -112,7 +112,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
       <!-- Quick Actions -->
       <div class="mb-6">
-        <Card>
+        <Card className="border-t-4 border-primary/70">
           <CardContent className="p-4">
             <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
               <div>
@@ -144,7 +144,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
         <div id="content-profil" class="tab-content">
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Profile Information -->
-          <Card>
+          <Card className="border-t-4 border-primary/70">
             <CardHeader>
                 <CardTitle>Informacje o profilu</CardTitle>
                 <CardDescription>Twoje dane osobowe i informacje o jednostce</CardDescription>
@@ -157,7 +157,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           </Card>
 
             <!-- Edit Profile -->
-            <Card>
+            <Card className="border-t-4 border-primary/70">
               <CardHeader>
                 <CardTitle>Edytuj profil</CardTitle>
                 <CardDescription>Zaktualizuj swoje dane osobowe</CardDescription>
@@ -204,7 +204,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
             </Card>
 
             <!-- Change Password -->
-            <Card>
+            <Card className="border-t-4 border-primary/70">
               <CardHeader>
                 <CardTitle>Zmiana hasła</CardTitle>
                 <CardDescription>Zaktualizuj swoje hasło</CardDescription>
@@ -250,7 +250,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
             </Card>
 
             <!-- Account Statistics -->
-            <Card>
+            <Card className="border-t-4 border-primary/70">
               <CardHeader>
                 <CardTitle>Statystyki konta</CardTitle>
                 <CardDescription>Podsumowanie Twojej aktywności</CardDescription>
@@ -266,7 +266,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
 
         <!-- Nowy Meldunek Tab -->
         <div id="content-meldunek" class="tab-content hidden">
-          <Card>
+          <Card className="border-t-4 border-primary/70">
             <CardHeader>
               <CardTitle>Nowy Meldunek</CardTitle>
               <CardDescription>Utwórz nowy meldunek zdarzenia</CardDescription>
@@ -921,6 +921,8 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       alert('Błąd podczas zmiany hasła');
     }
   }
+
+  // Geolocation support removed
   
   // ============================================================================
   // 5. ADMIN PANEL FUNCTIONS

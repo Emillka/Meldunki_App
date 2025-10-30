@@ -1,3 +1,33 @@
+# FireLog App (Magenta Mass)
+
+Astro + TypeScript aplikacja dla FireLog (meldunki OSP).
+
+## Dev
+```bash
+npm i
+npm run dev
+```
+
+## Build
+```bash
+npm run build
+npm run preview
+```
+
+## Kluczowe ścieżki i funkcje
+- Strony: `src/pages/`
+  - `/` (landing): przycisk „Utwórz meldunek” → `/dashboard#meldunek`
+  - `/dashboard`: zakładki Profil/Meldunek/Admin
+  - `/meldunki`: lista, podgląd i edycja w modalach
+- API: `src/pages/api/meldunki.ts` (+ `pages/api/meldunki/[id].ts`)
+- Auth: `src/pages/api/auth/*`, `lib/utils/token-manager.ts`
+- Styl: `src/styles/globals.css` (primary = czerwony), `tailwind.config.mjs`
+
+## Env
+Skopiuj `test.env.example` do `.env` i uzupełnij klucze Supabase (`PUBLIC_SUPABASE_URL`, `PUBLIC_SUPABASE_ANON_KEY`).
+
+---
+
 # Astro Starter Kit: Basics
 
 ```sh

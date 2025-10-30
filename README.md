@@ -1,6 +1,6 @@
-# FireLog
+# FireLog (Meldunki_App)
 
-> Modern web application for fire department action reporting
+Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek OSP.
 
 [![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://github.com/yourusername/firelog)
 [![Status](https://img.shields.io/badge/status-MVP%20in%20development-yellow.svg)](https://github.com/yourusername/firelog)
@@ -39,13 +39,13 @@ FireLog solves these problems by:
 
 ### Key Features
 
-- 🔐 User registration and authentication (email + password)
-- 📝 Create, read, update, and delete action reports (meldunki)
-- 🤖 Automatic event analysis and categorization using AI
-- 👥 User-specific report management
-- 🔒 Secure session handling with JWT tokens (7-day validity)
-- 📊 Structured data collection for future analytics
-- ✅ Automated testing and CI/CD pipeline
+- 🔐 Rejestracja/logowanie/reset hasła (Supabase Auth)
+- 🧭 Dashboard z zakładkami: Profil, Nowy Meldunek, Admin (rola admin)
+- 📝 Lista meldunków z filtrowaniem, sortowaniem i paginacją
+- ✏️ Tworzenie/edycja/usuwanie meldunków (CRUD) przez API `/api/meldunki`
+- 🔎 Podgląd szczegółów meldunku w modalu, przejście do edycji
+- 🎨 Akcent kolorystyczny OSP (czerwony jako primary)
+- ✅ Testy E2E i unit + CI/CD
 
 ## Tech Stack
 
@@ -82,14 +82,14 @@ FireLog solves these problems by:
 - **[lighthouse-ci](https://github.com/GoogleChrome/lighthouse-ci)** - Automated performance testing
 
 ### CI/CD & Hosting
-- **[GitHub Actions](https://github.com/features/actions)** - Automated testing and deployment pipelines
-- **[DigitalOcean](https://www.digitalocean.com/)** - Application hosting via Docker containers
+- **GitHub Actions** - testy i deployment
+- **Render** lub Docker/Nginx
 
 ### Public URL (Deployment)
 
-This project is ready to deploy on Render.com. Follow `RENDER_DEPLOYMENT_GUIDE.md`. After deployment, add your app URL here:
+Patrz `RENDER_DEPLOYMENT_GUIDE.md`. Po wdrożeniu uzupełnij URL:
 
-- App URL: <your-public-url-here>
+- App URL: <TBD>
 
 ## Getting Started Locally
 
@@ -120,29 +120,17 @@ Before you begin, ensure you have the following installed:
    ```
 
 4. Set up environment variables:
-   
-   Create a `.env` file in the root directory and add the following:
-   ```env
-   # Supabase Configuration
-   SUPABASE_URL=your_supabase_url
-   SUPABASE_ANON_KEY=your_supabase_anon_key
-   
-   # OpenRouter Configuration
-   OPENROUTER_API_KEY=your_openrouter_api_key
-   
-   # JWT Configuration
-   JWT_SECRET=your_jwt_secret
-   ```
+   Skopiuj `magenta-mass/test.env.example` do `magenta-mass/.env` i uzupełnij:
+   - `PUBLIC_SUPABASE_URL`
+   - `PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY` (opcjonalny, do serwera)
 
 5. Start the development server:
    ```bash
    npm run dev
    ```
 
-6. Open your browser and navigate to:
-   ```
-   http://localhost:4321
-   ```
+6. Open your browser and navigate to `http://localhost:4321`
 
 ## Available Scripts
 
@@ -173,7 +161,7 @@ npm run astro -- --help
 
 ## Testing
 
-FireLog implements a comprehensive testing strategy covering unit tests, integration tests, component tests, and end-to-end tests to ensure reliability, security, and performance.
+Jednostkowe (Vitest) i E2E (Playwright). Patrz `magenta-mass/TESTING_GUIDE.md`.
 
 ### Testing Strategy
 
@@ -288,15 +276,11 @@ The Minimum Viable Product (MVP) includes the following features:
 - Protected routes accessible only to authenticated users
 
 #### 2. CRUD Operations for Reports (Meldunki)
-Each report contains:
-- Event date and time
-- Event name and category
-- Location (address or coordinates)
-- Event details and action description
-- Deployed forces and resources
-- Action commander name
-- Vehicle driver name
-- Start and end time of the action
+Każdy meldunek zawiera m.in.:
+- nazwę zdarzenia, datę
+- opis i lokalizację (adres)
+- siły i środki, dowódca, kierowca
+- status i typ (wyliczane przez logikę)
 
 Operations:
 - **Create**: Add new action reports
@@ -305,9 +289,8 @@ Operations:
 - **Delete**: Remove reports
 
 #### 3. Business Logic
-- AI-powered text analysis of action descriptions
-- Automatic event categorization (e.g., "Fire", "Local Hazard", "Other")
-- Automated action summary generation
+- Reguły kategoryzacji tekstu zdarzenia po stronie API
+- Generowanie `summary` (krótki opis)
 
 #### 4. Testing
 - Unit tests for text analysis functions
@@ -360,11 +343,10 @@ The MVP will be considered complete when:
 
 ### Roadmap
 
-- **Phase 1:** Core authentication and CRUD operations
-- **Phase 2:** AI-powered analysis integration
-- **Phase 3:** Testing and CI/CD implementation
-- **Phase 4:** Production deployment
-- **Phase 5:** Post-MVP feature development
+- Faza 1: Auth i CRUD
+- Faza 2: Testy i CI/CD
+- Faza 3: Produkcja (Render/Nginx)
+- Faza 4: Rozszerzenia po-MVP
 
 ## License
 

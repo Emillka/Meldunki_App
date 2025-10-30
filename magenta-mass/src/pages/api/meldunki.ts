@@ -400,6 +400,7 @@ export const PUT: APIRoute = async ({ request, url }) => {
     if (typeof body.incident_name === 'string') updatePayload.incident_name = body.incident_name.trim();
     if (typeof body.description === 'string') updatePayload.description = body.description.trim();
     if (typeof body.location_address === 'string') updatePayload.location_address = body.location_address.trim();
+    // removed geolocation updates
     if (typeof body.forces_and_resources === 'string') updatePayload.forces_and_resources = body.forces_and_resources.trim();
     if (typeof body.commander === 'string') updatePayload.commander = body.commander.trim();
     if (typeof body.driver === 'string') updatePayload.driver = body.driver.trim();
