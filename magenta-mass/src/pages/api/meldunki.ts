@@ -378,10 +378,10 @@ export const PUT: APIRoute = async ({ request, url }) => {
       return errorResponse(401, 'UNAUTHORIZED', 'Invalid or expired token');
     }
 
-    // 5. Fetch incident and check ownership
+    // 5. Fetch incident and check ownership or admin rights within department
     const { data: existing, error: fetchError } = await supabase
       .from('incidents')
-      .select('id, user_id')
+      .select('id, user_id, fire_department_id')
       .eq('id', id)
       .single();
 
@@ -390,7 +390,17 @@ export const PUT: APIRoute = async ({ request, url }) => {
     }
 
     if (existing.user_id !== user.id) {
-      return errorResponse(403, 'FORBIDDEN', 'You are not allowed to update this meldunek');
+      // Allow department admin to update
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('role, fire_department_id')
+        .eq('id', user.id)
+        .single();
+
+      const isDepartmentAdmin = !!adminProfile && adminProfile.role === 'admin' && adminProfile.fire_department_id === existing.fire_department_id;
+      if (!isDepartmentAdmin) {
+        return errorResponse(403, 'FORBIDDEN', 'You are not allowed to update this meldunek');
+      }
     }
 
     // 6. Parse body and build update payload (partial update)
@@ -483,10 +493,10 @@ export const DELETE: APIRoute = async ({ request, url }) => {
       return errorResponse(401, 'UNAUTHORIZED', 'Invalid or expired token');
     }
 
-    // 5. Fetch and check ownership
+    // 5. Fetch and check ownership or admin rights within department
     const { data: existing, error: fetchError } = await supabase
       .from('incidents')
-      .select('id, user_id')
+      .select('id, user_id, fire_department_id')
       .eq('id', id)
       .single();
 
@@ -495,7 +505,17 @@ export const DELETE: APIRoute = async ({ request, url }) => {
     }
 
     if (existing.user_id !== user.id) {
-      return errorResponse(403, 'FORBIDDEN', 'You are not allowed to delete this meldunek');
+      // Allow department admin to delete
+      const { data: adminProfile } = await supabase
+        .from('profiles')
+        .select('role, fire_department_id')
+        .eq('id', user.id)
+        .single();
+
+      const isDepartmentAdmin = !!adminProfile && adminProfile.role === 'admin' && adminProfile.fire_department_id === existing.fire_department_id;
+      if (!isDepartmentAdmin) {
+        return errorResponse(403, 'FORBIDDEN', 'You are not allowed to delete this meldunek');
+      }
     }
 
     // 6. Delete

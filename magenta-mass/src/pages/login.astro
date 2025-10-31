@@ -187,9 +187,9 @@ import { Alert, AlertDescription } from '../components/ui/alert';
         console.log('Token:', result.data.session.access_token.substring(0, 20) + '...');
         console.log('Session saved to localStorage');
 
-        // Redirect after 1 second
+        // Redirect to dashboard after 1 second
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/dashboard';
         }, 1000);
 
       } else {

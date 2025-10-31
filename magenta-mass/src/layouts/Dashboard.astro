@@ -555,20 +555,29 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       if (isAuthenticated && user) {
         userProfile = user;
         document.getElementById('userEmail').textContent = userProfile.user.email;
-        document.getElementById('userRole').textContent = userProfile.profile.role === 'admin' ? 'Administrator' : 'Strażak administrator';
         
-        // Show admin panel if user is admin
-        if (userProfile.profile.role === 'admin') {
-          document.getElementById('adminPanelBtn').classList.remove('hidden');
-          document.getElementById('tab-admin').classList.remove('hidden');
+        // Handle case when profile might be null
+        if (userProfile.profile) {
+          document.getElementById('userRole').textContent = userProfile.profile.role === 'admin' ? 'Administrator' : 'Strażak administrator';
+          
+          // Show admin panel if user is admin
+          if (userProfile.profile.role === 'admin') {
+            document.getElementById('adminPanelBtn').classList.remove('hidden');
+            document.getElementById('tab-admin').classList.remove('hidden');
+          }
+          
+          // Load profile information
+          displayProfileInfo(userProfile);
+          populateProfileForm(userProfile);
+          loadAccountStats();
+        } else {
+          // Profile not found - show basic info
+          document.getElementById('userRole').textContent = 'Użytkownik';
+          console.warn('Profile not found for user, showing limited interface');
         }
-        
-        // Load profile information
-        displayProfileInfo(userProfile);
-        populateProfileForm(userProfile);
-        loadAccountStats();
       } else {
-        // Be lenient; header handles UI state
+        // Not authenticated - redirect handled by checkAuth
+        window.location.href = '/login';
       }
     } catch (error) {
       console.error('Error loading profile:', error);
