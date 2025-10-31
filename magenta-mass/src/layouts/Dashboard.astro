@@ -1007,7 +1007,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     }
     
     container.innerHTML = users.map(user => `
-      <div className="flex items-center justify-between p-4 border rounded-lg">
+      <div className="flex items-center justify-between p-4 border rounded-lg" data-user-id="${user.id}">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
             <span class="material-icons text-primary">person</span>
@@ -1025,18 +1025,33 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
             ${new Date(user.created_at).toLocaleDateString('pl-PL')}
           </div>
           ${user.id !== (userProfile?.user?.id || '') ? `
-            <Button variant="destructive" size="sm" onclick="deleteUserAccount('${user.id}')">
+            <button type="button" class="btn-delete-user inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input bg-destructive text-destructive-foreground hover:bg-destructive/90 h-9 px-3" data-user-id="${user.id}">
               <span class="material-icons text-sm mr-1">delete</span>
               Usuń
-            </Button>
-            <Button variant="outline" size="sm" onclick="resetUserPassword('${user.id}')">
+            </button>
+            <button type="button" class="btn-reset-password inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3" data-user-id="${user.id}">
               <span class="material-icons text-sm mr-1">lock_reset</span>
               Zresetuj hasło
-            </Button>
+            </button>
           ` : ''}
         </div>
       </div>
     `).join('');
+    
+    // Add event listeners after rendering
+    container.querySelectorAll('.btn-delete-user').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        if (userId) deleteUserAccount(userId);
+      });
+    });
+    
+    container.querySelectorAll('.btn-reset-password').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const userId = this.getAttribute('data-user-id');
+        if (userId) resetUserPassword(userId);
+      });
+    });
   }
 
   async function deleteUserAccount(userId) {
