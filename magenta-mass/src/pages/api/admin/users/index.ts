@@ -109,12 +109,12 @@ export const GET: APIRoute = async ({ request }) => {
     }));
 
     // enrich with email via admin API if possible
-    // Only for users in admin's department to improve performance
+    // Fetch emails for all users (not just department users)
     // Use timeout to prevent hanging requests
-    if (serviceRoleKey && deptProfiles && deptProfiles.length > 0 && deptProfiles.length < 100) {
+    if (serviceRoleKey && profiles && profiles.length > 0 && profiles.length < 200) {
       try {
         const adminClient = createClient<Database>(supabaseUrl, serviceRoleKey);
-        const deptUserIds = new Set((deptProfiles || []).map(p => p.id));
+        const allUserIds = new Set((profiles || []).map(p => p.id));
         
         // Fetch all users in batches to get all emails
         // Start with a reasonable page size
@@ -125,7 +125,7 @@ export const GET: APIRoute = async ({ request }) => {
         
         // Fetch users with timeout protection
         const fetchEmails = async () => {
-          while (hasMore && page <= 5) { // Limit to 5 pages max (250 users) to prevent infinite loops
+          while (hasMore && page <= 10) { // Limit to 10 pages max (500 users) to prevent infinite loops
             const emailFetchPromise = adminClient.auth.admin.listUsers({
               page: page,
               perPage: perPage
@@ -153,7 +153,7 @@ export const GET: APIRoute = async ({ request }) => {
             }
             
             // If we found all our users, we can stop early
-            const foundAll = [...deptUserIds].every(id => allUsers.some(u => u.id === id));
+            const foundAll = [...allUserIds].every(id => allUsers.some(u => u.id === id));
             if (foundAll) {
               hasMore = false;
             }
@@ -164,16 +164,14 @@ export const GET: APIRoute = async ({ request }) => {
         
         const emailById = new Map<string, string>();
         for (const au of allUsers) {
-          if (deptUserIds.has(au.id) && au.email) {
+          if (allUserIds.has(au.id) && au.email) {
             emailById.set(au.id, au.email);
           }
         }
         
-        // Only set emails for department users
+        // Set emails for all users in result
         for (const row of result) {
-          if (row.is_in_admin_department) {
-            row.email = emailById.get(row.id) || null;
-          }
+          row.email = emailById.get(row.id) || null;
         }
       } catch (e) {
         console.warn('Could not fetch emails (non-critical, will skip):', e instanceof Error ? e.message : e);

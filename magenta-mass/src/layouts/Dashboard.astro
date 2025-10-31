@@ -1071,7 +1071,7 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           </div>
           <div>
             <div className="font-medium">${user.first_name || 'Nie podano'} ${user.last_name || 'Nie podano'}</div>
-            <div className="text-sm text-muted-foreground">${user.email}</div>
+            <div className="text-sm text-muted-foreground">${user.email || 'Email nie dostępny'}</div>
             ${user.fire_department_name ? `
               <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                 <span class="material-icons text-xs">local_fire_department</span>
