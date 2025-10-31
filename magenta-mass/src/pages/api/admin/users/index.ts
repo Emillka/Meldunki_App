@@ -35,10 +35,10 @@ export const GET: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ success: false, error: { code: 'FORBIDDEN', message: 'Brak uprawnień administratora' } }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // fetch department users from profiles
+    // fetch department users from profiles with fire department info
     const { data: profiles, error: deptProfilesError } = await supabase
       .from('profiles')
-      .select('id, first_name, last_name, role, created_at')
+      .select('id, first_name, last_name, role, created_at, fire_departments (name)')
       .eq('fire_department_id', adminProfile.fire_department_id)
       .order('created_at', { ascending: false });
 
@@ -47,7 +47,15 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     const ids = new Set((profiles || []).map(p => p.id));
-    const result = (profiles || []).map(p => ({ id: p.id, first_name: p.first_name, last_name: p.last_name, role: p.role, created_at: p.created_at, email: null as string | null }));
+    const result = (profiles || []).map(p => ({ 
+      id: p.id, 
+      first_name: p.first_name, 
+      last_name: p.last_name, 
+      role: p.role, 
+      created_at: p.created_at, 
+      fire_department_name: (p.fire_departments as any)?.name || null,
+      email: null as string | null 
+    }));
 
     // enrich with email via admin API if possible
     if (serviceRoleKey) {
