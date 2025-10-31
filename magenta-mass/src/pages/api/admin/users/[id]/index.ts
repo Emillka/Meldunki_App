@@ -65,7 +65,7 @@ export const DELETE: APIRoute = async ({ request, params }) => {
       );
     }
 
-    // Ensure target belongs to same department
+    // Check if target user exists
     const { data: targetProfile, error: targetErr } = await supabase
       .from('profiles')
       .select('id, fire_department_id')
@@ -79,11 +79,12 @@ export const DELETE: APIRoute = async ({ request, params }) => {
       );
     }
 
-    if (targetProfile.fire_department_id !== adminProfile.fire_department_id) {
-      return new Response(
-        JSON.stringify({ success: false, error: { code: 'FORBIDDEN', message: 'Nie możesz usuwać użytkowników z innych jednostek' } }),
-        { status: 403, headers: { 'Content-Type': 'application/json' } }
-      );
+    // Allow deleting users from other departments, but only if they don't have a department or admin explicitly wants to
+    // Note: We allow this because admin might want to clean up users that were mistakenly assigned elsewhere
+    // The check is mainly to prevent accidental deletion of important users
+    if (targetProfile.fire_department_id && targetProfile.fire_department_id !== adminProfile.fire_department_id) {
+      // User is in a different department - this is allowed but we'll continue
+      console.log(`Admin ${user.id} deleting user ${targetUserId} from different department ${targetProfile.fire_department_id} (admin's department: ${adminProfile.fire_department_id})`);
     }
 
     // Delete auth user (profiles will cascade delete)

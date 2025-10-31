@@ -1162,7 +1162,16 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   }
 
   async function deleteUserAccount(userId) {
-    if (!confirm('Czy na pewno chcesz usunąć tego użytkownika? Tego nie można cofnąć.')) return;
+    // Find the user in the current list to check if they're from different department
+    const userElement = document.querySelector(`[data-user-id="${userId}"]`);
+    const isDifferentDept = userElement && userElement.classList.contains('border-orange-300');
+    
+    let confirmMessage = 'Czy na pewno chcesz usunąć tego użytkownika? Tego nie można cofnąć.';
+    if (isDifferentDept) {
+      confirmMessage = 'UWAGA: Ten użytkownik należy do innej jednostki OSP. Czy na pewno chcesz go usunąć? Tej operacji nie można cofnąć.';
+    }
+    
+    if (!confirm(confirmMessage)) return;
     try {
       const token = localStorage.getItem('access_token');
       const response = await fetch(`/api/admin/users/${userId}`, {
