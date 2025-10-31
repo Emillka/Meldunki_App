@@ -14,7 +14,7 @@ export default defineConfig({
   integrations: [react(), tailwind()],
   server: {
     host: '0.0.0.0',
-    port: parseInt(process.env.PORT) || 10000
+    port: process.env.PORT ? parseInt(process.env.PORT) : 10000
   },
   // Build optimizations
   vite: {

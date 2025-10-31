@@ -2,10 +2,10 @@
 # Ten plik konfiguruje deployment na Render.com
 
 # Build Command - Render automatycznie wykryje Astro, ale możemy być explicit
-buildCommand: cd magenta-mass && npm ci && npm run build
+buildCommand: npm ci && npm run build
 
-# Start Command - Render uruchomi aplikację
-startCommand: cd magenta-mass && npm start
+# Start Command - Render uruchomi aplikację (root directory jest już ustawiony na magenta-mass)
+startCommand: npm start
 
 # Root Directory - Render będzie szukał aplikacji w tym katalogu
 rootDir: magenta-mass

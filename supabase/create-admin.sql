@@ -5,16 +5,26 @@
 SELECT 'Sprawdzanie jednostek OSP...' as status;
 SELECT id, name FROM fire_departments LIMIT 5;
 
--- 2. Jeśli nie ma jednostek OSP, utwórz przykładową
-INSERT INTO fire_departments (id, county_id, name, city)
+-- 2. Jeśli nie ma województw i powiatów, utwórz przykładowe
+INSERT INTO provinces (name)
+SELECT 'mazowieckie'
+WHERE NOT EXISTS (SELECT 1 FROM provinces LIMIT 1);
+
+INSERT INTO counties (province_id, name)
+SELECT (SELECT id FROM provinces LIMIT 1), 'warszawski'
+WHERE NOT EXISTS (SELECT 1 FROM counties LIMIT 1);
+
+-- 3. Jeśli nie ma jednostek OSP, utwórz przykładową (bez kolumny city - zgodnie ze schematem)
+INSERT INTO fire_departments (id, county_id, name)
 SELECT 
   '00000000-0000-0000-0000-000000000001'::uuid,
   (SELECT id FROM counties LIMIT 1),
-  'OSP Przykładowa',
-  'Przykładowe Miasto'
+  'OSP Przykładowa'
 WHERE NOT EXISTS (SELECT 1 FROM fire_departments LIMIT 1);
 
--- 3. Utwórz użytkownika w auth.users (jeśli nie istnieje)
+-- 4. Utwórz użytkownika w auth.users
+-- UWAGA: Jeśli ten INSERT nie działa, użyj metody alternatywnej przez Supabase Dashboard
+-- Authentication > Users > Add User (lub użyj skryptu Node.js)
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -26,28 +36,7 @@ INSERT INTO auth.users (
   created_at,
   updated_at,
   raw_app_meta_data,
-  raw_user_meta_data,
-  is_super_admin,
-  last_sign_in_at,
-  app_metadata,
-  user_metadata,
-  identities,
-  factors,
-  email_change,
-  email_change_token_new,
-  recovery_sent_at,
-  new_email,
-  invited_at,
-  action_link,
-  email_change_sent_at,
-  recovery_token,
-  email_change_token_current,
-  email_change_confirm_status,
-  banned_until,
-  reauthentication_token,
-  reauthentication_sent_at,
-  is_sso_user,
-  deleted_at
+  raw_user_meta_data
 )
 SELECT 
   '00000000-0000-0000-0000-000000000001'::uuid,
@@ -60,29 +49,10 @@ SELECT
   now(),
   now(),
   '{"provider": "email", "providers": ["email"]}',
-  '{"fire_department_id": "00000000-0000-0000-0000-000000000001", "first_name": "System", "last_name": "Administrator", "role": "admin"}',
-  false,
-  null,
-  '{"provider": "email", "providers": ["email"]}',
-  '{"fire_department_id": "00000000-0000-0000-0000-000000000001", "first_name": "System", "last_name": "Administrator", "role": "admin"}',
-  '[]',
-  '[]',
-  '',
-  '',
-  null,
-  '',
-  null,
-  '',
-  '',
-  0,
-  null,
-  '',
-  null,
-  false,
-  null
+  '{"fire_department_id": "00000000-0000-0000-0000-000000000001", "first_name": "System", "last_name": "Administrator", "role": "admin"}'::jsonb
 WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'admin@firelog.pl');
 
--- 4. Utwórz profil administratora
+-- 5. Utwórz profil administratora
 INSERT INTO profiles (
   id,
   fire_department_id,
@@ -102,7 +72,7 @@ SELECT
   now()
 WHERE NOT EXISTS (SELECT 1 FROM profiles WHERE id = '00000000-0000-0000-0000-000000000001'::uuid);
 
--- 5. Sprawdź utworzone konto
+-- 6. Sprawdź utworzone konto
 SELECT 'Konto administratora utworzone:' as status;
 SELECT 
   u.email,
@@ -115,7 +85,7 @@ JOIN profiles p ON u.id = p.id
 LEFT JOIN fire_departments fd ON p.fire_department_id = fd.id
 WHERE u.email = 'admin@firelog.pl';
 
--- 6. Wyświetl dane logowania
+-- 7. Wyświetl dane logowania
 SELECT 
   'DANE LOGOWANIA:' as info,
   'Email: admin@firelog.pl' as email,
