@@ -116,21 +116,54 @@ export const GET: APIRoute = async ({ request }) => {
         const adminClient = createClient<Database>(supabaseUrl, serviceRoleKey);
         const deptUserIds = new Set((deptProfiles || []).map(p => p.id));
         
-        // Fetch users with timeout protection - only if reasonable number
-        const emailFetchPromise = adminClient.auth.admin.listUsers({
-          page: 1,
-          perPage: deptProfiles.length + 10 // Only fetch what we need
-        });
+        // Fetch all users in batches to get all emails
+        // Start with a reasonable page size
+        const perPage = 50;
+        let allUsers: any[] = [];
+        let page = 1;
+        let hasMore = true;
         
-        // Add timeout wrapper
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Email fetch timeout')), 5000) // 5 second timeout
-        );
+        // Fetch users with timeout protection
+        const fetchEmails = async () => {
+          while (hasMore && page <= 5) { // Limit to 5 pages max (250 users) to prevent infinite loops
+            const emailFetchPromise = adminClient.auth.admin.listUsers({
+              page: page,
+              perPage: perPage
+            });
+            
+            // Add timeout wrapper for each page
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Email fetch timeout')), 8000) // 8 second timeout per page
+            );
+            
+            const { data: usersPage, error } = await Promise.race([emailFetchPromise, timeoutPromise]) as any;
+            
+            if (error || !usersPage) {
+              console.warn('Error fetching user emails page', page, error);
+              break;
+            }
+            
+            if (usersPage.users && usersPage.users.length > 0) {
+              allUsers = [...allUsers, ...usersPage.users];
+              // Check if there are more pages
+              hasMore = usersPage.users.length === perPage;
+              page++;
+            } else {
+              hasMore = false;
+            }
+            
+            // If we found all our users, we can stop early
+            const foundAll = [...deptUserIds].every(id => allUsers.some(u => u.id === id));
+            if (foundAll) {
+              hasMore = false;
+            }
+          }
+        };
         
-        const { data: usersPage } = await Promise.race([emailFetchPromise, timeoutPromise]) as any;
+        await fetchEmails();
         
         const emailById = new Map<string, string>();
-        for (const au of usersPage?.users || []) {
+        for (const au of allUsers) {
           if (deptUserIds.has(au.id) && au.email) {
             emailById.set(au.id, au.email);
           }
