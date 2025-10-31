@@ -51,36 +51,46 @@ export const GET: APIRoute = async ({ request }) => {
     }
 
     // fetch department users from profiles with fire department info
-    // Run both queries in parallel for better performance
-    const [deptResult, otherResult] = await Promise.all([
-      supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
-        .eq('fire_department_id', adminProfile.fire_department_id)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
-        .or(`fire_department_id.is.null,fire_department_id.neq.${adminProfile.fire_department_id}`)
-        .order('created_at', { ascending: false })
-        .limit(50) // Limit to prevent too many results
-    ]);
-
-    const { data: deptProfiles, error: deptProfilesError } = deptResult;
-    const { data: otherProfiles, error: otherProfilesError } = otherResult;
+    // First get users from admin's department (critical - must succeed)
+    const { data: deptProfiles, error: deptProfilesError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
+      .eq('fire_department_id', adminProfile.fire_department_id)
+      .order('created_at', { ascending: false });
 
     if (deptProfilesError) {
       console.error('Error fetching department users:', deptProfilesError);
       return new Response(JSON.stringify({ success: false, error: { code: 'DB_ERROR', message: 'Failed to fetch department users', details: deptProfilesError.message } }), { status: 500, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // Log warning if there's error fetching other profiles, but continue anyway
-    if (otherProfilesError) {
-      console.warn('Error fetching other users (non-critical):', otherProfilesError);
+    // Get other users (non-critical - can fail gracefully)
+    // Use separate queries for null and not equal cases for better compatibility
+    let otherProfiles: any[] = [];
+    try {
+      // Get users without department
+      const { data: nullUsers } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
+        .is('fire_department_id', null)
+        .order('created_at', { ascending: false })
+        .limit(25);
+      
+      // Get users from other departments
+      const { data: otherDeptUsers } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
+        .neq('fire_department_id', adminProfile.fire_department_id)
+        .order('created_at', { ascending: false })
+        .limit(25);
+      
+      otherProfiles = [...(nullUsers || []), ...(otherDeptUsers || [])];
+    } catch (otherError) {
+      console.warn('Error fetching other users (non-critical):', otherError);
+      // Continue without other users - not critical
     }
 
     // Combine profiles
-    const profiles = [...(deptProfiles || []), ...(otherProfiles || [])];
+    const profiles = [...(deptProfiles || []), ...otherProfiles];
 
     console.log(`Found ${deptProfiles?.length || 0} users in admin's department, ${otherProfiles?.length || 0} users from other departments or without department`);
 
@@ -100,19 +110,27 @@ export const GET: APIRoute = async ({ request }) => {
 
     // enrich with email via admin API if possible
     // Only for users in admin's department to improve performance
-    if (serviceRoleKey && deptProfiles && deptProfiles.length > 0) {
+    // Use timeout to prevent hanging requests
+    if (serviceRoleKey && deptProfiles && deptProfiles.length > 0 && deptProfiles.length < 100) {
       try {
         const adminClient = createClient<Database>(supabaseUrl, serviceRoleKey);
         const deptUserIds = new Set((deptProfiles || []).map(p => p.id));
         
-        // Fetch users in batches to avoid timeout
-        const { data: usersPage } = await adminClient.auth.admin.listUsers({
+        // Fetch users with timeout protection - only if reasonable number
+        const emailFetchPromise = adminClient.auth.admin.listUsers({
           page: 1,
-          perPage: 1000 // Limit to avoid too many requests
+          perPage: deptProfiles.length + 10 // Only fetch what we need
         });
         
+        // Add timeout wrapper
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email fetch timeout')), 5000) // 5 second timeout
+        );
+        
+        const { data: usersPage } = await Promise.race([emailFetchPromise, timeoutPromise]) as any;
+        
         const emailById = new Map<string, string>();
-        for (const au of usersPage.users || []) {
+        for (const au of usersPage?.users || []) {
           if (deptUserIds.has(au.id) && au.email) {
             emailById.set(au.id, au.email);
           }
@@ -125,7 +143,7 @@ export const GET: APIRoute = async ({ request }) => {
           }
         }
       } catch (e) {
-        console.warn('Could not fetch emails (non-critical):', e);
+        console.warn('Could not fetch emails (non-critical, will skip):', e instanceof Error ? e.message : e);
         // ignore, emails will be null - this is not critical for functionality
       }
     }
