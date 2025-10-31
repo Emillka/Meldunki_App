@@ -1,45 +1,45 @@
 # FireLog (Meldunki_App)
 
-Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek OSP.
+System do rejestrowania i zarządzania meldunkami dla jednostek OSP.
 
 [![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)](https://github.com/yourusername/firelog)
 [![Status](https://img.shields.io/badge/status-MVP%20in%20development-yellow.svg)](https://github.com/yourusername/firelog)
 
-## ⭐ Główne atuty aplikacji
+## Opis aplikacji
 
-**FireLog** to nowoczesny, kompleksowy system do zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej. Aplikacja oferuje pełne zarządzanie użytkownikami, bezpieczną autoryzację, inteligentną analizę danych oraz szczegółowe statystyki jednostki.
+FireLog to system do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej. Aplikacja umożliwia zarządzanie użytkownikami, autoryzację, analizę danych oraz przegląd statystyk jednostki.
 
-### 🎯 Funkcjonalność
-- ✅ **Kompletny system CRUD** dla meldunków z zaawansowanym filtrowaniem i sortowaniem
-- ✅ **Zaawansowany panel administracyjny** z pełnym zarządzaniem użytkownikami jednostki
-- ✅ **AI-powered analiza** - Automatyczna kategoryzacja i generowanie podsumowań meldunków
-- ✅ **Bezpieczeństwo klasy enterprise** - RLS, JWT, rate limiting, walidacja danych
-- ✅ **System ról użytkowników** - Role administratora i zwykłego użytkownika (member)
-- ✅ **Zarządzanie użytkownikami** - Dodawanie, usuwanie, edycja, resetowanie haseł
-- ✅ **Szczegółowe statystyki** - Metryki jednostki, aktywności użytkowników, najaktywniejszy strażak
-- ✅ **System e-maili** - Aktywacyjne maile rejestracyjne i e-maile resetowania hasła
+### Funkcjonalność
+- Operacje CRUD dla meldunków z filtrowaniem i sortowaniem
+- Panel administracyjny z zarządzaniem użytkownikami jednostki
+- Automatyczna analiza AI - kategoryzacja i generowanie podsumowań meldunków
+- Zabezpieczenia - RLS, JWT, rate limiting, walidacja danych
+- System ról użytkowników - role administratora i zwykłego użytkownika (member)
+- Zarządzanie użytkownikami - dodawanie, usuwanie, edycja, resetowanie haseł
+- Statystyki jednostki - metryki aktywności, liczba użytkowników i meldunków
+- System e-maili - aktywacyjne maile rejestracyjne i resetujące hasło
 
-### 🚀 Technologia
-- ✅ **Nowoczesny stack** - Astro 5, React 19, TypeScript 5, Tailwind CSS 4
-- ✅ **Supabase backend** - Skalowalna baza PostgreSQL z wbudowaną autoryzacją
-- ✅ **OpenRouter.ai** - Dostęp do najnowszych modeli AI (GPT-4, Claude, Gemini)
-- ✅ **Responsywny design** - Pełne wsparcie dla mobile, tablet i desktop
+### Technologia
+- Stack: Astro 5, React 19, TypeScript 5, Tailwind CSS 4
+- Backend: Supabase (PostgreSQL z autoryzacją)
+- AI: OpenRouter.ai (dostęp do modeli GPT-4, Claude, Gemini)
+- Responsywny design - obsługa urządzeń mobilnych, tabletów i desktopów
 
-### 🧪 Jakość
-- ✅ **Pokrycie testami >90%** - Unit, E2E, integracyjne, dostępności
-- ✅ **CI/CD** - Automatyczne testy i deployment przy każdej zmianie
-- ✅ **WCAG 2.1 AA** - Pełna dostępność dla użytkowników z niepełnosprawnościami
-- ✅ **Lighthouse >90** - Doskonała wydajność i SEO
+### Testy i jakość
+- Pokrycie testami >90% - testy jednostkowe, E2E, integracyjne, dostępności
+- CI/CD - automatyczne testy przy zmianach
+- Zgodność z WCAG 2.1 AA
+- Lighthouse score >90
 
-### 👥 Zarządzanie jednostką
-- ✅ **Pełna kontrola** - Administratorzy mogą zarządzać wszystkimi meldunkami i użytkownikami
-- ✅ **Statystyki jednostki** - Metryki aktywności, liczby meldunków, najaktywniejszych użytkowników
-- ✅ **Zarządzanie rolami** - Awansowanie/degradowanie członków jednostki
-- ✅ **Przegląd danych** - Szybki dostęp do wszystkich informacji jednostki OSP
+### Zarządzanie jednostką
+- Administratorzy mogą zarządzać meldunkami i użytkownikami
+- Statystyki jednostki - metryki aktywności, liczba meldunków i użytkowników
+- Zarządzanie rolami - awansowanie/degradowanie członków jednostki
+- Przegląd danych jednostki OSP
 
-## Table of Contents
+## Spis treści
 
-- [Główne atuty aplikacji](#-główne-atuty-aplikacji)
+- [Opis aplikacji](#opis-aplikacji)
 - [Szczegółowy opis funkcjonalności](#-szczegółowy-opis-funkcjonalności)
   - [System autoryzacji i bezpieczeństwa](#-system-autoryzacji-i-bezpieczeństwa)
   - [Role użytkowników](#-role-użytkowników)
@@ -47,47 +47,47 @@ Nowoczesny system do rejestrowania i zarządzania meldunkami dla jednostek OSP.
   - [Zarządzanie meldunkami](#-zarządzanie-meldunkami)
   - [Analiza AI (OpenRouter.ai)](#-analiza-ai-openrouterai)
   - [Panel administracyjny](#-panel-administracyjny-)
-- [Project Description](#project-description)
-- [Tech Stack](#tech-stack)
-- [Getting Started Locally](#getting-started-locally)
-- [Creating Admin Account](#creating-admin-account)
-- [Administrator Panel](#administrator-panel-)
-- [Available Scripts](#available-scripts)
-- [Testing](#testing)
-- [Project Scope](#project-scope)
-- [Project Status](#project-status)
-- [License](#license)
+- [Opis projektu](#opis-projektu)
+- [Stack technologiczny](#stack-technologiczny)
+- [Uruchomienie lokalne](#uruchomienie-lokalne)
+- [Tworzenie konta administratora](#tworzenie-konta-administratora)
+- [Panel administracyjny](#panel-administracyjny)
+- [Dostępne skrypty](#dostępne-skrypty)
+- [Testy](#testy)
+- [Zakres projektu](#zakres-projektu)
+- [Status projektu](#status-projektu)
+- [Licencja](#licencja)
 
-## Project Description
+## Opis projektu
 
-**FireLog** is a modern web application designed to enable fire departments (OSP - Ochotnicza Straż Pożarna) to quickly and systematically create electronic reports from their action operations. The application aims to replace traditional paper-based reporting systems with a simple, efficient, and centralized digital solution.
+**FireLog** to aplikacja webowa do tworzenia i zarządzania meldunkami przez jednostki Ochotniczej Straży Pożarnej. Aplikacja umożliwia elektroniczne rejestrowanie zdarzeń i zastępuje tradycyjne systemy papierowe.
 
-### Problem Statement
+### Problem
 
-Currently, most fire departments maintain their reports using notebooks, Excel spreadsheets, or informal systems. This approach creates significant challenges:
+Większość jednostek OSP prowadzi meldunki w zeszytach, arkuszach Excel lub nieformalnych systemach. To powoduje problemy:
 
-- Difficulty in finding historical action data
-- Inability to analyze the number and types of interventions effectively
-- Complications in reporting to commands or government offices
+- Trudności w wyszukiwaniu historycznych danych
+- Brak możliwości efektywnej analizy liczby i typów interwencji
+- Komplikacje w raportowaniu do komend lub urzędów
 
-### Solution
+### Rozwiązanie
 
-FireLog solves these problems by:
+Aplikacja rozwiązuje te problemy poprzez:
 
-- **Centralizing all reports** in one accessible location
-- **Automating data analysis** using AI-powered categorization and summarization
-- **Providing CRUD operations** for managing action reports
-- **Securing access** through email and password authentication
-- **Ensuring data persistence** with JWT-based session management
+- **Centralizację wszystkich meldunków** w jednym miejscu
+- **Automatyczną analizę danych** z użyciem AI do kategoryzacji i podsumowań
+- **Operacje CRUD** do zarządzania meldunkami
+- **Bezpieczny dostęp** przez autoryzację email i hasło
+- **Trwałość danych** dzięki sesjom JWT
 
-## 📖 Szczegółowy opis funkcjonalności
+## Szczegółowy opis funkcjonalności
 
-### 🔐 System autoryzacji i bezpieczeństwa
+### System autoryzacji i bezpieczeństwa
 
-FireLog zapewnia kompleksowy system bezpieczeństwa oparty na najlepszych praktykach branżowych:
+FireLog implementuje zabezpieczenia zgodnie ze standardowymi praktykami:
 
 #### Rejestracja użytkowników
-- **Rejestracja przez formularz** - Prosty formularz rejestracji na stronie `/register`
+- Rejestracja przez formularz na stronie `/register`
 - **Walidacja danych** - Sprawdzanie poprawności emaila, siły hasła (min. 8 znaków, wielka litera, cyfra, znak specjalny)
 - **Powiązanie z jednostką OSP** - Każdy użytkownik musi być przypisany do jednostki Ochotniczej Straży Pożarnej
 - **Automatyczne tworzenie profilu** - Po rejestracji automatycznie tworzony jest profil użytkownika w bazie danych
@@ -120,7 +120,7 @@ FireLog zapewnia kompleksowy system bezpieczeństwa oparty na najlepszych prakty
 - **Ochrona przed SQL Injection** - Użycie parametrowanych zapytań Supabase
 - **Ochrona przed XSS** - Sanityzacja i escapowanie danych wyjściowych
 
-### 👤 Role użytkowników
+### Role użytkowników
 
 Aplikacja FireLog obsługuje system ról, który określa uprawnienia użytkowników:
 
@@ -138,30 +138,30 @@ Aplikacja FireLog obsługuje system ról, który określa uprawnienia użytkowni
   - Nie może zarządzać użytkownikami
 
 #### Rola: Admin (Administrator)
-- **Pełne uprawnienia** - Administrator ma dostęp do wszystkich funkcji aplikacji
+- Administrator ma dostęp do wszystkich funkcji aplikacji
 - **Uprawnienia administracyjne**:
-  - ✅ **Zarządzanie użytkownikami jednostki**:
+  - **Zarządzanie użytkownikami jednostki**:
     - Przeglądanie wszystkich użytkowników w jednostce
     - Usuwanie kont użytkowników (z wyjątkiem własnego konta)
     - Wysyłanie e-maili resetujących hasło dla innych użytkowników
     - Zmiana ról użytkowników (awansowanie/degradowanie: member ↔ admin)
-  - ✅ **Zarządzanie meldunkami jednostki**:
+  - **Zarządzanie meldunkami jednostki**:
     - Przeglądanie wszystkich meldunków w jednostce
     - Edycja dowolnego meldunku w jednostce
     - Usuwanie dowolnego meldunku w jednostce
-  - ✅ **Statystyki jednostki**:
+  - **Statystyki jednostki**:
     - Liczba wszystkich użytkowników
     - Liczba wszystkich meldunków
     - Liczba aktywnych użytkowników (ostatnie 30 dni)
     - Liczba meldunków w bieżącym miesiącu
     - Najaktywniejszy użytkownik (ranking)
-  - ✅ **Wszystkie uprawnienia użytkownika zwykłego**
+  - **Wszystkie uprawnienia użytkownika zwykłego**
 - **Ograniczenia bezpieczeństwa**:
   - Administrator nie może usunąć własnego konta (zapobiega zablokowaniu jednostki)
   - Administrator może zarządzać tylko użytkownikami ze swojej jednostki OSP
   - Wszystkie operacje są logowane i weryfikowane przez RLS
 
-### 📊 Panel użytkownika (Dashboard)
+### Panel użytkownika (Dashboard)
 
 Każdy zalogowany użytkownik ma dostęp do wielozakładkowego dashboardu na stronie `/dashboard`:
 
@@ -200,18 +200,18 @@ Każdy zalogowany użytkownik ma dostęp do wielozakładkowego dashboardu na str
   - Informacje zwrotne o błędach
 
 #### Zakładka: Admin (tylko dla administratorów)
-Pełny opis w sekcji [Panel Administracyjny](#administrator-panel-)
+Szczegóły w sekcji [Panel Administracyjny](#administrator-panel-)
 
-### 📝 Zarządzanie meldunkami
+### Zarządzanie meldunkami
 
 #### Tworzenie meldunków
-- **Prosty formularz** - Intuicyjny formularz w zakładce "Nowy Meldunek" dashboardu
+- Formularz w zakładce "Nowy Meldunek" dashboardu
 - **Walidacja danych** - Sprawdzanie poprawności przed zapisaniem
 - **Automatyczna kategoryzacja** - System automatycznie określa typ zdarzenia używając AI
 - **Generowanie podsumowania** - AI tworzy krótkie streszczenie meldunku
 
 #### Przeglądanie meldunków
-- **Lista meldunków** - Strona `/meldunki` z pełną listą wszystkich meldunków użytkownika
+- Lista meldunków - strona `/meldunki` z listą wszystkich meldunków użytkownika
 - **Dla administratorów** - Dostęp do wszystkich meldunków jednostki (parametr `department=true`)
 - **Filtrowanie**:
   - Po dacie zdarzenia
@@ -222,7 +222,7 @@ Pełny opis w sekcji [Panel Administracyjny](#administrator-panel-)
   - Po dacie utworzenia
   - Po nazwie zdarzenia
 - **Paginacja** - Podział wyników na strony dla lepszej wydajności
-- **Modalny podgląd** - Szybki dostęp do szczegółów bez przeładowania strony
+- Modalny podgląd - dostęp do szczegółów bez przeładowania strony
 
 #### Edycja meldunków
 - **Edycja własnych meldunków** - Każdy użytkownik może edytować swoje meldunki
@@ -236,7 +236,7 @@ Pełny opis w sekcji [Panel Administracyjny](#administrator-panel-)
 - **Potwierdzenie usunięcia** - Dialog potwierdzający przed usunięciem (zapobiega przypadkowym usunięciom)
 - **Nieodwracalność** - Usunięcie jest trwałe (w przyszłości: soft delete/archiwizacja)
 
-### 🤖 Analiza AI (OpenRouter.ai)
+### Analiza AI (OpenRouter.ai)
 
 System wykorzystuje sztuczną inteligencję do automatycznej analizy meldunków:
 
@@ -250,7 +250,7 @@ System wykorzystuje sztuczną inteligencję do automatycznej analizy meldunków:
   - ❓ **Inne** - Wszystkie pozostałe kategorie
 - **Algorytm kategoryzacji**:
   - Analiza słów kluczowych w opisie
-  - Integracja z OpenRouter.ai dla zaawansowanej analizy
+  - Integracja z OpenRouter.ai dla analizy
   - Fallback do prostego algorytmu regułowego w przypadku braku połączenia z AI
 
 #### Generowanie podsumowań
@@ -265,14 +265,14 @@ System wykorzystuje sztuczną inteligencję do automatycznej analizy meldunków:
 - **Obsługa błędów** - Fallback do prostego algorytmu w przypadku problemów z API
 - **Rate limiting** - Ochrona przed nadmiernym użyciem API
 
-### 👥 Panel administracyjny ⭐
+### Panel administracyjny
 
 Panel administracyjny jest dostępny wyłącznie dla użytkowników z rolą `admin` i pojawia się jako trzecia zakładka w dashboardzie.
 
 #### 1. Zarządzanie użytkownikami jednostki
 
 **Lista użytkowników:**
-- **Przegląd wszystkich członków** - Pełna lista użytkowników przypisanych do jednostki OSP administratora
+- Przegląd wszystkich członków - lista użytkowników przypisanych do jednostki OSP administratora
 - **Wyświetlane informacje**:
   - Imię i nazwisko
   - Adres e-mail
@@ -303,7 +303,7 @@ Panel administracyjny jest dostępny wyłącznie dla użytkowników z rolą `adm
 
 #### 2. Zarządzanie meldunkami jednostki
 
-**Pełny dostęp do meldunków:**
+Dostęp do meldunków:
 - **Przegląd wszystkich meldunków** - Administrator widzi wszystkie meldunki utworzone przez użytkowników swojej jednostki
 - **Filtrowanie**:
   - Po użytkowniku (sprawdzenie aktywności poszczególnych członków)
@@ -341,113 +341,112 @@ Panel statystyk wyświetla kluczowe metryki jednostki OSP:
 - **Rate limiting** - Wszystkie operacje administracyjne są objęte limitem żądań
 - **Logowanie operacji** - Wszystkie operacje administracyjne są logowane (w przyszłości: audit log)
 
-📖 **Instrukcja tworzenia konta administratora:** Zobacz [ADMIN_SETUP.md](./ADMIN_SETUP.md)
+Instrukcja tworzenia konta administratora: [ADMIN_SETUP.md](./ADMIN_SETUP.md)
 
-#### 🎨 Interface i UX
-- **Responsywny design** - Pełne wsparcie dla mobile, tablet i desktop
-- **Design system** - Spójny styl z akcentem kolorystycznym OSP (czerwony)
-- **Tailwind CSS + shadcn/ui** - Nowoczesne, dostępne komponenty
-- **Material Icons** - Intuicyjne ikony dla lepszej nawigacji
+#### Interface i UX
+- Responsywny design - obsługa urządzeń mobilnych, tabletów i desktopów
+- Spójny styl z kolorystyką OSP (czerwony)
+- Tailwind CSS + shadcn/ui - komponenty UI
+- Material Icons - ikony interfejsu
 
-#### ✅ Jakość i testy
-- **Testy E2E (Playwright)** - Kompletne testy przepływów użytkownika
-- **Testy jednostkowe (Vitest)** - Pokrycie >90% kodu
-- **Testy dostępności** - Zgodność z WCAG 2.1 AA
-- **Testy wydajności** - Lighthouse CI (>90 punktów)
-- **CI/CD** - Automatyczne uruchamianie testów przy każdej zmianie
+#### Testy i jakość
+- Testy E2E (Playwright) - testy przepływów użytkownika
+- Testy jednostkowe (Vitest) - pokrycie >90% kodu
+- Testy dostępności - zgodność z WCAG 2.1 AA
+- Testy wydajności - Lighthouse CI (>90 punktów)
+- CI/CD - automatyczne uruchamianie testów przy zmianach
 
-## Tech Stack
+## Stack technologiczny
 
 ### Frontend
-- **[Astro 5](https://astro.build/)** - Fast, efficient web framework with minimal JavaScript
-- **[React 19](https://react.dev/)** - Interactive components where needed
-- **[TypeScript 5](https://www.typescriptlang.org/)** - Static typing and improved IDE support
-- **[Tailwind CSS 4](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[shadcn/ui](https://ui.shadcn.com/)** - Accessible React component library
+- **[Astro 5](https://astro.build/)** - framework webowy z minimalnym JavaScriptem
+- **[React 19](https://react.dev/)** - komponenty interaktywne
+- **[TypeScript 5](https://www.typescriptlang.org/)** - statyczne typowanie
+- **[Tailwind CSS 4](https://tailwindcss.com/)** - framework CSS utility-first
+- **[shadcn/ui](https://ui.shadcn.com/)** - biblioteka komponentów React
 
 ### Backend
-- **[Supabase](https://supabase.com/)** - Open-source Backend-as-a-Service
-  - PostgreSQL database
-  - Built-in user authentication
-  - Multi-language SDK support
-  - Self-hosting capability
+- **[Supabase](https://supabase.com/)** - Backend-as-a-Service
+  - Baza danych PostgreSQL
+  - Wbudowana autoryzacja użytkowników
+  - SDK dla wielu języków
+  - Możliwość self-hosting
 
-### AI Integration
-- **[OpenRouter.ai](https://openrouter.ai/)** - AI model gateway
-  - Access to multiple AI providers (OpenAI, Anthropic, Google, etc.)
-  - Cost-effective model selection
-  - API key spending limits
+### Integracja AI
+- **[OpenRouter.ai](https://openrouter.ai/)** - gateway do modeli AI
+  - Dostęp do wielu dostawców AI (OpenAI, Anthropic, Google, etc.)
+  - Wybór modelu w zależności od kosztów
+  - Limity wydatków na API key
 
-### Testing & Quality Assurance
-- **[Vitest](https://vitest.dev/)** - Fast unit testing framework with TypeScript support
-- **[@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/)** - React component testing utilities
-- **[@testing-library/user-event](https://testing-library.com/docs/user-event/intro/)** - Realistic user interaction simulation
-- **[@testing-library/jest-dom](https://testing-library.com/docs/ecosystem-jest-dom/)** - Custom DOM matchers for assertions
-- **[MSW (Mock Service Worker)](https://mswjs.io/)** - API mocking for integration tests
-- **[@faker-js/faker](https://fakerjs.dev/)** - Realistic test data generation
-- **[Playwright](https://playwright.dev/)** - End-to-end testing across browsers
-- **[@axe-core/playwright](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright)** - Accessibility testing integration
-- **[c8](https://github.com/bcoe/c8)** - Fast code coverage reporting
-- **[lighthouse-ci](https://github.com/GoogleChrome/lighthouse-ci)** - Automated performance testing
+### Testy i jakość kodu
+- **[Vitest](https://vitest.dev/)** - framework testów jednostkowych
+- **[@testing-library/react](https://testing-library.com/docs/react-testing-library/intro/)** - narzędzia do testowania komponentów React
+- **[@testing-library/user-event](https://testing-library.com/docs/user-event/intro/)** - symulacja interakcji użytkownika
+- **[MSW (Mock Service Worker)](https://mswjs.io/)** - mockowanie API w testach integracyjnych
+- **[@faker-js/faker](https://fakerjs.dev/)** - generowanie danych testowych
+- **[Playwright](https://playwright.dev/)** - testy end-to-end w różnych przeglądarkach
+- **[@axe-core/playwright](https://github.com/dequelabs/axe-core-npm/tree/develop/packages/playwright)** - testy dostępności
+- **[c8](https://github.com/bcoe/c8)** - raportowanie pokrycia kodu
+- **[lighthouse-ci](https://github.com/GoogleChrome/lighthouse-ci)** - automatyczne testy wydajności
 
-### CI/CD & Hosting
+### CI/CD i hosting
 - **GitHub Actions** - testy i deployment
 - **Render** lub Docker/Nginx
 
-### Public URL (Deployment)
+### URL produkcji
 
-Patrz `RENDER_DEPLOYMENT_GUIDE.md`. Po wdrożeniu uzupełnij URL:
+Zobacz `RENDER_DEPLOYMENT_GUIDE.md`. Po wdrożeniu uzupełnij URL:
 
-- App URL: <TBD>
+- URL aplikacji: <do uzupełnienia>
 
-## Getting Started Locally
+## Uruchomienie lokalne
 
-### Prerequisites
+### Wymagania
 
-Before you begin, ensure you have the following installed:
+Przed rozpoczęciem zainstaluj:
 
-- **Node.js** (v18.0.0 or higher recommended)
-- **npm** (v9.0.0 or higher)
+- **Node.js** (wersja 18.0.0 lub wyższa)
+- **npm** (wersja 9.0.0 lub wyższa)
 - **Git**
 
-### Installation
+### Instalacja
 
-1. Clone the repository:
+1. Sklonuj repozytorium:
    ```bash
    git clone https://github.com/yourusername/firelog.git
    cd firelog
    ```
 
-2. Navigate to the project directory:
+2. Przejdź do katalogu projektu:
    ```bash
    cd magenta-mass
    ```
 
-3. Install dependencies:
+3. Zainstaluj zależności:
    ```bash
    npm install
    ```
 
-4. Set up environment variables:
+4. Skonfiguruj zmienne środowiskowe:
    Skopiuj `magenta-mass/test.env.example` do `magenta-mass/.env` i uzupełnij:
    - `PUBLIC_SUPABASE_URL`
    - `PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY` (opcjonalny, do serwera)
+   - `SUPABASE_SERVICE_ROLE_KEY` (opcjonalne, dla serwera)
 
-5. Start the development server:
+5. Uruchom serwer deweloperski:
    ```bash
    npm run dev
    ```
 
-6. Open your browser and navigate to `http://localhost:4321`
+6. Otwórz przeglądarkę i przejdź do `http://localhost:4321`
 
-## Creating Admin Account
+## Tworzenie konta administratora
 
-Aby uzyskać dostęp do panelu administracyjnego, musisz utworzyć konto administratora. System oferuje **trzy metody** tworzenia konta admina:
+Aby uzyskać dostęp do panelu administracyjnego, należy utworzyć konto administratora. Dostępne są trzy metody:
 
-### Metoda 1: Skrypt SQL (ZALECANE) ⭐
+### Metoda 1: Skrypt SQL (zalecane)
 
-Najprostsza i najszybsza metoda:
+Metoda:
 
 1. Otwórz [Supabase Dashboard](https://supabase.com/dashboard)
 2. Wybierz swój projekt FireLog
@@ -458,7 +457,7 @@ Najprostsza i najszybsza metoda:
 **Dane logowania:**
 - Email: `admin@firelog.pl`
 - Hasło: `Admin123!@#`
-- ⚠️ **WAŻNE:** Zmień hasło po pierwszym logowaniu!
+- **Ważne:** Zmień hasło po pierwszym logowaniu
 
 ### Metoda 2: Skrypt Node.js
 
@@ -473,7 +472,7 @@ node src/scripts/create-admin-user.js
 1. Zarejestruj się przez `/register`
 2. W Supabase Dashboard → Tabela `profiles` → Zmień `role` na `admin`
 
-📖 **Szczegółowa instrukcja:** Zobacz [ADMIN_SETUP.md](./ADMIN_SETUP.md)
+Szczegółowa instrukcja: [ADMIN_SETUP.md](./ADMIN_SETUP.md)
 
 ### Dostęp do panelu administracyjnego
 
@@ -482,20 +481,20 @@ Po zalogowaniu jako administrator:
 2. Przejdź do `/dashboard`
 3. Zakładka **"Admin"** pojawi się automatycznie (wcześniej ukryta dla zwykłych użytkowników)
 
-## Administrator Panel
+## Panel administracyjny
 
-Panel administracyjny to kompleksowy system zarządzania jednostką OSP, dostępny wyłącznie dla użytkowników z rolą `admin`.
+Panel administracyjny umożliwia zarządzanie jednostką OSP i jest dostępny wyłącznie dla użytkowników z rolą `admin`.
 
-### 🎯 Główne funkcje
+### Główne funkcje
 
 #### 1. Zarządzanie użytkownikami
 - **Przegląd wszystkich członków** jednostki OSP
 - **Lista z danymi** - Imię, nazwisko, email, data rejestracji, rola
 - **Awansowanie/degradowanie** - Zmiana ról użytkowników (member ↔ admin)
-- **Filtrowanie i wyszukiwanie** - Szybkie znajdowanie użytkowników
+- Filtrowanie i wyszukiwanie użytkowników
 
 #### 2. Zarządzanie meldunkami jednostki
-- **Pełny dostęp** - Przegląd wszystkich meldunków w jednostce
+- Przegląd wszystkich meldunków w jednostce
 - **Edycja każdego meldunku** - Modyfikacja danych bez ograniczeń
 - **Usuwanie meldunków** - Możliwość usunięcia dowolnego meldunku
 - **Filtrowanie po użytkownikach** - Sprawdzenie aktywności poszczególnych członków
@@ -509,290 +508,288 @@ Panel administracyjny to kompleksowy system zarządzania jednostką OSP, dostęp
 
 #### 4. Uprawnienia administratora
 
-Zgodnie z regulaminem aplikacji, administrator jednostki OSP ma prawo do:
+Administrator jednostki OSP może:
 
-✅ **Zarządzania użytkownikami jednostki**
-- Tworzenie kont dla nowych członków
-- Przeglądanie listy użytkowników
-- Zmiana ról i uprawnień
-- Usuwanie kont (w przyszłości)
+- **Zarządzać użytkownikami jednostki**:
+  - Tworzenie kont dla nowych członków
+  - Przeglądanie listy użytkowników
+  - Zmiana ról i uprawnień
+  - Usuwanie kont (planowane)
 
-✅ **Przeglądania wszystkich meldunków jednostki**
-- Pełny dostęp do wszystkich meldunków
-- Filtrowanie i wyszukiwanie
-- Eksport danych (planowane)
+- **Przeglądać wszystkie meldunki jednostki**:
+  - Dostęp do wszystkich meldunków
+  - Filtrowanie i wyszukiwanie
+  - Eksport danych (planowane)
 
-✅ **Edycji i usuwania meldunków w jednostce**
-- Modyfikacja każdego meldunku
-- Korekta błędów w danych
-- Archiwizacja nieaktualnych meldunków
+- **Edytować i usuwać meldunki w jednostce**:
+  - Modyfikacja każdego meldunku
+  - Korekta błędów w danych
+  - Archiwizacja nieaktualnych meldunków
 
-✅ **Dostępu do statystyk jednostki**
-- Metryki użytkowania
-- Analiza aktywności
-- Raporty okresowe (planowane)
+- **Dostęp do statystyk jednostki**:
+  - Metryki użytkowania
+  - Analiza aktywności
+  - Raporty okresowe (planowane)
 
-### 🔒 Bezpieczeństwo
+### Bezpieczeństwo
 
 - **Ochrona RLS** - Tylko administratorzy widzą dane swojej jednostki
 - **Walidacja roli** - Sprawdzanie uprawnień przed każdą operacją
 - **Rate limiting** - Ochrona przed nadużyciami API
 - **Audit log** - Logowanie operacji administracyjnych (planowane)
 
-### 📊 Interfejs panelu
+### Interfejs panelu
 
 Panel jest zintegrowany w Dashboard jako trzecia zakładka:
 - **Automatyczna widoczność** - Pojawia się tylko dla administratorów
 - **Responsywny design** - Działa na wszystkich urządzeniach
-- **Intuicyjna nawigacja** - Łatwy dostęp do wszystkich funkcji
+- Nawigacja z dostępem do wszystkich funkcji
 
-## Available Scripts
+## Dostępne skrypty
 
-The following scripts are available in the project:
+Dostępne skrypty w projekcie:
 
-| Script | Command | Description |
+| Skrypt | Polecenie | Opis |
 |--------|---------|-------------|
-| **dev** | `npm run dev` | Starts the development server with hot-reload |
-| **build** | `npm run build` | Builds the application for production |
-| **preview** | `npm run preview` | Previews the production build locally |
-| **astro** | `npm run astro` | Runs Astro CLI commands directly |
+| **dev** | `npm run dev` | Uruchamia serwer deweloperski z hot-reload |
+| **build** | `npm run build` | Buduje aplikację dla produkcji |
+| **preview** | `npm run preview` | Podgląd builda produkcyjnego lokalnie |
+| **astro** | `npm run astro` | Uruchamia komendy Astro CLI |
 
-### Examples
+### Przykłady
 
 ```bash
-# Start development server
+# Uruchomienie serwera deweloperskiego
 npm run dev
 
-# Build for production
+# Build dla produkcji
 npm run build
 
-# Preview production build
+# Podgląd builda produkcyjnego
 npm run preview
 
-# Run Astro CLI commands
+# Komendy Astro CLI
 npm run astro -- --help
 ```
 
-## Testing
+## Testy
 
-Jednostkowe (Vitest) i E2E (Playwright). Patrz `magenta-mass/TESTING_GUIDE.md`.
+Testy jednostkowe (Vitest) i E2E (Playwright). Szczegóły: `magenta-mass/TESTING_GUIDE.md`.
 
-### Testing Strategy
+### Strategia testów
 
-#### Unit Tests
-- **Framework**: Vitest with jsdom environment for React components
-- **Coverage**: c8 provider for fast coverage reporting (>90% threshold)
-- **Scope**: Business logic, validation functions, services, and utilities
-- **Key Areas**:
-  - Authentication and authorization logic
-  - Data validation and sanitization
-  - Business services (AuthService, MeldunkiService)
-  - Utility functions and helpers
+#### Testy jednostkowe
+- **Framework**: Vitest z środowiskiem jsdom dla komponentów React
+- **Pokrycie**: c8 provider (>90% próg)
+- **Zakres**: Logika biznesowa, funkcje walidacji, serwisy, narzędzia
+- **Obszary**:
+  - Logika autoryzacji i autentykacji
+  - Walidacja i sanityzacja danych
+  - Serwisy biznesowe (AuthService, MeldunkiService)
+  - Funkcje pomocnicze
 
-#### Integration Tests
-- **Framework**: Vitest with MSW (Mock Service Worker)
-- **Scope**: API endpoints, database operations, external service integrations
-- **Key Areas**:
-  - Supabase authentication and database operations
-  - OpenRouter.ai AI analysis integration
-  - API endpoint testing with realistic data
-  - Row Level Security (RLS) policies
+#### Testy integracyjne
+- **Framework**: Vitest z MSW (Mock Service Worker)
+- **Zakres**: Endpointy API, operacje bazodanowe, integracje zewnętrzne
+- **Obszary**:
+  - Autoryzacja Supabase i operacje bazodanowe
+  - Integracja analizy AI OpenRouter.ai
+  - Testowanie endpointów API z realistycznymi danymi
+  - Polityki Row Level Security (RLS)
 
-#### Component Tests
-- **Framework**: React Testing Library with user-event
-- **Scope**: Interactive React components and user interactions
-- **Key Areas**:
-  - Form components with validation
-  - ClientSelect and SimpleSelect components
-  - User interaction flows
-  - State management and UI updates
+#### Testy komponentów
+- **Framework**: React Testing Library z user-event
+- **Zakres**: Komponenty React i interakcje użytkownika
+- **Obszary**:
+  - Komponenty formularzy z walidacją
+  - Komponenty ClientSelect i SimpleSelect
+  - Przepływy interakcji użytkownika
+  - Zarządzanie stanem i aktualizacje UI
 
-#### End-to-End Tests
-- **Framework**: Playwright with multi-browser support
-- **Scope**: Complete user workflows across different browsers
-- **Key Areas**:
-  - User registration and authentication flows
-  - Meldunki creation, editing, and deletion
-  - Cross-browser compatibility (Chrome, Firefox, Safari, Edge)
-  - Mobile responsiveness testing
+#### Testy end-to-end
+- **Framework**: Playwright z obsługą wielu przeglądarek
+- **Zakres**: Przepływy użytkownika w różnych przeglądarkach
+- **Obszary**:
+  - Rejestracja i autoryzacja użytkowników
+  - Tworzenie, edycja i usuwanie meldunków
+  - Kompatybilność między przeglądarkami (Chrome, Firefox, Safari, Edge)
+  - Testy responsywności mobilnej
 
-#### Accessibility Tests
-- **Framework**: @axe-core/playwright integration
-- **Scope**: WCAG 2.1 AA compliance across all pages
-- **Key Areas**:
-  - Keyboard navigation
-  - Screen reader compatibility
-  - Color contrast and visual accessibility
-  - Form accessibility and error handling
+#### Testy dostępności
+- **Framework**: @axe-core/playwright
+- **Zakres**: Zgodność z WCAG 2.1 AA
+- **Obszary**:
+  - Nawigacja klawiaturą
+  - Kompatybilność z czytnikami ekranu
+  - Kontrast kolorów i dostępność wizualna
+  - Dostępność formularzy i obsługa błędów
 
-#### Performance Tests
-- **Framework**: lighthouse-ci for automated performance monitoring
-- **Scope**: Core Web Vitals and performance metrics
-- **Key Areas**:
-  - Page load times and bundle size optimization
-  - Lighthouse performance scores (>90 target)
-  - Bundle size monitoring (<500KB gzipped)
+#### Testy wydajności
+- **Framework**: lighthouse-ci
+- **Zakres**: Core Web Vitals i metryki wydajności
+- **Obszary**:
+  - Czasy ładowania stron i optymalizacja rozmiaru bundle
+  - Wyniki Lighthouse (>90 punktów)
+  - Monitorowanie rozmiaru bundle (<500KB gzipped)
 
-### Available Test Scripts
+### Dostępne skrypty testów
 
-| Script | Command | Description |
+| Skrypt | Polecenie | Opis |
 |--------|---------|-------------|
-| **test** | `npm run test` | Run unit tests in watch mode |
-| **test:run** | `npm run test:run` | Run unit tests once |
-| **test:ui** | `npm run test:ui` | Open Vitest UI for interactive testing |
-| **test:coverage** | `npm run test:coverage` | Run tests with coverage report |
-| **test:watch** | `npm run test:watch` | Run tests in watch mode |
-| **test:e2e** | `npm run test:e2e` | Run end-to-end tests |
-| **test:e2e:ui** | `npm run test:e2e:ui` | Open Playwright UI |
-| **test:e2e:debug** | `npm run test:e2e:debug` | Debug E2E tests |
-| **test:accessibility** | `npm run test:accessibility` | Run accessibility tests |
-| **test:performance** | `npm run test:performance` | Run performance tests |
-| **test:all** | `npm run test:all` | Run all test suites |
+| **test** | `npm run test` | Uruchamia testy jednostkowe w trybie watch |
+| **test:run** | `npm run test:run` | Uruchamia testy jednostkowe raz |
+| **test:ui** | `npm run test:ui` | Otwiera Vitest UI |
+| **test:coverage** | `npm run test:coverage` | Uruchamia testy z raportem pokrycia |
+| **test:watch** | `npm run test:watch` | Uruchamia testy w trybie watch |
+| **test:e2e** | `npm run test:e2e` | Uruchamia testy end-to-end |
+| **test:e2e:ui** | `npm run test:e2e:ui` | Otwiera Playwright UI |
+| **test:e2e:debug** | `npm run test:e2e:debug` | Debug testów E2E |
+| **test:accessibility** | `npm run test:accessibility` | Uruchamia testy dostępności |
+| **test:performance** | `npm run test:performance` | Uruchamia testy wydajności |
+| **test:all** | `npm run test:all` | Uruchamia wszystkie testy |
 
-### Test Examples
+### Przykłady testów
 
 ```bash
-# Run all tests with coverage
+# Uruchomienie wszystkich testów z pokryciem
 npm run test:coverage
 
-# Run E2E tests in debug mode
+# Uruchomienie testów E2E w trybie debug
 npm run test:e2e:debug
 
-# Run accessibility tests
+# Uruchomienie testów dostępności
 npm run test:accessibility
 
-# Run performance tests
+# Uruchomienie testów wydajności
 npm run test:performance
 ```
 
-### Quality Gates
+### Standardy jakości
 
-The project enforces strict quality standards:
+Projekt wymusza standardy jakości:
 
-- **Coverage Threshold**: >90% (branches, functions, lines, statements)
-- **Performance Score**: >90 (Lighthouse)
-- **Accessibility**: 100% WCAG 2.1 AA compliance
-- **Security**: No high-severity vulnerabilities (CVSS < 7.0)
-- **Bundle Size**: <500KB (gzipped)
-- **Test Execution**: All tests must pass before deployment
+- **Próg pokrycia**: >90% (branches, functions, lines, statements)
+- **Wynik wydajności**: >90 (Lighthouse)
+- **Dostępność**: 100% zgodność z WCAG 2.1 AA
+- **Bezpieczeństwo**: Brak podatności wysokiego ryzyka (CVSS < 7.0)
+- **Rozmiar bundle**: <500KB (gzipped)
+- **Wykonanie testów**: Wszystkie testy muszą przejść przed deploymentem
 
-## Project Scope
+## Zakres projektu
 
-### MVP Features ✅
+### Funkcjonalności MVP
 
-The Minimum Viable Product (MVP) includes the following features:
+Minimum Viable Product (MVP) obejmuje następujące funkcjonalności:
 
-#### 1. Authorization & Security
-- ✅ User registration with email and password
-- ✅ Secure login and logout functionality
-- ✅ User session persistence with JWT tokens (7-day validity)
-- ✅ Password hashing using bcrypt
-- ✅ Protected routes accessible only to authenticated users
-- ✅ Password reset functionality
-- ✅ Rate limiting for API protection
-- ✅ Row Level Security (RLS) in database
+#### 1. Autoryzacja i bezpieczeństwo
+- Rejestracja użytkowników przez email i hasło
+- Logowanie i wylogowanie
+- Sesje użytkowników z tokenami JWT (ważność 7 dni)
+- Hashowanie haseł przez bcrypt
+- Chronione trasy dostępne tylko dla zalogowanych użytkowników
+- Funkcjonalność resetowania hasła
+- Rate limiting dla ochrony API
+- Row Level Security (RLS) w bazie danych
 
-#### 2. CRUD Operations for Reports (Meldunki)
-Każdy meldunek zawiera m.in.:
+#### 2. Operacje CRUD dla meldunków
+Każdy meldunek zawiera:
 - nazwę zdarzenia, datę
 - opis i lokalizację (adres)
 - siły i środki, dowódca, kierowca
-- status i typ (wyliczane przez logikę/AI)
+- status i typ (określane przez logikę/AI)
 
-Operations:
-- ✅ **Create**: Add new action reports
-- ✅ **Read**: View list and details of all reports (with filtering, sorting, pagination)
-- ✅ **Update**: Edit existing reports
-- ✅ **Delete**: Remove reports
+Operacje:
+- **Create**: Dodawanie nowych meldunków
+- **Read**: Przeglądanie listy i szczegółów meldunków (z filtrowaniem, sortowaniem, paginacją)
+- **Update**: Edycja istniejących meldunków
+- **Delete**: Usuwanie meldunków
 
-#### 3. AI-Powered Business Logic
-- ✅ Automatyczna kategoryzacja zdarzeń (AI) - Pożar, Miejscowe Zagrożenie, Wypadek Drogowy, Fałszywy Alarm, Inne
-- ✅ Generowanie `summary` (krótki opis) przez AI
-- ✅ Integracja z OpenRouter.ai (GPT-4, Claude, Gemini)
-- ✅ Inteligentna analiza opisu zdarzenia
+#### 3. Logika biznesowa z AI
+- Automatyczna kategoryzacja zdarzeń (AI) - Pożar, Miejscowe Zagrożenie, Wypadek Drogowy, Fałszywy Alarm, Inne
+- Generowanie podsumowania (`summary`) przez AI
+- Integracja z OpenRouter.ai (GPT-4, Claude, Gemini)
+- Analiza opisu zdarzenia
 
-#### 4. Administrator Panel ⭐
-- ✅ Panel administracyjny dla użytkowników z rolą `admin`
-- ✅ Zarządzanie użytkownikami jednostki OSP
-- ✅ Przegląd wszystkich meldunków jednostki
-- ✅ Edycja i usuwanie meldunków w jednostce
-- ✅ Statystyki jednostki (liczba użytkowników, meldunków, aktywność)
-- ✅ Zarządzanie rolami użytkowników (awansowanie/degradowanie)
-- ✅ Lista członków z danymi kontaktowymi
+#### 4. Panel administracyjny
+- Panel administracyjny dla użytkowników z rolą `admin`
+- Zarządzanie użytkownikami jednostki OSP
+- Przegląd wszystkich meldunków jednostki
+- Edycja i usuwanie meldunków w jednostce
+- Statystyki jednostki (liczba użytkowników, meldunków, aktywność)
+- Zarządzanie rolami użytkowników (awansowanie/degradowanie)
+- Lista członków z danymi kontaktowymi
 
-📖 **Instrukcja:** [ADMIN_SETUP.md](./ADMIN_SETUP.md)
+Instrukcja: [ADMIN_SETUP.md](./ADMIN_SETUP.md)
 
-#### 5. Testing
-- ✅ Unit tests for text analysis functions
-- ✅ End-to-end tests for report submission (Playwright)
-- ✅ Component tests (React Testing Library)
-- ✅ Integration tests with MSW
-- ✅ Accessibility tests (WCAG 2.1 AA)
-- ✅ Performance tests (Lighthouse CI)
+#### 5. Testy
+- Testy jednostkowe funkcji analizy tekstu
+- Testy end-to-end dla wysyłania meldunków (Playwright)
+- Testy komponentów (React Testing Library)
+- Testy integracyjne z MSW
+- Testy dostępności (WCAG 2.1 AA)
+- Testy wydajności (Lighthouse CI)
 
 #### 6. CI/CD
-- ✅ Automatic test execution on repository changes
-- ✅ Coverage reporting (>90% threshold)
-- ✅ Automated deployment pipeline (GitHub Actions)
+- Automatyczne uruchamianie testów przy zmianach w repo
+- Raportowanie pokrycia (>90% próg)
+- Automatyczny pipeline deployment (GitHub Actions)
 
-### Out of Scope (for MVP) 🚫
+### Poza zakresem MVP
 
-The following features are planned for future releases:
+Następujące funkcjonalności są planowane w przyszłości:
 
-- ~~Advanced user roles and permissions system~~ ✅ **IMPLEMENTED** - Basic admin role system
-- SMS notifications
-- PDF report generation
-- Monthly statistics and charts (basic stats ✅ implemented)
-- Map integrations
-- Email notification system
-- Multi-unit administration dashboard
-- Advanced audit logging
-- Bulk operations for meldunki
+- ~~Zaawansowany system ról i uprawnień~~ ZREALIZOWANE - Podstawowy system ról admin
+- Powiadomienia SMS
+- Generowanie raportów PDF
+- Statystyki miesięczne i wykresy (podstawowe statystyki zrealizowane)
+- Integracje z mapami
+- System powiadomień e-mail
+- Dashboard administracyjny wielu jednostek
+- Zaawansowane logowanie audytu
+- Operacje masowe na meldunki
 
-### Future Enhancements 🚀
+### Planowane rozszerzenia
 
-Planned features after MVP completion:
+Funkcjonalności planowane po zakończeniu MVP:
 
-- 📄 PDF report generation
-- 📊 Monthly charts and statistics dashboard
-- 🗺️ Integration with mapping services
-- 📧 Email and SMS notification system
-- 👥 Advanced user role management
-- 🏢 Multi-unit support
+- Generowanie raportów PDF
+- Dashboard statystyk miesięcznych i wykresów
+- Integracja z serwisami mapowymi
+- System powiadomień e-mail i SMS
+- Zaawansowane zarządzanie rolami użytkowników
+- Wsparcie dla wielu jednostek
 
-## Project Status
+## Status projektu
 
-**Current Version:** 0.0.1 (MVP in Development)
+**Aktualna wersja:** 0.0.1 (MVP w rozwoju)
 
-**Development Stage:** Active Development
+**Etap rozwoju:** Aktywny rozwój
 
-### Success Criteria
+### Kryteria sukcesu
 
-The MVP will be considered complete when:
+MVP będzie uznane za kompletne gdy:
 
-- ✅ Users can create accounts using email and password
-- ✅ Users can log in and log out successfully
-- ✅ System maintains user sessions using JWT
-- ✅ Users can add, edit, and delete reports
-- ✅ Analysis function works correctly
-- ✅ All tests pass successfully
-- ✅ CI/CD automatically runs tests on code changes
+- Użytkownicy mogą tworzyć konta przez email i hasło
+- Użytkownicy mogą się logować i wylogowywać
+- System utrzymuje sesje użytkowników przez JWT
+- Użytkownicy mogą dodawać, edytować i usuwać meldunki
+- Funkcja analizy działa poprawnie
+- Wszystkie testy przechodzą
+- CI/CD automatycznie uruchamia testy przy zmianach
 
 ### Roadmap
 
-- Faza 1: Auth i CRUD
+- Faza 1: Autoryzacja i CRUD
 - Faza 2: Testy i CI/CD
 - Faza 3: Produkcja (Render/Nginx)
 - Faza 4: Rozszerzenia po-MVP
 
-## License
+## Licencja
 
-This project is currently unlicensed. License information will be added in future releases.
+Projekt obecnie nie ma przypisanej licencji. Informacje o licencji zostaną dodane w przyszłych wersjach.
 
 ---
 
-**Note:** This is an active development project. Features and documentation are subject to change as the application evolves.
+**Uwaga:** Projekt jest w aktywnej fazie rozwoju. Funkcjonalności i dokumentacja mogą ulegać zmianom w miarę rozwoju aplikacji.
 
-For questions, issues, or contributions, please refer to the project repository or contact the development team.
-
-# Force deploy
+W przypadku pytań, problemów lub chęci współpracy, sprawdź repozytorium projektu lub skontaktuj się z zespołem deweloperskim.

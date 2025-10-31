@@ -1,8 +1,8 @@
 # FireLog App (Magenta Mass)
 
-Nowoczesna aplikacja webowa do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej (OSP), zbudowana w **Astro 5 + TypeScript**.
+Aplikacja webowa do rejestrowania i zarządzania meldunkami dla jednostek Ochotniczej Straży Pożarnej (OSP), zbudowana w Astro 5 + TypeScript.
 
-## 🚀 Szybki start
+## Szybki start
 
 ### Instalacja i uruchomienie
 
@@ -20,7 +20,7 @@ npm run build
 npm run preview
 ```
 
-## 📋 Konfiguracja
+## Konfiguracja
 
 ### Zmienne środowiskowe
 
@@ -33,7 +33,7 @@ SUPABASE_SERVICE_ROLE_KEY=twoj_service_role_key  # Opcjonalnie, dla skryptów ad
 OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 ```
 
-## 🎯 Kluczowe funkcje
+## Kluczowe funkcje
 
 ### Strony i routing
 
@@ -45,10 +45,10 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 - **`/dashboard`** - Panel użytkownika z zakładkami:
   - **Profil** - Wyświetlanie i edycja danych osobowych, zmiana hasła
   - **Nowy Meldunek** - Formularz tworzenia meldunku z automatyczną analizą AI
-  - **Admin** ⭐ - Panel administracyjny (tylko dla administratorów)
-- **`/meldunki`** - Lista wszystkich meldunków z zaawansowanym filtrowaniem i sortowaniem
+  - **Admin** - Panel administracyjny (tylko dla administratorów)
+- **`/meldunki`** - Lista wszystkich meldunków z filtrowaniem i sortowaniem
 
-### 🔐 Autoryzacja i bezpieczeństwo
+### Autoryzacja i bezpieczeństwo
 
 #### Rejestracja i aktywacja konta
 - **Formularz rejestracji** - Wymagane pola: email, hasło, wybór jednostki OSP, opcjonalnie imię i nazwisko
@@ -71,7 +71,7 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 - **Rate limiting** - Ochrona przed nadużyciami (max 3 żądania na godzinę)
 - **Reset przez administratora** - Admin może wysłać e-mail resetujący dla dowolnego użytkownika
 
-### 👤 Role użytkowników
+### Role użytkowników
 
 #### Rola: Member (Strażak)
 - **Domyślna rola** - Wszyscy nowo zarejestrowani użytkownicy
@@ -87,40 +87,35 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 - **Pełne uprawnienia** - Dostęp do wszystkich funkcji aplikacji
 - **Uprawnienia administracyjne:**
   - ✅ Zarządzanie użytkownikami jednostki (przeglądanie, usuwanie, resetowanie haseł)
-  - ✅ Zmiana ról użytkowników (awansowanie/degradowanie)
   - ✅ Przeglądanie wszystkich meldunków jednostki
   - ✅ Edycja i usuwanie dowolnego meldunku w jednostce
-  - ✅ Dostęp do szczegółowych statystyk jednostki
-- **Ograniczenia bezpieczeństwa:**
-  - Nie może usunąć własnego konta
-  - Może zarządzać tylko użytkownikami ze swojej jednostki OSP
+  - ✅ Dostęp do statystyk jednostki
 
-### 👥 Panel administracyjny ⭐
+
+### Panel administracyjny
 
 **Dostęp:** Tylko dla użytkowników z rolą `admin` (pojawia się jako trzecia zakładka w dashboardzie)
 
 #### Zarządzanie użytkownikami jednostki
-- **Lista użytkowników** - Przegląd wszystkich członków jednostki (imię, nazwisko, email, rola, data rejestracji)
-- **Usuwanie użytkowników** - Trwałe usunięcie konta z systemu (z wyjątkiem własnego konta)
-- **Reset hasła użytkownika** - Wysyłka e-maila resetującego hasło dla wybranego użytkownika
-- **Zmiana ról** - Awansowanie/degradowanie użytkowników (member ↔ admin)
+- Lista użytkowników - przegląd wszystkich członków jednostki (imię, nazwisko, email, rola, data rejestracji)
+- Usuwanie użytkowników - trwałe usunięcie konta z systemu (z wyjątkiem własnego konta)
+- Reset hasła użytkownika - wysyłka e-maila resetującego hasło dla wybranego użytkownika
 
 #### Zarządzanie meldunkami jednostki
-- **Przegląd wszystkich meldunków** - Pełny dostęp do wszystkich meldunków w jednostce
-- **Filtrowanie po użytkownikach** - Sprawdzenie aktywności poszczególnych członków
-- **Edycja meldunków** - Modyfikacja dowolnego meldunku w jednostce
-- **Usuwanie meldunków** - Możliwość usunięcia dowolnego meldunku
+- Przegląd wszystkich meldunków - dostęp do wszystkich meldunków w jednostce
+- Edycja meldunków - modyfikacja dowolnego meldunku w jednostce
+- Usuwanie meldunków - możliwość usunięcia dowolnego meldunku
 
 #### Statystyki jednostki
-- **Liczba użytkowników** - Całkowita liczba członków jednostki
-- **Liczba meldunków** - Wszystkie meldunki w systemie jednostki
-- **Aktywni użytkownicy** - Liczba użytkowników z aktywnością w ostatnich 30 dniach
-- **Meldunki w bieżącym miesiącu** - Statystyki miesięczne
-- **Najaktywniejszy użytkownik** - Ranking aktywności (najwięcej meldunków)
+- Liczba użytkowników - całkowita liczba członków jednostki
+- Liczba meldunków - wszystkie meldunki w systemie jednostki
+- Aktywni użytkownicy - liczba użytkowników z aktywnością w ostatnich 30 dniach
+- Meldunki w bieżącym miesiącu - statystyki miesięczne
+- Najaktywniejszy użytkownik - ranking aktywności (najwięcej meldunków)
 
-📖 **Jak utworzyć konto administratora:** Zobacz [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
+Jak utworzyć konto administratora: [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
 
-### API Endpoints
+### Endpointy API
 
 #### Autoryzacja
 - `POST /api/auth/register` - Rejestracja użytkownika (wysyłka e-maila aktywacyjnego)
@@ -174,7 +169,7 @@ src/
     └── design-system.css # Design system
 ```
 
-## 🎨 Styl i design
+## Styl i design
 
 - **Primary color:** Czerwony (#dc2626) - Kolorystyka OSP
 - **Framework:** Tailwind CSS 4
@@ -182,7 +177,7 @@ src/
 - **Ikony:** Material Icons
 - **Responsywność:** Mobile-first approach
 
-## 🧪 Testy
+## Testy
 
 Szczegółowe informacje o testach: [TESTING_GUIDE.md](./TESTING_GUIDE.md)
 
@@ -197,7 +192,7 @@ npm run test:e2e
 npm run test:coverage
 ```
 
-## 📚 Dokumentacja
+## Dokumentacja
 
 - **Główny README:** [../README.md](../README.md) - Pełny opis funkcjonalności aplikacji
 - **Instrukcja Admin:** [../ADMIN_SETUP.md](../ADMIN_SETUP.md) - Jak utworzyć konto administratora
