@@ -145,6 +145,14 @@ import { Alert, AlertDescription } from '../components/ui/alert';
     messageDiv.style.display = 'none';
   }
 
+  // Check for password reset success message
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('passwordReset') === 'success') {
+    showMessage('✅ Hasło zostało pomyślnie zmienione! Możesz się teraz zalogować używając nowego hasła.', false);
+    // Remove query parameter from URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideMessage();
