@@ -35,18 +35,57 @@ export const GET: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ success: false, error: { code: 'FORBIDDEN', message: 'Brak uprawnień administratora' } }), { status: 403, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // fetch department users from profiles with fire department info
-    const { data: profiles, error: deptProfilesError } = await supabase
-      .from('profiles')
-      .select('id, first_name, last_name, role, created_at, fire_departments (name)')
-      .eq('fire_department_id', adminProfile.fire_department_id)
-      .order('created_at', { ascending: false });
+    // Log admin's fire_department_id for debugging
+    console.log('Admin fire_department_id:', adminProfile.fire_department_id);
 
-    if (deptProfilesError) {
-      return new Response(JSON.stringify({ success: false, error: { code: 'DB_ERROR', message: 'Failed to fetch department users' } }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    // Check if admin has a fire_department_id assigned
+    if (!adminProfile.fire_department_id) {
+      console.warn('Admin does not have fire_department_id assigned');
+      return new Response(JSON.stringify({ 
+        success: false, 
+        error: { 
+          code: 'NO_DEPARTMENT', 
+          message: 'Administrator nie ma przypisanej jednostki OSP. Skontaktuj się z administratorem systemu.' 
+        } 
+      }), { status: 400, headers: { 'Content-Type': 'application/json' } });
     }
 
+    // fetch department users from profiles with fire department info
+    // Run both queries in parallel for better performance
+    const [deptResult, otherResult] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
+        .eq('fire_department_id', adminProfile.fire_department_id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('profiles')
+        .select('id, first_name, last_name, role, created_at, fire_department_id, fire_departments (name)')
+        .or(`fire_department_id.is.null,fire_department_id.neq.${adminProfile.fire_department_id}`)
+        .order('created_at', { ascending: false })
+        .limit(50) // Limit to prevent too many results
+    ]);
+
+    const { data: deptProfiles, error: deptProfilesError } = deptResult;
+    const { data: otherProfiles, error: otherProfilesError } = otherResult;
+
+    if (deptProfilesError) {
+      console.error('Error fetching department users:', deptProfilesError);
+      return new Response(JSON.stringify({ success: false, error: { code: 'DB_ERROR', message: 'Failed to fetch department users', details: deptProfilesError.message } }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    // Log warning if there's error fetching other profiles, but continue anyway
+    if (otherProfilesError) {
+      console.warn('Error fetching other users (non-critical):', otherProfilesError);
+    }
+
+    // Combine profiles
+    const profiles = [...(deptProfiles || []), ...(otherProfiles || [])];
+
+    console.log(`Found ${deptProfiles?.length || 0} users in admin's department, ${otherProfiles?.length || 0} users from other departments or without department`);
+
     const ids = new Set((profiles || []).map(p => p.id));
+    const adminDeptIds = new Set((deptProfiles || []).map(p => p.id));
     const result = (profiles || []).map(p => ({ 
       id: p.id, 
       first_name: p.first_name, 
@@ -54,23 +93,40 @@ export const GET: APIRoute = async ({ request }) => {
       role: p.role, 
       created_at: p.created_at, 
       fire_department_name: (p.fire_departments as any)?.name || null,
+      fire_department_id: p.fire_department_id,
+      is_in_admin_department: adminDeptIds.has(p.id),
       email: null as string | null 
     }));
 
     // enrich with email via admin API if possible
-    if (serviceRoleKey) {
+    // Only for users in admin's department to improve performance
+    if (serviceRoleKey && deptProfiles && deptProfiles.length > 0) {
       try {
         const adminClient = createClient<Database>(supabaseUrl, serviceRoleKey);
-        const { data: usersPage } = await adminClient.auth.admin.listUsers();
+        const deptUserIds = new Set((deptProfiles || []).map(p => p.id));
+        
+        // Fetch users in batches to avoid timeout
+        const { data: usersPage } = await adminClient.auth.admin.listUsers({
+          page: 1,
+          perPage: 1000 // Limit to avoid too many requests
+        });
+        
         const emailById = new Map<string, string>();
         for (const au of usersPage.users || []) {
-          if (ids.has(au.id) && au.email) emailById.set(au.id, au.email);
+          if (deptUserIds.has(au.id) && au.email) {
+            emailById.set(au.id, au.email);
+          }
         }
+        
+        // Only set emails for department users
         for (const row of result) {
-          row.email = emailById.get(row.id) || null;
+          if (row.is_in_admin_department) {
+            row.email = emailById.get(row.id) || null;
+          }
         }
       } catch (e) {
-        // ignore, emails will be null
+        console.warn('Could not fetch emails (non-critical):', e);
+        // ignore, emails will be null - this is not critical for functionality
       }
     }
 
