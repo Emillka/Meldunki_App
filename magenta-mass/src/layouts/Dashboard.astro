@@ -1024,47 +1024,69 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
           <div className="text-xs text-muted-foreground">
             ${new Date(user.created_at).toLocaleDateString('pl-PL')}
           </div>
-          ${user.role !== 'admin' ? `
-            <Button variant="outline" size="sm" onclick="changeUserRole('${user.id}', '${user.role}')">
-              <span class="material-icons text-sm mr-1">admin_panel_settings</span>
-              ${user.role === 'member' ? 'Awansuj' : 'Degraduj'}
+          ${user.id !== (userProfile?.user?.id || '') ? `
+            <Button variant="destructive" size="sm" onclick="deleteUserAccount('${user.id}')">
+              <span class="material-icons text-sm mr-1">delete</span>
+              Usuń
+            </Button>
+            <Button variant="outline" size="sm" onclick="resetUserPassword('${user.id}')">
+              <span class="material-icons text-sm mr-1">lock_reset</span>
+              Zresetuj hasło
             </Button>
           ` : ''}
         </div>
       </div>
     `).join('');
   }
-  
-  async function changeUserRole(userId, currentRole) {
-    const newRole = currentRole === 'member' ? 'admin' : 'member';
-    const action = newRole === 'admin' ? 'awansować' : 'degradować';
-    
-    if (!confirm(`Czy na pewno chcesz ${action} tego użytkownika?`)) return;
-    
+
+  async function deleteUserAccount(userId) {
+    if (!confirm('Czy na pewno chcesz usunąć tego użytkownika? Tego nie można cofnąć.')) return;
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`/api/admin/users/${userId}/role`, {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ role: newRole })
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-      
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          alert(`Rola użytkownika została zmieniona na ${newRole === 'admin' ? 'Administrator' : 'Strażak administrator'}`);
+          alert('Użytkownik został usunięty.');
           loadDepartmentUsers();
+        } else {
+          alert(data.error?.message || 'Nie udało się usunąć użytkownika');
         }
       } else {
         const error = await response.json();
-        alert(`Błąd: ${error.error.message}`);
+        alert(`Błąd: ${error.error?.message || 'Nieznany błąd'}`);
       }
-    } catch (error) {
-      console.error('Error changing user role:', error);
-      alert('Błąd podczas zmiany roli użytkownika');
+    } catch (err) {
+      console.error('Delete user error:', err);
+      alert('Wystąpił błąd podczas usuwania użytkownika');
+    }
+  }
+
+  async function resetUserPassword(userId) {
+    if (!confirm('Wysłać temu użytkownikowi mail z resetem hasła?')) return;
+    try {
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          alert('Wysłano e-mail z instrukcją resetu hasła.');
+        } else {
+          alert(data.error?.message || 'Nie udało się wysłać resetu hasła');
+        }
+      } else {
+        const error = await response.json();
+        alert(`Błąd: ${error.error?.message || 'Nieznany błąd'}`);
+      }
+    } catch (err) {
+      console.error('Reset password error:', err);
+      alert('Wystąpił błąd podczas wysyłania resetu hasła');
     }
   }
   
