@@ -366,17 +366,38 @@ export class AuthService {
         process.env.RENDER_EXTERNAL_URL ||
         'https://meldunki-app.onrender.com';
 
+      const redirectUrl = `${siteUrl}/reset-password`;
+      
+      console.log('Requesting password reset for email:', email);
+      console.log('Redirect URL:', redirectUrl);
+      console.log('Site URL:', siteUrl);
+
+      // Use the same configuration as signUp for consistency
+      // Supabase may require emailRedirectTo to be in the same format
       const { data, error } = await this.supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${siteUrl}/reset-password`,
+        redirectTo: redirectUrl,
+        // Add captcha token if available (for production)
+        // captchaToken: captchaToken
       });
 
       if (error) {
-        console.error('Password reset request error:', error);
+        console.error('Password reset request error:', {
+          message: error.message,
+          status: error.status,
+          name: error.name,
+          email: email,
+          redirectUrl: redirectUrl
+        });
         return {
           data: null,
           error: error
         };
       }
+
+      console.log('Password reset email sent successfully:', {
+        email: email,
+        data: data
+      });
 
       return {
         data: {
@@ -385,7 +406,11 @@ export class AuthService {
         error: null
       };
     } catch (error) {
-      console.error('Unexpected error in requestPasswordReset:', error);
+      console.error('Unexpected error in requestPasswordReset:', {
+        error: error,
+        email: email,
+        stack: error instanceof Error ? error.stack : undefined
+      });
       return {
         data: null,
         error: error instanceof Error ? error : new Error('Unknown error')

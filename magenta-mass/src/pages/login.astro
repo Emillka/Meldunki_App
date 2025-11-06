@@ -152,6 +152,13 @@ import { Alert, AlertDescription } from '../components/ui/alert';
     // Remove query parameter from URL
     window.history.replaceState({}, '', window.location.pathname);
   }
+  
+  // Check for email verification required message
+  if (urlParams.get('emailVerification') === 'required') {
+    showMessage('📧 Sprawdź swoją skrzynkę pocztową i kliknij link aktywacyjny w emailu, aby potwierdzić konto. Po potwierdzeniu będziesz mógł się zalogować.', false);
+    // Remove query parameter from URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();

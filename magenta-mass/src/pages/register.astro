@@ -224,20 +224,21 @@ import { Alert, AlertDescription } from '../components/ui/alert';
       const result = await response.json();
 
       if (result.success) {
-        // Check if email confirmation is required
-        if (result.data.message && result.data.message.includes('skrzynkę pocztową')) {
+        // Check if session exists (email confirmation may be required)
+        if (!result.data.session) {
           // ✅ Success but email confirmation required
-          showMessage('✅ Rejestracja udana! Sprawdź swoją skrzynkę pocztową i kliknij link aktywacyjny. Po potwierdzeniu emaila będziesz mógł się zalogować.', false);
+          showMessage('✅ Rejestracja udana! Sprawdź swoją skrzynkę pocztową i kliknij link aktywacyjny w emailu. Po potwierdzeniu emaila będziesz mógł się zalogować.', false);
           
           // Don't redirect immediately, let user know to check email
           setTimeout(() => {
-            window.location.href = '/login';
-          }, 6000);
+            window.location.href = '/login?emailVerification=required';
+          }, 8000);
           return;
         }
         
-        // ✅ Success with immediate session!
-        showMessage('✅ Rejestracja udana! Przekierowuję...', false);
+        // If session exists, user is already verified (rare case)
+        // But still show message about email verification for consistency
+        showMessage('✅ Rejestracja udana! Sprawdź swoją skrzynkę pocztową - otrzymałeś email z linkiem aktywacyjnym. Po potwierdzeniu emaila będziesz mógł w pełni korzystać z konta.', false);
         
         // Store session directly in localStorage (avoid TokenManager issues)
         localStorage.setItem('access_token', result.data.session.access_token);
@@ -250,10 +251,10 @@ import { Alert, AlertDescription } from '../components/ui/alert';
         console.log('Token:', result.data.session.access_token.substring(0, 20) + '...');
         console.log('Session saved to localStorage');
 
-        // Redirect after 2 seconds
+        // Redirect after 3 seconds
         setTimeout(() => {
-          window.location.href = '/';
-        }, 2000);
+          window.location.href = '/login?emailVerification=required';
+        }, 3000);
 
       } else {
         // ❌ Error from API

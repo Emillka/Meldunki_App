@@ -68,7 +68,20 @@ export const POST: APIRoute = async ({ request }) => {
     const { data, error } = await authService.requestPasswordReset(sanitizedEmail);
     
     if (error) {
+      // Log szczegółowy błąd dla debugowania
+      console.error('Password reset error details:', {
+        message: error.message,
+        email: sanitizedEmail,
+        error: error
+      });
+      
+      // Sprawdź czy to błąd konfiguracji SMTP
+      if (error.message?.includes('email') || error.message?.includes('SMTP') || error.message?.includes('mail')) {
+        console.error('⚠️ SMTP configuration issue detected. Check Supabase email settings.');
+      }
+      
       // Dla bezpieczeństwa zawsze zwracamy sukces (nie informujemy czy email istnieje)
+      // Ale logujemy błąd dla debugowania
       return successResponse(
         {
           message: 'Jeśli konto z tym adresem email istnieje, link resetowania hasła został wysłany.'
@@ -78,6 +91,7 @@ export const POST: APIRoute = async ({ request }) => {
     }
     
     // 5. Success response
+    console.log('Password reset email sent successfully for:', sanitizedEmail);
     return successResponse(
       data,
       'Link resetowania hasła został wysłany na podany adres email.'
