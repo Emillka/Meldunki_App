@@ -368,36 +368,91 @@ export class AuthService {
 
       const redirectUrl = `${siteUrl}/reset-password`;
       
-      console.log('Requesting password reset for email:', email);
+      console.log('=== Password Reset Request ===');
+      console.log('Email:', email);
       console.log('Redirect URL:', redirectUrl);
       console.log('Site URL:', siteUrl);
+      console.log('Using Supabase URL:', process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL);
+      
+      // Check if user exists first (optional, but helps with debugging)
+      // Note: Supabase will not send email if user doesn't exist, but won't return error
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+        
+        if (serviceRoleKey && supabaseUrl) {
+          const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
+          const { data: { users }, error: listError } = await adminSupabase.auth.admin.listUsers();
+          
+          if (!listError && users) {
+            const userExists = users.some(user => user.email?.toLowerCase() === email.toLowerCase());
+            console.log('User exists in database:', userExists);
+            if (!userExists) {
+              console.warn('⚠️ User with this email does not exist in database');
+            }
+          }
+        }
+      } catch (checkError) {
+        console.warn('Could not check if user exists:', checkError);
+        // Continue anyway - Supabase will handle it
+      }
+
+      // Try using anon key client for resetPasswordForEmail (may work better than service role)
+      // Some Supabase configurations require anon key for password reset
+      const supabaseUrl = process.env.PUBLIC_SUPABASE_URL || import.meta.env.PUBLIC_SUPABASE_URL;
+      const anonKey = process.env.PUBLIC_SUPABASE_ANON_KEY || import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+      
+      let resetClient = this.supabase;
+      
+      // Try with anon key if available (resetPasswordForEmail may require anon key)
+      if (anonKey && supabaseUrl) {
+        console.log('Trying resetPasswordForEmail with anon key client...');
+        const { createClient } = await import('@supabase/supabase-js');
+        resetClient = createClient(supabaseUrl, anonKey);
+      } else {
+        console.log('Using service role key client for resetPasswordForEmail...');
+      }
 
       // Use the same configuration as signUp for consistency
       // Supabase may require emailRedirectTo to be in the same format
-      const { data, error } = await this.supabase.auth.resetPasswordForEmail(email, {
+      console.log('Calling resetPasswordForEmail...');
+      const { data, error } = await resetClient.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,
         // Add captcha token if available (for production)
         // captchaToken: captchaToken
       });
 
       if (error) {
-        console.error('Password reset request error:', {
+        console.error('❌ Password reset request error:', {
           message: error.message,
           status: error.status,
           name: error.name,
           email: email,
-          redirectUrl: redirectUrl
+          redirectUrl: redirectUrl,
+          fullError: JSON.stringify(error, null, 2)
         });
+        
+        // Check for specific error types
+        if (error.message?.includes('rate limit') || error.message?.includes('too many')) {
+          console.error('⚠️ Rate limit exceeded for password reset');
+        }
+        if (error.message?.includes('email') || error.message?.includes('not found')) {
+          console.error('⚠️ Email not found or invalid');
+        }
+        
         return {
           data: null,
           error: error
         };
       }
 
-      console.log('Password reset email sent successfully:', {
+      console.log('✅ Password reset email sent successfully:', {
         email: email,
-        data: data
+        data: data,
+        redirectUrl: redirectUrl
       });
+      console.log('=== End Password Reset Request ===');
 
       return {
         data: {
@@ -406,10 +461,11 @@ export class AuthService {
         error: null
       };
     } catch (error) {
-      console.error('Unexpected error in requestPasswordReset:', {
+      console.error('❌ Unexpected error in requestPasswordReset:', {
         error: error,
         email: email,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
+        errorType: error instanceof Error ? error.constructor.name : typeof error
       });
       return {
         data: null,

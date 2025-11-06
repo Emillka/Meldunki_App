@@ -64,15 +64,21 @@ export const POST: APIRoute = async ({ request }) => {
     }
     
     // 4. Request password reset
+    console.log('=== Forgot Password API Call ===');
+    console.log('Email:', sanitizedEmail);
+    console.log('Client IP:', clientIp);
+    
     const authService = new AuthService();
     const { data, error } = await authService.requestPasswordReset(sanitizedEmail);
     
     if (error) {
       // Log szczegółowy błąd dla debugowania
-      console.error('Password reset error details:', {
+      console.error('❌ Password reset error in API endpoint:', {
         message: error.message,
         email: sanitizedEmail,
-        error: error
+        error: error,
+        errorName: error.name,
+        errorStack: error instanceof Error ? error.stack : undefined
       });
       
       // Sprawdź czy to błąd konfiguracji SMTP
@@ -80,8 +86,14 @@ export const POST: APIRoute = async ({ request }) => {
         console.error('⚠️ SMTP configuration issue detected. Check Supabase email settings.');
       }
       
+      // Sprawdź czy to problem z rate limiting
+      if (error.message?.includes('rate limit') || error.message?.includes('too many')) {
+        console.error('⚠️ Rate limit issue - user may have requested too many resets');
+      }
+      
       // Dla bezpieczeństwa zawsze zwracamy sukces (nie informujemy czy email istnieje)
       // Ale logujemy błąd dla debugowania
+      console.log('⚠️ Returning success message despite error (security best practice)');
       return successResponse(
         {
           message: 'Jeśli konto z tym adresem email istnieje, link resetowania hasła został wysłany.'
@@ -91,7 +103,8 @@ export const POST: APIRoute = async ({ request }) => {
     }
     
     // 5. Success response
-    console.log('Password reset email sent successfully for:', sanitizedEmail);
+    console.log('✅ Password reset email sent successfully for:', sanitizedEmail);
+    console.log('=== End Forgot Password API Call ===');
     return successResponse(
       data,
       'Link resetowania hasła został wysłany na podany adres email.'
