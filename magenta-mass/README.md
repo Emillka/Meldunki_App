@@ -86,12 +86,15 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
   - Brak możliwości zarządzania użytkownikami
 
 #### Rola: Admin (Administrator)
-- **Pełne uprawnienia** - Dostęp do wszystkich funkcji aplikacji
 - **Uprawnienia administracyjne:**
   - ✅ Zarządzanie użytkownikami jednostki (przeglądanie, usuwanie)
-  - ✅ Przeglądanie wszystkich meldunków jednostki
-  - ✅ Edycja i usuwanie dowolnego meldunku w jednostce
+  - ✅ Przeglądanie wszystkich meldunków swojej jednostki
+  - ✅ Usuwanie dowolnego meldunku w swojej jednostce
   - ✅ Dostęp do statystyk jednostki
+- **Ograniczenia:**
+  - ❌ Nie może resetować hasła innych użytkowników
+  - ❌ Nie może zmieniać ról użytkowników (awansowanie/degradowanie)
+  - ❌ Nie może edytować cudzych meldunków
 
 
 ### Panel administracyjny
@@ -101,11 +104,6 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 #### Zarządzanie użytkownikami jednostki
 - Lista użytkowników - przegląd wszystkich członków jednostki (imię, nazwisko, email, rola, data rejestracji)
 - Usuwanie użytkowników - trwałe usunięcie konta z systemu (z wyjątkiem własnego konta)
-
-#### Zarządzanie meldunkami jednostki
-- Przegląd wszystkich meldunków - dostęp do wszystkich meldunków w jednostce
-- Edycja meldunków - modyfikacja dowolnego meldunku w jednostce
-- Usuwanie meldunków - możliwość usunięcia dowolnego meldunku
 
 #### Statystyki jednostki
 - Liczba użytkowników - całkowita liczba członków jednostki
@@ -141,7 +139,6 @@ Jak utworzyć konto administratora: [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
 - `GET /api/admin/users` - Lista użytkowników jednostki (tylko dla adminów)
 - `GET /api/admin/users/[id]` - Szczegóły użytkownika (tylko dla adminów)
 - `DELETE /api/admin/users/[id]` - Usuń użytkownika (tylko dla adminów, z wyjątkiem własnego konta)
-- `PATCH /api/admin/users/[id]/role` - Zmiana roli użytkownika (member ↔ admin)
 - `PATCH /api/admin/users/[id]/assign-department` - Przypisanie użytkownika do jednostki OSP
 - `GET /api/admin/statistics` - Statystyki jednostki (liczba użytkowników, meldunków, aktywność)
 

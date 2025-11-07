@@ -69,37 +69,48 @@ export const GET: APIRoute = async ({ request }) => {
     
     let { data: profile, error: profileError } = await supabase
       .from('profiles')
-      .select('fire_department_id, is_verified')
+      .select('fire_department_id, is_verified, role')
       .eq('id', user.id)
       .single();
 
     // Fallback: if production DB doesn't have is_verified column yet
+    let fallbackProfile: any = null;
     if (profileError && typeof profileError.message === 'string' && profileError.message.toLowerCase().includes('is_verified')) {
       const fallback = await supabase
         .from('profiles')
-        .select('fire_department_id')
+        .select('fire_department_id, role')
         .eq('id', user.id)
         .single();
-      profile = fallback.data as any;
-      profileError = fallback.error as any;
-      if (profile && (profile as any).fire_department_id !== undefined) {
-        (profile as any).is_verified = false;
+      fallbackProfile = fallback.data;
+      if (fallbackProfile && fallbackProfile.fire_department_id !== undefined) {
+        fallbackProfile.is_verified = false;
       }
+      profileError = fallback.error;
     }
 
+    const finalProfile = profile || fallbackProfile;
+
     console.log('Meldunki GET endpoint - profile query result:', { 
-      profile: profile?.fire_department_id, 
-      is_verified: (profile as any)?.is_verified,
+      profile: finalProfile?.fire_department_id, 
+      is_verified: finalProfile?.is_verified,
+      role: finalProfile?.role,
       error: profileError?.message 
     });
 
     // Prepare safe profile object for further logic
-    const effectiveProfile: { fire_department_id: string | null; is_verified: boolean } =
-      profile && !profileError
-        ? (profile as { fire_department_id: string | null; is_verified: boolean })
-        : { fire_department_id: null, is_verified: false };
+    const effectiveProfile: { fire_department_id: string | null; is_verified: boolean; role: string | null } =
+      finalProfile && !profileError
+        ? {
+            fire_department_id: finalProfile.fire_department_id ?? null,
+            is_verified: finalProfile.is_verified ?? false,
+            role: finalProfile.role ?? null
+          }
+        : { fire_department_id: null, is_verified: false, role: null };
 
-    // 6. Build query - show department meldunki only if user is verified AND department=true
+    // Check if user is admin
+    const isAdmin = effectiveProfile.role === 'admin';
+
+    // 6. Build query - admin automatically sees all meldunki from their department
     let query = supabase
       .from('incidents')
       .select(`
@@ -121,12 +132,14 @@ export const GET: APIRoute = async ({ request }) => {
         updated_at
       `);
 
-    // Only show department meldunki if user is verified AND explicitly requested
-    if (includeDepartment && effectiveProfile.fire_department_id && effectiveProfile.is_verified) {
-      // Show all meldunki from user's fire department (verified member)
+    // Admin automatically sees all meldunki from their fire department
+    if (isAdmin && effectiveProfile.fire_department_id) {
+      query = query.eq('fire_department_id', effectiveProfile.fire_department_id);
+    } else if (includeDepartment && effectiveProfile.fire_department_id && effectiveProfile.is_verified) {
+      // Show all meldunki from user's fire department (verified member, explicitly requested)
       query = query.eq('fire_department_id', effectiveProfile.fire_department_id);
     } else {
-      // Show only user's own meldunki (default behavior or unverified user)
+      // Show only user's own meldunki (default behavior)
       query = query.eq('user_id', user.id);
     }
 
