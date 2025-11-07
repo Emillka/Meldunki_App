@@ -15,7 +15,7 @@ FireLog to system do rejestrowania i zarządzania meldunkami dla jednostek Ochot
 - Automatyczna analiza AI - kategoryzacja i generowanie podsumowań meldunków
 - Zabezpieczenia - RLS, JWT, rate limiting, walidacja danych
 - System ról użytkowników - role administratora i zwykłego użytkownika (member)
-- Zarządzanie użytkownikami - dodawanie, usuwanie, edycja, resetowanie haseł
+- Zarządzanie użytkownikami - przeglądanie i usuwanie użytkowników jednostki
 - Statystyki jednostki - metryki aktywności, liczba użytkowników i meldunków
 - System e-maili - aktywacyjne maile rejestracyjne i resetujące hasło
 
@@ -34,7 +34,6 @@ FireLog to system do rejestrowania i zarządzania meldunkami dla jednostek Ochot
 ### Zarządzanie jednostką
 - Administratorzy mogą zarządzać meldunkami i użytkownikami
 - Statystyki jednostki - metryki aktywności, liczba meldunków i użytkowników
-- Zarządzanie rolami - awansowanie/degradowanie członków jednostki
 - Przegląd danych jednostki OSP
 
 ## Spis treści
@@ -110,7 +109,6 @@ FireLog implementuje zabezpieczenia zgodnie ze standardowymi praktykami:
 - **Bezpieczna strona resetu** - Dedykowana strona `/reset-password` z walidacją tokena
 - **Walidacja siły hasła** - Nowe hasło musi spełniać wymagania bezpieczeństwa
 - **Rate limiting** - Ochrona przed nadużyciami (max 3 żądania na godzinę)
-- **Admin może resetować hasła** - Administrator może wysłać e-mail resetujący dla dowolnego użytkownika z jednostki
 
 #### Bezpieczeństwo systemu
 - **Row Level Security (RLS)** - Ochrona danych na poziomie bazy danych PostgreSQL
@@ -143,11 +141,8 @@ Aplikacja FireLog obsługuje system ról, który określa uprawnienia użytkowni
   - **Zarządzanie użytkownikami jednostki**:
     - Przeglądanie wszystkich użytkowników w jednostce
     - Usuwanie kont użytkowników (z wyjątkiem własnego konta)
-    - Wysyłanie e-maili resetujących hasło dla innych użytkowników
-    - Zmiana ról użytkowników (awansowanie/degradowanie: member ↔ admin)
   - **Zarządzanie meldunkami jednostki**:
     - Przeglądanie wszystkich meldunków w jednostce
-    - Edycja dowolnego meldunku w jednostce
     - Usuwanie dowolnego meldunku w jednostce
   - **Statystyki jednostki**:
     - Liczba wszystkich użytkowników
@@ -226,7 +221,6 @@ Szczegóły w sekcji [Panel Administracyjny](#administrator-panel-)
 
 #### Edycja meldunków
 - **Edycja własnych meldunków** - Każdy użytkownik może edytować swoje meldunki
-- **Edycja przez administratora** - Administrator może edytować wszystkie meldunki w jednostce
 - **Walidacja** - Te same zasady walidacji co przy tworzeniu
 - **Historia zmian** - Pola `created_at` i `updated_at` śledzą zmiany
 
@@ -288,18 +282,6 @@ Panel administracyjny jest dostępny wyłącznie dla użytkowników z rolą `adm
   - Trwałe usunięcie konta z systemu (kaskadowe usunięcie z bazy danych)
   - Ochrona przed usunięciem własnego konta
 
-- **Reset hasła użytkownika**:
-  - Przycisk "Zresetuj hasło" przy każdym użytkowniku
-  - Administrator wysyła e-mail resetujący hasło do wybranego użytkownika
-  - Użytkownik otrzymuje standardowy e-mail z linkiem resetującym
-  - Bezpieczny link przekierowuje na stronę `/reset-password`
-
-- **Zmiana ról użytkowników**:
-  - Awansowanie: `member` → `admin`
-  - Degradowanie: `admin` → `member`
-  - API endpoint: `PATCH /api/admin/users/[id]/role`
-  - Walidacja uprawnień przed zmianą roli
-  - Ochrona przed degradacją własnego konta (można zrezygnować z tej ochrony)
 
 #### 2. Zarządzanie meldunkami jednostki
 
@@ -309,10 +291,6 @@ Dostęp do meldunków:
   - Po użytkowniku (sprawdzenie aktywności poszczególnych członków)
   - Po dacie zdarzenia
   - Po kategorii zdarzenia
-- **Edycja dowolnego meldunku**:
-  - Administrator może edytować każdy meldunek w jednostce
-  - Przydatne do korygowania błędów w danych
-  - Aktualizacja kategorii i podsumowania po zmianie opisu
 - **Usuwanie meldunków**:
   - Możliwość usunięcia dowolnego meldunku w jednostce
   - Dialog potwierdzający przed usunięciem
@@ -490,14 +468,20 @@ Panel administracyjny umożliwia zarządzanie jednostką OSP i jest dostępny wy
 #### 1. Zarządzanie użytkownikami
 - **Przegląd wszystkich członków** jednostki OSP
 - **Lista z danymi** - Imię, nazwisko, email, data rejestracji, rola
-- **Awansowanie/degradowanie** - Zmiana ról użytkowników (member ↔ admin)
-- Filtrowanie i wyszukiwanie użytkowników
+- **Usuwanie użytkowników** - Możliwość usunięcia konta użytkownika (z wyjątkiem własnego konta)
+
+**Uwaga:** Administrator może tylko przeglądać i usuwać użytkowników. Nie ma możliwości:
+- Dodawania nowych użytkowników (rejestracja odbywa się przez formularz `/register`)
+- Edycji danych użytkowników
+- Resetowania haseł innych użytkowników
+- Zmiany ról użytkowników (awansowanie/degradowanie)
 
 #### 2. Zarządzanie meldunkami jednostki
 - Przegląd wszystkich meldunków w jednostce
-- **Edycja każdego meldunku** - Modyfikacja danych bez ograniczeń
-- **Usuwanie meldunków** - Możliwość usunięcia dowolnego meldunku
+- **Usuwanie meldunków** - Możliwość usunięcia dowolnego meldunku w jednostce
 - **Filtrowanie po użytkownikach** - Sprawdzenie aktywności poszczególnych członków
+
+**Uwaga:** Administrator może tylko przeglądać i usuwać meldunki. Nie ma możliwości edycji cudzych meldunków.
 
 #### 3. Statystyki jednostki
 - **Liczba użytkowników** - Wszyscy członkowie jednostki
@@ -511,19 +495,16 @@ Panel administracyjny umożliwia zarządzanie jednostką OSP i jest dostępny wy
 Administrator jednostki OSP może:
 
 - **Zarządzać użytkownikami jednostki**:
-  - Tworzenie kont dla nowych członków
   - Przeglądanie listy użytkowników
-  - Zmiana ról i uprawnień
-  - Usuwanie kont (planowane)
+  - Usuwanie kont użytkowników (z wyjątkiem własnego konta)
 
 - **Przeglądać wszystkie meldunki jednostki**:
-  - Dostęp do wszystkich meldunków
+  - Dostęp do wszystkich meldunków swojej jednostki
   - Filtrowanie i wyszukiwanie
   - Eksport danych (planowane)
 
-- **Edytować i usuwać meldunki w jednostce**:
-  - Modyfikacja każdego meldunku
-  - Korekta błędów w danych
+- **Usuwać meldunki w jednostce**:
+  - Usuwanie dowolnego meldunku w jednostce
   - Archiwizacja nieaktualnych meldunków
 
 - **Dostęp do statystyk jednostki**:
@@ -712,11 +693,10 @@ Operacje:
 
 #### 4. Panel administracyjny
 - Panel administracyjny dla użytkowników z rolą `admin`
-- Zarządzanie użytkownikami jednostki OSP
+- Zarządzanie użytkownikami jednostki OSP (przeglądanie i usuwanie)
 - Przegląd wszystkich meldunków jednostki
-- Edycja i usuwanie meldunków w jednostce
+- Usuwanie meldunków w jednostce
 - Statystyki jednostki (liczba użytkowników, meldunków, aktywność)
-- Zarządzanie rolami użytkowników (awansowanie/degradowanie)
 - Lista członków z danymi kontaktowymi
 
 Instrukcja: [ADMIN_SETUP.md](./ADMIN_SETUP.md)
@@ -756,7 +736,6 @@ Funkcjonalności planowane po zakończeniu MVP:
 - Dashboard statystyk miesięcznych i wykresów
 - Integracja z serwisami mapowymi
 - System powiadomień e-mail i SMS
-- Zaawansowane zarządzanie rolami użytkowników
 - Wsparcie dla wielu jednostek
 
 ## Status projektu
@@ -792,4 +771,3 @@ Projekt obecnie nie ma przypisanej licencji. Informacje o licencji zostaną doda
 
 **Uwaga:** Projekt jest w aktywnej fazie rozwoju. Funkcjonalności i dokumentacja mogą ulegać zmianom w miarę rozwoju aplikacji.
 
-W przypadku pytań, problemów lub chęci współpracy, sprawdź repozytorium projektu lub skontaktuj się z zespołem deweloperskim.
