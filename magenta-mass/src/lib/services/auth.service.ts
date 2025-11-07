@@ -335,6 +335,76 @@ export class AuthService {
   }
   
   /**
+   * Wysyła email z linkiem do resetowania hasła
+   * 
+   * @param email - Email użytkownika
+   * @returns Obiekt z informacją o sukcesie lub błędzie
+   * 
+   * @example
+   * ```typescript
+   * const { error } = await authService.resetPasswordForEmail('user@example.com');
+   * ```
+   */
+  async resetPasswordForEmail(
+    email: string
+  ): Promise<{ error: Error | null }> {
+    try {
+      const siteUrl =
+        process.env.PUBLIC_SITE_URL ||
+        (typeof import.meta !== 'undefined' ? (import.meta as any).env?.PUBLIC_SITE_URL : undefined) ||
+        process.env.RENDER_EXTERNAL_URL ||
+        'https://meldunki-app.onrender.com';
+
+      const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${siteUrl}/reset-password`,
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Unexpected error in resetPasswordForEmail:', error);
+      return {
+        error: error instanceof Error ? error : new Error('Unknown error')
+      };
+    }
+  }
+
+  /**
+   * Aktualizuje hasło użytkownika używając tokenu z resetu hasła
+   * 
+   * @param newPassword - Nowe hasło użytkownika
+   * @returns Obiekt z informacją o sukcesie lub błędzie
+   * 
+   * @example
+   * ```typescript
+   * const { error } = await authService.updatePassword('NewPassword123!');
+   * ```
+   */
+  async updatePassword(
+    newPassword: string
+  ): Promise<{ error: Error | null }> {
+    try {
+      const { error } = await this.supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        return { error };
+      }
+
+      return { error: null };
+    } catch (error) {
+      console.error('Unexpected error in updatePassword:', error);
+      return {
+        error: error instanceof Error ? error : new Error('Unknown error')
+      };
+    }
+  }
+
+  /**
    * Sprawdza czy jednostka OSP istnieje w bazie danych
    * 
    * @param id - UUID jednostki OSP
