@@ -105,6 +105,12 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 - Lista użytkowników - przegląd wszystkich członków jednostki (imię, nazwisko, email, rola, data rejestracji)
 - Usuwanie użytkowników - trwałe usunięcie konta z systemu (z wyjątkiem własnego konta)
 
+**Uwaga:** Administrator może tylko przeglądać i usuwać użytkowników. Nie ma możliwości:
+- Dodawania nowych użytkowników (rejestracja odbywa się przez formularz `/register`)
+- Edycji danych użytkowników
+- Resetowania haseł innych użytkowników
+- Zmiany ról użytkowników (awansowanie/degradowanie)
+
 #### Statystyki jednostki
 - Liczba użytkowników - całkowita liczba członków jednostki
 - Liczba meldunków - wszystkie meldunki w systemie jednostki
