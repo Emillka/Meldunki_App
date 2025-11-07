@@ -40,8 +40,6 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 - **`/`** - Strona główna z landing page i statusem systemu
 - **`/login`** - Logowanie użytkowników (email i hasło)
 - **`/register`** - Rejestracja nowych użytkowników z powiązaniem do jednostki OSP
-- **`/forgot-password`** - Prośba o reset hasła (wysyłka e-maila resetującego)
-- **`/reset-password`** - Resetowanie hasła używając tokena z e-maila
 - **`/dashboard`** - Panel użytkownika z zakładkami:
   - **Profil** - Wyświetlanie i edycja danych osobowych, zmiana hasła
   - **Nowy Meldunek** - Formularz tworzenia meldunku z automatyczną analizą AI
@@ -63,14 +61,6 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 - **Automatyczne odświeżanie** - System automatycznie odnawia wygasające tokeny
 - **Persystencja sesji** - Użytkownik pozostaje zalogowany między sesjami przeglądarki
 
-#### Reset hasła
-- **Inicjacja resetu** - Użytkownik może poprosić o reset na `/forgot-password`
-- **E-mail resetujący** - System wysyła bezpieczny link na podany adres
-- **Strona resetu** - Dedykowana strona `/reset-password` z walidacją tokena
-- **Walidacja nowego hasła** - Te same wymagania co przy rejestracji
-- **Rate limiting** - Ochrona przed nadużyciami (max 3 żądania na godzinę)
-- **Reset przez administratora** - Admin może wysłać e-mail resetujący dla dowolnego użytkownika
-
 ### Role użytkowników
 
 #### Rola: Member (Strażak)
@@ -86,7 +76,7 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 #### Rola: Admin (Administrator)
 - **Pełne uprawnienia** - Dostęp do wszystkich funkcji aplikacji
 - **Uprawnienia administracyjne:**
-  - ✅ Zarządzanie użytkownikami jednostki (przeglądanie, usuwanie, resetowanie haseł)
+  - ✅ Zarządzanie użytkownikami jednostki (przeglądanie, usuwanie)
   - ✅ Przeglądanie wszystkich meldunków jednostki
   - ✅ Edycja i usuwanie dowolnego meldunku w jednostce
   - ✅ Dostęp do statystyk jednostki
@@ -99,7 +89,6 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 #### Zarządzanie użytkownikami jednostki
 - Lista użytkowników - przegląd wszystkich członków jednostki (imię, nazwisko, email, rola, data rejestracji)
 - Usuwanie użytkowników - trwałe usunięcie konta z systemu (z wyjątkiem własnego konta)
-- Reset hasła użytkownika - wysyłka e-maila resetującego hasło dla wybranego użytkownika
 
 #### Zarządzanie meldunkami jednostki
 - Przegląd wszystkich meldunków - dostęp do wszystkich meldunków w jednostce
@@ -124,8 +113,6 @@ Jak utworzyć konto administratora: [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
 - `GET /api/auth/profile` - Pobierz profil użytkownika
 - `PATCH /api/auth/profile` - Edytuj profil użytkownika
 - `POST /api/auth/change-password` - Zmiana hasła (wymagane aktualne hasło)
-- `POST /api/auth/forgot-password` - Prośba o reset hasła (wysyłka e-maila)
-- `POST /api/auth/reset-password` - Reset hasła używając tokena z e-maila
 
 #### Meldunki
 - `GET /api/meldunki` - Lista meldunków (z filtrowaniem i sortowaniem)
@@ -138,7 +125,6 @@ Jak utworzyć konto administratora: [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
 #### Panel administracyjny
 - `GET /api/admin/users` - Lista użytkowników jednostki (tylko dla adminów)
 - `DELETE /api/admin/users/[id]` - Usuń użytkownika (tylko dla adminów, z wyjątkiem własnego konta)
-- `POST /api/admin/users/[id]/reset-password` - Wysyłka e-maila resetującego hasło (tylko dla adminów)
 - `PATCH /api/admin/users/[id]/role` - Zmiana roli użytkownika (member ↔ admin)
 - `GET /api/admin/statistics` - Statystyki jednostki (liczba użytkowników, meldunków, aktywność)
 

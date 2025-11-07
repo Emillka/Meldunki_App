@@ -53,12 +53,7 @@ import { Alert, AlertDescription } from '../components/ui/alert';
 
             <!-- Password -->
             <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <Label htmlFor="password">Hasło</Label>
-                <Button variant="link" asChild className="p-0 h-auto text-xs">
-                  <a href="/forgot-password">Zapomniałem hasła</a>
-                </Button>
-              </div>
+              <Label htmlFor="password">Hasło</Label>
               <Input
                 type="password"
                 id="password"
@@ -145,15 +140,8 @@ import { Alert, AlertDescription } from '../components/ui/alert';
     messageDiv.style.display = 'none';
   }
 
-  // Check for password reset success message
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('passwordReset') === 'success') {
-    showMessage('✅ Hasło zostało pomyślnie zmienione! Możesz się teraz zalogować używając nowego hasła.', false);
-    // Remove query parameter from URL
-    window.history.replaceState({}, '', window.location.pathname);
-  }
-  
   // Check for email verification required message
+  const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('emailVerification') === 'required') {
     showMessage('📧 Sprawdź swoją skrzynkę pocztową i kliknij link aktywacyjny w emailu, aby potwierdzić konto. Po potwierdzeniu będziesz mógł się zalogować.', false);
     // Remove query parameter from URL

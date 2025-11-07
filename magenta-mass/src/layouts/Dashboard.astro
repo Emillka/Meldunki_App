@@ -1106,10 +1106,6 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
               <span class="material-icons text-sm mr-1">delete</span>
               Usuń
             </button>
-            <button type="button" class="btn-reset-password inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3" data-user-id="${user.id}">
-              <span class="material-icons text-sm mr-1">lock_reset</span>
-              Zresetuj hasło
-            </button>
           ` : ''}
         </div>
       </div>
@@ -1120,13 +1116,6 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
       btn.addEventListener('click', function() {
         const userId = this.getAttribute('data-user-id');
         if (userId) deleteUserAccount(userId);
-      });
-    });
-    
-    container.querySelectorAll('.btn-reset-password').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const userId = this.getAttribute('data-user-id');
-        if (userId) resetUserPassword(userId);
       });
     });
   }
@@ -1157,30 +1146,6 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
     }
   }
 
-  async function resetUserPassword(userId) {
-    if (!confirm('Wysłać temu użytkownikowi mail z resetem hasła?')) return;
-    try {
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`/api/admin/users/${userId}/reset-password`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          alert('Wysłano e-mail z instrukcją resetu hasła.');
-        } else {
-          alert(data.error?.message || 'Nie udało się wysłać resetu hasła');
-        }
-      } else {
-        const error = await response.json();
-        alert(`Błąd: ${error.error?.message || 'Nieznany błąd'}`);
-      }
-    } catch (err) {
-      console.error('Reset password error:', err);
-      alert('Wystąpił błąd podczas wysyłania resetu hasła');
-    }
-  }
   
   async function loadDepartmentStatistics() {
     try {
