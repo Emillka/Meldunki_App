@@ -902,7 +902,22 @@ const { title, description = "Panel użytkownika - FireLog" } = Astro.props;
   
   async function changePassword(formData) {
     try {
-      const token = localStorage.getItem('access_token');
+      // Get valid access token (refreshes if needed)
+      let token;
+      try {
+        const { TokenManager } = await import('@/lib/utils/token-manager');
+        token = await TokenManager.getValidAccessToken();
+      } catch (error) {
+        console.warn('TokenManager not available, using fallback:', error);
+        token = localStorage.getItem('access_token');
+      }
+      
+      if (!token) {
+        alert('Brak autoryzacji. Zaloguj się ponownie.');
+        window.location.href = '/login';
+        return;
+      }
+      
       const currentPassword = formData.get('currentPassword');
       const newPassword = formData.get('newPassword');
       const confirmPassword = formData.get('confirmPassword');
