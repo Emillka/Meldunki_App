@@ -38,13 +38,17 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 ### Strony i routing
 
 - **`/`** - Strona główna z landing page i statusem systemu
-- **`/login`** - Logowanie użytkowników (email i hasło)
+- **`/login`** - Logowanie użytkowników (email i hasło) z linkiem do resetowania hasła
 - **`/register`** - Rejestracja nowych użytkowników z powiązaniem do jednostki OSP
+- **`/forgot-password`** - Formularz żądania resetu hasła (wysyła email z linkiem resetującym)
+- **`/reset-password`** - Strona ustawiania nowego hasła (dostępna przez link z emaila)
 - **`/dashboard`** - Panel użytkownika z zakładkami:
   - **Profil** - Wyświetlanie i edycja danych osobowych, zmiana hasła
   - **Nowy Meldunek** - Formularz tworzenia meldunku z automatyczną analizą AI
   - **Admin** - Panel administracyjny (tylko dla administratorów)
 - **`/meldunki`** - Lista wszystkich meldunków z filtrowaniem i sortowaniem
+- **`/privacy`** - Polityka prywatności
+- **`/terms`** - Regulamin
 
 ### Autoryzacja i bezpieczeństwo
 
@@ -57,9 +61,17 @@ OPENROUTER_API_KEY=twoj_openrouter_key  # Dla analizy AI
 
 #### Logowanie i sesje
 - **Bezpieczne logowanie** - Email i hasło z walidacją po stronie serwera
-- **Sesje JWT** - Tokeny dostępowe z 7-dniową ważnością
-- **Automatyczne odświeżanie** - System automatycznie odnawia wygasające tokeny
+- **Sesje JWT** - Tokeny dostępowe z automatycznym odświeżaniem
+- **Automatyczne odświeżanie** - System automatycznie odnawia wygasające tokeny (TokenManager)
 - **Persystencja sesji** - Użytkownik pozostaje zalogowany między sesjami przeglądarki
+
+#### Resetowanie hasła
+- **Żądanie resetu** - Formularz na `/forgot-password` do żądania resetu hasła
+- **Email resetujący** - Automatyczna wysyłka emaila z linkiem resetującym (przez Supabase)
+- **Bezpieczeństwo** - System nie ujawnia czy email istnieje w bazie (zawsze zwraca sukces)
+- **Ustawianie nowego hasła** - Strona `/reset-password` z walidacją siły hasła
+- **Token jednorazowy** - Token resetujący jest jednorazowy i ma czas wygaśnięcia (1 godzina)
+- **Automatyczne przekierowanie** - Po pomyślnym resetcie automatyczne przekierowanie do logowania
 
 ### Role użytkowników
 
@@ -110,9 +122,12 @@ Jak utworzyć konto administratora: [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
 - `POST /api/auth/register` - Rejestracja użytkownika (wysyłka e-maila aktywacyjnego)
 - `POST /api/auth/login` - Logowanie (zwraca sesję JWT)
 - `POST /api/auth/logout` - Wylogowanie (unieważnienie sesji)
+- `POST /api/auth/refresh` - Odświeżanie tokenu dostępu
 - `GET /api/auth/profile` - Pobierz profil użytkownika
 - `PATCH /api/auth/profile` - Edytuj profil użytkownika
 - `POST /api/auth/change-password` - Zmiana hasła (wymagane aktualne hasło)
+- `POST /api/auth/forgot-password` - Żądanie resetu hasła (wysyła email z linkiem)
+- `POST /api/auth/reset-password` - Ustawienie nowego hasła (używając tokenu z emaila)
 
 #### Meldunki
 - `GET /api/meldunki` - Lista meldunków (z filtrowaniem i sortowaniem)
@@ -124,44 +139,75 @@ Jak utworzyć konto administratora: [../ADMIN_SETUP.md](../ADMIN_SETUP.md)
 
 #### Panel administracyjny
 - `GET /api/admin/users` - Lista użytkowników jednostki (tylko dla adminów)
+- `GET /api/admin/users/[id]` - Szczegóły użytkownika (tylko dla adminów)
 - `DELETE /api/admin/users/[id]` - Usuń użytkownika (tylko dla adminów, z wyjątkiem własnego konta)
 - `PATCH /api/admin/users/[id]/role` - Zmiana roli użytkownika (member ↔ admin)
+- `PATCH /api/admin/users/[id]/assign-department` - Przypisanie użytkownika do jednostki OSP
 - `GET /api/admin/statistics` - Statystyki jednostki (liczba użytkowników, meldunków, aktywność)
+
+#### Inne
+- `GET /api/fire-departments` - Lista jednostek OSP
+- `GET /api/health` - Status zdrowia systemu
 
 ### Struktura projektu
 
 ```
 src/
 ├── pages/
-│   ├── api/              # API endpoints
-│   ├── dashboard.astro   # Dashboard z panelami
-│   ├── login.astro       # Strona logowania
-│   ├── register.astro    # Strona rejestracji
-│   └── meldunki.astro    # Lista meldunków
+│   ├── api/                    # API endpoints
+│   │   ├── auth/              # Endpointy autoryzacji
+│   │   ├── admin/             # Endpointy administracyjne
+│   │   ├── meldunki/          # Endpointy meldunków
+│   │   ├── fire-departments.ts # Lista jednostek OSP
+│   │   └── health.ts          # Status systemu
+│   ├── index.astro            # Strona główna
+│   ├── login.astro            # Strona logowania
+│   ├── register.astro         # Strona rejestracji
+│   ├── forgot-password.astro   # Formularz resetu hasła
+│   ├── reset-password.astro    # Ustawianie nowego hasła
+│   ├── dashboard.astro        # Dashboard (przekierowanie)
+│   ├── meldunki.astro         # Lista meldunków
+│   ├── privacy.astro          # Polityka prywatności
+│   └── terms.astro            # Regulamin
 ├── layouts/
-│   ├── Layout.astro      # Główny layout
-│   └── Dashboard.astro   # Layout dashboardu z panelami
+│   ├── Layout.astro           # Główny layout
+│   └── Dashboard.astro        # Layout dashboardu z panelami
 ├── components/
-│   ├── Header.astro      # Nagłówek z nawigacją
-│   ├── Footer.astro      # Stopka
-│   └── ui/               # Komponenty shadcn/ui
+│   ├── Header.astro           # Nagłówek z nawigacją
+│   ├── Footer.astro           # Stopka
+│   ├── ClientSelect.tsx       # Komponent wyboru klienta
+│   ├── SimpleSelect.tsx        # Prosty select
+│   └── ui/                    # Komponenty shadcn/ui
 ├── lib/
-│   ├── services/        # Serwisy biznesowe
-│   ├── db/              # Integracja z Supabase
-│   ├── utils/           # Narzędzia pomocnicze
-│   └── validation/      # Walidacja danych
+│   ├── services/              # Serwisy biznesowe
+│   │   ├── auth.service.ts    # Serwis autoryzacji
+│   │   └── meldunki.service.ts # Serwis meldunków
+│   ├── db/                    # Integracja z Supabase
+│   │   ├── supabase.ts        # Klient Supabase
+│   │   └── database.types.ts  # Typy TypeScript
+│   ├── utils/                 # Narzędzia pomocnicze
+│   │   ├── token-manager.ts   # Zarządzanie tokenami
+│   │   ├── response.ts       # Formatowanie odpowiedzi API
+│   │   └── rate-limiter.ts    # Rate limiting
+│   ├── validation/            # Walidacja danych
+│   │   └── auth.validation.ts # Walidacja autoryzacji
+│   └── types.ts               # Typy TypeScript
+├── hooks/                     # React hooks
+│   ├── use-mobile.tsx         # Hook wykrywania mobile
+│   └── use-toast.ts          # Hook toast notifications
 └── styles/
-    ├── globals.css      # Style globalne (primary = czerwony)
-    └── design-system.css # Design system
+    ├── globals.css            # Style globalne (primary = czerwony)
+    └── design-system.css      # Design system
 ```
 
 ## Styl i design
 
 - **Primary color:** Czerwony (#dc2626) - Kolorystyka OSP
-- **Framework:** Tailwind CSS 4
-- **Komponenty:** shadcn/ui
+- **Framework:** Tailwind CSS 3.4
+- **Komponenty:** shadcn/ui (Radix UI + Tailwind)
 - **Ikony:** Material Icons
 - **Responsywność:** Mobile-first approach
+- **Design System:** Material Design 3 (M3) inspiracja
 
 ## Testy
 
